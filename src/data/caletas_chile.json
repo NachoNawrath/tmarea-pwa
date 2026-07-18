@@ -1,0 +1,5692 @@
+[
+  {
+    "id": "CAL-0017",
+    "nombre": "Caramucho",
+    "region": "I REGION",
+    "provincia": "Iquique",
+    "comuna": "Iquique",
+    "latitud": -20.947128,
+    "longitud": -70.186942,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0060",
+    "nombre": "Chanavayita",
+    "region": "I REGION",
+    "provincia": "Iquique",
+    "comuna": "Iquique",
+    "latitud": -20.990025,
+    "longitud": -70.191069,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0063",
+    "nombre": "San Marcos",
+    "region": "I REGION",
+    "provincia": "Iquique",
+    "comuna": "Iquique",
+    "latitud": -21.406151,
+    "longitud": -70.125657,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0027",
+    "nombre": "Antofagasta",
+    "region": "II REGION",
+    "provincia": "Antofagasta",
+    "comuna": "Antofagasta",
+    "latitud": -23.959395,
+    "longitud": -70.401367,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0015",
+    "nombre": "Buena (Los Chinos)",
+    "region": "II REGION",
+    "provincia": "Tocopilla",
+    "comuna": "Tocopilla",
+    "latitud": -22.745291,
+    "longitud": -70.259315,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0055",
+    "nombre": "Coloso",
+    "region": "II REGION",
+    "provincia": "Antofagasta",
+    "comuna": "Antofagasta",
+    "latitud": -24.079979,
+    "longitud": -70.467142,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0044",
+    "nombre": "Mejillones",
+    "region": "II REGION",
+    "provincia": "Antofagasta",
+    "comuna": "Antofagasta",
+    "latitud": -23.411712,
+    "longitud": -70.453583,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0005",
+    "nombre": "Tal Tal",
+    "region": "II REGION",
+    "provincia": "Antofagasta",
+    "comuna": "Tal Tal",
+    "latitud": -25.745231,
+    "longitud": -70.495082,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0009",
+    "nombre": "Huasco",
+    "region": "III REGION",
+    "provincia": "Huasco",
+    "comuna": "Huasco",
+    "latitud": -28.823795,
+    "longitud": -77.231492,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0054",
+    "nombre": "Puerto De Caldera Mejoras Fiscales",
+    "region": "III REGION",
+    "provincia": "Copiapo",
+    "comuna": "Caldera",
+    "latitud": -27.415729,
+    "longitud": -76.829464,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0069",
+    "nombre": "Puerto De Caldera Muelle Fiscal",
+    "region": "III REGION",
+    "provincia": "Copiapo",
+    "comuna": "Caldera",
+    "latitud": -27.415462,
+    "longitud": -76.829864,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0020",
+    "nombre": "Puerto Viejo",
+    "region": "III REGION",
+    "provincia": "Copiapo",
+    "comuna": "Caldera",
+    "latitud": -27.687595,
+    "longitud": -76.947172,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0011",
+    "nombre": "San Pedro ChaãAral De Las Animas",
+    "region": "III REGION",
+    "provincia": "ChaãAral",
+    "comuna": "ChaãAral",
+    "latitud": -26.696806,
+    "longitud": -76.638227,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0034",
+    "nombre": "Guanaqueros",
+    "region": "IV REGION",
+    "provincia": "Elqui",
+    "comuna": "Coquimbo",
+    "latitud": -30.571551,
+    "longitud": -77.439966,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0021",
+    "nombre": "Punta Choros B Los Corrales",
+    "region": "IV REGION",
+    "provincia": "Elqui",
+    "comuna": "La Higuera",
+    "latitud": -29.619181,
+    "longitud": -77.472042,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-WIKI-0033",
+    "nombre": "17",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Huachán",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0034",
+    "nombre": "18",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Punta Arenas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0035",
+    "nombre": "19",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Urcu(Urco)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0036",
+    "nombre": "20",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Paquica (La Cuchara)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0037",
+    "nombre": "21",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "El Fierro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0038",
+    "nombre": "22",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Tocopilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0039",
+    "nombre": "23",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Punta Atala",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0040",
+    "nombre": "24",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Indígena",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0041",
+    "nombre": "25",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Caleta Buena (Los Chinos)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0042",
+    "nombre": "26",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Cobija",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0043",
+    "nombre": "27",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Michilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0044",
+    "nombre": "28",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Gualaguala",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0045",
+    "nombre": "29",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Hornitos(Hornos)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0046",
+    "nombre": "30",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Mejillones",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0047",
+    "nombre": "31",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "El Lagarto",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0048",
+    "nombre": "32",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "El Bote",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0049",
+    "nombre": "33",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Constitución(I. Sta. María)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0050",
+    "nombre": "34",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Abtao(Juan López)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0051",
+    "nombre": "35",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "La Chimba",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0052",
+    "nombre": "36",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Antofagasta",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0053",
+    "nombre": "37",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Coloso",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0054",
+    "nombre": "38",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "El Cobre",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0055",
+    "nombre": "39",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Blanco Encalada",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0056",
+    "nombre": "40",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "La Colorada",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0057",
+    "nombre": "41",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Paposo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0058",
+    "nombre": "42",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Taltal",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0059",
+    "nombre": "43",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Las Tórtolas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0060",
+    "nombre": "44",
+    "region": "Región de Antofagasta",
+    "provincia": "",
+    "comuna": "Cifuncho",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0017",
+    "nombre": "1",
+    "region": "Región de Arica y Parinacota",
+    "provincia": "",
+    "comuna": "Arica",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0018",
+    "nombre": "2",
+    "region": "Región de Arica y Parinacota",
+    "provincia": "",
+    "comuna": "Camarones",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0061",
+    "nombre": "45",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Pan De Azúcar",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0062",
+    "nombre": "46",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Chañaral (San Pedro)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0063",
+    "nombre": "47",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Flamenco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0064",
+    "nombre": "48",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Torres Del Inca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0065",
+    "nombre": "49",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Obispito",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0066",
+    "nombre": "50",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Zenteno",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0067",
+    "nombre": "51",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Punta Froden",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0068",
+    "nombre": "52",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Caldera",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0069",
+    "nombre": "53",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Loreto",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0070",
+    "nombre": "54",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "El Cisne",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0071",
+    "nombre": "55",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Puerto Viejo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0072",
+    "nombre": "56",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Barranquilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0073",
+    "nombre": "57",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Maldonado",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0074",
+    "nombre": "58",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Bahía Salada",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0075",
+    "nombre": "59",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Chasco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0076",
+    "nombre": "60",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Pajonales",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0077",
+    "nombre": "61",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Totoral Bajo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0078",
+    "nombre": "62",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Carrizal Bajo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0079",
+    "nombre": "63",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Los Pozos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0080",
+    "nombre": "64",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Angosta",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0081",
+    "nombre": "65",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Punta Lobos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0082",
+    "nombre": "66",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Los Toyos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0083",
+    "nombre": "67",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Huasco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0084",
+    "nombre": "68",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Los Bronces",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0085",
+    "nombre": "69",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "El Sarco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0086",
+    "nombre": "70",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "La Reina",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0087",
+    "nombre": "71",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Los Burros Sur",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0088",
+    "nombre": "72",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Agua De Zorra",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0089",
+    "nombre": "73",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Chañaral De Aceituno",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0090",
+    "nombre": "74",
+    "region": "Región de Atacama",
+    "provincia": "",
+    "comuna": "Carrizalillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0517",
+    "nombre": "501",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Melinka",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0518",
+    "nombre": "502",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Repollal",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0519",
+    "nombre": "503",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Raúl Marín Balmaceda",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0520",
+    "nombre": "504",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Santo Domingo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0521",
+    "nombre": "505",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Melimoyu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0522",
+    "nombre": "506",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Caleta Puerto Gala",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0523",
+    "nombre": "507",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Grupo Gala",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0524",
+    "nombre": "508",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Puyuguapi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0525",
+    "nombre": "509",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Cisnes",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0526",
+    "nombre": "510",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Estero Gato",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0527",
+    "nombre": "511",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Gaviota",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0528",
+    "nombre": "512",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Americano",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0529",
+    "nombre": "513",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Aguirre(Isla Las Huichas)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0530",
+    "nombre": "514",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Caleta Andrade(Isla Las Huichas)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0531",
+    "nombre": "515",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Estero Copa (Isla Las Huichas)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0532",
+    "nombre": "516",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Isla Costa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0533",
+    "nombre": "517",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Aysén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0534",
+    "nombre": "518",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Puerto Chacabuco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0535",
+    "nombre": "519",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Playas Blancas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0536",
+    "nombre": "520",
+    "region": "Región de Aysén del General Carlos Ibáñez del Campo",
+    "provincia": "",
+    "comuna": "Tortel",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0116",
+    "nombre": "100",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Puerto Oscuro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0117",
+    "nombre": "101",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Puerto Manso",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0118",
+    "nombre": "102",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Huentelauquén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0119",
+    "nombre": "103",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Chigualoco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0120",
+    "nombre": "104",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "San Pedro, Los Vilos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0121",
+    "nombre": "105",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Las Conchas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0122",
+    "nombre": "106",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Cascabeles",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0123",
+    "nombre": "107",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Totoralillo Sur (Totoralillo)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0124",
+    "nombre": "108",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Pichidangui",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0091",
+    "nombre": "75",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "El Apolillado",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0092",
+    "nombre": "76",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Punta Chorosa (San Agustín)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0093",
+    "nombre": "77",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Punta Chorosb (Los Corrales)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0094",
+    "nombre": "78",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Los Choros(Choreadero)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0095",
+    "nombre": "79",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Chungungo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0096",
+    "nombre": "80",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Totoralillo Norte",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0097",
+    "nombre": "81",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Hornos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0098",
+    "nombre": "82",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "San Pedro, La Serena",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0099",
+    "nombre": "83",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Peñuelas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0100",
+    "nombre": "84",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Coquimbo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0101",
+    "nombre": "85",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Guayacán",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0102",
+    "nombre": "86",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Playa Chica Dela Herradura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0103",
+    "nombre": "87",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Totoralillo Centro(Totoralillo)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0104",
+    "nombre": "88",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Guanaqueros",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0105",
+    "nombre": "89",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Tongoy",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0106",
+    "nombre": "90",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Puerto Aldea(Hornilla)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0107",
+    "nombre": "91",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Totoral",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0108",
+    "nombre": "92",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Talcaruca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0109",
+    "nombre": "93",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "El Sauce",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0110",
+    "nombre": "94",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Limarí",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0111",
+    "nombre": "95",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Talquilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0112",
+    "nombre": "96",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Talca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0113",
+    "nombre": "97",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "La Cebada",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0114",
+    "nombre": "98",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Sierra",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0115",
+    "nombre": "99",
+    "region": "Región de Coquimbo",
+    "provincia": "",
+    "comuna": "Maitencillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0269",
+    "nombre": "253",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Nehuentué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0270",
+    "nombre": "254",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Puerto Saavedra (El Huilque)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0271",
+    "nombre": "255",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Boca Budi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0272",
+    "nombre": "256",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Romopulli",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0273",
+    "nombre": "257",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Lago Budi-Nahuelhuapi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0274",
+    "nombre": "258",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Puerto Domínguez",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0275",
+    "nombre": "259",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "La Barra",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0276",
+    "nombre": "260",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Los Pinos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0277",
+    "nombre": "261",
+    "region": "Región de La Araucanía",
+    "provincia": "",
+    "comuna": "Queule",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0303",
+    "nombre": "287",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Milagro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0304",
+    "nombre": "288",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Manzano",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0305",
+    "nombre": "289",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pucatrihue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0306",
+    "nombre": "290",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Bahía Mansa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0307",
+    "nombre": "291",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Maicolpué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0308",
+    "nombre": "292",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Tril Tril",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0309",
+    "nombre": "293",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Huellelhue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0310",
+    "nombre": "294",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cóndor",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0311",
+    "nombre": "295",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Manquemapu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0312",
+    "nombre": "296",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Pedro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0313",
+    "nombre": "297",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Punta Capitanes",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0314",
+    "nombre": "298",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Estaquilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0315",
+    "nombre": "299",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caleta Parga",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0316",
+    "nombre": "300",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chaiguaco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0317",
+    "nombre": "301",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Punta Quillahua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0318",
+    "nombre": "302",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quillahua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0319",
+    "nombre": "303",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quenuir",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0320",
+    "nombre": "304",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chanhué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0321",
+    "nombre": "305",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "La Pasada",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0322",
+    "nombre": "306",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lepihué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0323",
+    "nombre": "307",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lolcura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0324",
+    "nombre": "308",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cariquilda",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0325",
+    "nombre": "309",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Muelle Toledo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0326",
+    "nombre": "310",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Maullín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0327",
+    "nombre": "311",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Pedro Nolasco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0328",
+    "nombre": "312",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Amortajado",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0329",
+    "nombre": "313",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Amortajado Sector A",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0330",
+    "nombre": "314",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Carelmapu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0331",
+    "nombre": "315",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Astillero",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0332",
+    "nombre": "316",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pargua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0333",
+    "nombre": "317",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chayahué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0334",
+    "nombre": "318",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Colaco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0335",
+    "nombre": "319",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Aguantao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0336",
+    "nombre": "320",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Calbuco-La Vega",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0337",
+    "nombre": "321",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Rafael",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0338",
+    "nombre": "322",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "El Rosario",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0339",
+    "nombre": "323",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Agustín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0340",
+    "nombre": "324",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Alfaro (Isla Huar)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0341",
+    "nombre": "325",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cholhue (Isla Huar)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0342",
+    "nombre": "326",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Ramón (Isla Puluqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0343",
+    "nombre": "327",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Machil (Isla Puluqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0344",
+    "nombre": "328",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pollollo (Isla Puluqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0345",
+    "nombre": "329",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chauquear (Isla Puluqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0346",
+    "nombre": "330",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chope (Isla Puluqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0347",
+    "nombre": "331",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Perhue (Isla Puluqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0348",
+    "nombre": "332",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Antonio (Isla Quihua)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0349",
+    "nombre": "333",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Huapi-Abtao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0350",
+    "nombre": "334",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Queullín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0351",
+    "nombre": "335",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Tabón",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0352",
+    "nombre": "336",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Bahía Huelmo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0353",
+    "nombre": "337",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Bahía Ilque",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0354",
+    "nombre": "338",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Panitao Bajo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0355",
+    "nombre": "339",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chinquihue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0356",
+    "nombre": "340",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Anahuac",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0357",
+    "nombre": "341",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Angelmó",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0358",
+    "nombre": "342",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Tenglo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0359",
+    "nombre": "343",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pichipelluco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0360",
+    "nombre": "344",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Coihuín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0361",
+    "nombre": "345",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Piedra Azul",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0362",
+    "nombre": "346",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quillaipe",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0363",
+    "nombre": "347",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Metri",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0364",
+    "nombre": "348",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lenca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0365",
+    "nombre": "349",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chaicas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0366",
+    "nombre": "350",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caleta Gutiérrez",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0367",
+    "nombre": "351",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Yerbas Buenas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0368",
+    "nombre": "352",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "La Arena",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0369",
+    "nombre": "353",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puqueldón (Isla Maillen)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0370",
+    "nombre": "354",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Surgidero (Isla Maillen)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0371",
+    "nombre": "355",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "El Estero (Isla Maillen)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0372",
+    "nombre": "356",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Rollizo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0373",
+    "nombre": "357",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Ralún",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0374",
+    "nombre": "358",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cochamó",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0375",
+    "nombre": "359",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cascajal",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0376",
+    "nombre": "360",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Río Puelo Bajo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0377",
+    "nombre": "361",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Sotomó",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0378",
+    "nombre": "362",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chepu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0379",
+    "nombre": "363",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Duhatao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0380",
+    "nombre": "364",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pumillahue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0381",
+    "nombre": "365",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puñihuil",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0382",
+    "nombre": "366",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Mar Brava",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0383",
+    "nombre": "367",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Los Chonos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0384",
+    "nombre": "368",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Guabún",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0385",
+    "nombre": "369",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Faro Corona",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0386",
+    "nombre": "370",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Guapilacuy",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0387",
+    "nombre": "371",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Yuste",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0388",
+    "nombre": "372",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chaicura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0389",
+    "nombre": "373",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Punta Arenas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0390",
+    "nombre": "374",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "El Dique",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0391",
+    "nombre": "375",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pullinque",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0392",
+    "nombre": "376",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Nal",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0393",
+    "nombre": "377",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Catrumán",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0394",
+    "nombre": "378",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pullihue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0395",
+    "nombre": "379",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Calle",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0396",
+    "nombre": "380",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quilo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0397",
+    "nombre": "381",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quetalmahue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0398",
+    "nombre": "382",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pilluco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0399",
+    "nombre": "383",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lechagua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0400",
+    "nombre": "384",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Fátima",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0401",
+    "nombre": "385",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Ancud",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0402",
+    "nombre": "386",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pudeto",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0403",
+    "nombre": "387",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pupelde",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0404",
+    "nombre": "388",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caipulli",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0405",
+    "nombre": "389",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Huicha",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0406",
+    "nombre": "390",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pugueñún",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0407",
+    "nombre": "391",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caulín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0408",
+    "nombre": "392",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chacao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0409",
+    "nombre": "393",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pulelo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0410",
+    "nombre": "394",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Manao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0411",
+    "nombre": "395",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Punta Chilén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0412",
+    "nombre": "396",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Hueihue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0413",
+    "nombre": "397",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Coñimó",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0414",
+    "nombre": "398",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lamecura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0415",
+    "nombre": "399",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Hueldén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0416",
+    "nombre": "400",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Linao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0417",
+    "nombre": "401",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lliuco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0418",
+    "nombre": "402",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Auchó",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0419",
+    "nombre": "403",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quemchi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0420",
+    "nombre": "404",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quicaví",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0421",
+    "nombre": "405",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caucahué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0422",
+    "nombre": "406",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cheñiao(Grupo Chauques)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0423",
+    "nombre": "407",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Voigue(Grupo Chauques)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0424",
+    "nombre": "408",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Taucolón(Grupo Chauques)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0425",
+    "nombre": "409",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Mechuque(Grupo Chauques)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0426",
+    "nombre": "410",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Añihué(Grupo Chauques)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0427",
+    "nombre": "411",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Aulín (Grupo Chauques)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0428",
+    "nombre": "412",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San José Debutachauques",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0429",
+    "nombre": "413",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Tac",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0430",
+    "nombre": "414",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Tenaún",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0431",
+    "nombre": "415",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Dalcahue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0432",
+    "nombre": "416",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Castro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0433",
+    "nombre": "417",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chelín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0434",
+    "nombre": "418",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quehui",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0435",
+    "nombre": "419",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Rauco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0436",
+    "nombre": "420",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chonchi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0437",
+    "nombre": "421",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Teupa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0438",
+    "nombre": "422",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cucao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0439",
+    "nombre": "423",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Curaco De Vélez",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0440",
+    "nombre": "424",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Palqui",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0441",
+    "nombre": "425",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Achao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0442",
+    "nombre": "426",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chequián",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0443",
+    "nombre": "427",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lin Lin",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0444",
+    "nombre": "428",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puerto De Conchas (Isla Llingua)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0445",
+    "nombre": "429",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Meulín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0446",
+    "nombre": "430",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quenac",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0447",
+    "nombre": "431",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caguach",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0448",
+    "nombre": "432",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Apiao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0449",
+    "nombre": "433",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Alao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0450",
+    "nombre": "434",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chaulinec",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0451",
+    "nombre": "435",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chulchuy",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0452",
+    "nombre": "436",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puqueldón",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0453",
+    "nombre": "437",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Liucura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0454",
+    "nombre": "438",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Aituy",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0455",
+    "nombre": "439",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Queilen",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0456",
+    "nombre": "440",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Acui",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0457",
+    "nombre": "441",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San José De Tranqui (Isla Tranqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0458",
+    "nombre": "442",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Mapué (Isla Tranqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0459",
+    "nombre": "443",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Alqui (Isla Tranqui)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0460",
+    "nombre": "444",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Compu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0461",
+    "nombre": "445",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Antonio De Chadmo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0462",
+    "nombre": "446",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Auchac",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0463",
+    "nombre": "447",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Curanué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0464",
+    "nombre": "448",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Santa Rosa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0465",
+    "nombre": "449",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Huildad",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0466",
+    "nombre": "450",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Candelaria",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0467",
+    "nombre": "451",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Chaullín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0468",
+    "nombre": "452",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quellón",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0469",
+    "nombre": "453",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Yaldad",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0470",
+    "nombre": "454",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puerto Carmen",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0471",
+    "nombre": "455",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Blandchard",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0472",
+    "nombre": "456",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "San Pedro De Quellón",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0473",
+    "nombre": "457",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Isla Cailín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0474",
+    "nombre": "458",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Río Inío",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0475",
+    "nombre": "459",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caicura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0476",
+    "nombre": "460",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puelche",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0477",
+    "nombre": "461",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Mañihueico",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0478",
+    "nombre": "462",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Contao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0479",
+    "nombre": "463",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quildaco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0480",
+    "nombre": "464",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Aulen",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0481",
+    "nombre": "465",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Tentelhué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0482",
+    "nombre": "466",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Rolecha",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0483",
+    "nombre": "467",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quetén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0484",
+    "nombre": "468",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chauchil",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0485",
+    "nombre": "469",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Lleguimán",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0486",
+    "nombre": "470",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cuberos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0487",
+    "nombre": "471",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puerto Hualaihué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0488",
+    "nombre": "472",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Hualaihué Estero",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0489",
+    "nombre": "473",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "El Manzano",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0490",
+    "nombre": "474",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pichicolo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0491",
+    "nombre": "475",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Hornopirén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0492",
+    "nombre": "476",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Cholgo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0493",
+    "nombre": "477",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Llanchid",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0494",
+    "nombre": "478",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Los Toros",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0495",
+    "nombre": "479",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Linguar",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0496",
+    "nombre": "480",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Puerto Bonito(Isla Llancahué)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0497",
+    "nombre": "481",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Quiaca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0498",
+    "nombre": "482",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Telele",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0499",
+    "nombre": "483",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Caleta Poyo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0500",
+    "nombre": "484",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Huequi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0501",
+    "nombre": "485",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Ayacara",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0502",
+    "nombre": "486",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Reldehue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0503",
+    "nombre": "487",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Buill",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0504",
+    "nombre": "488",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Loyola",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0505",
+    "nombre": "489",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chumeldén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0506",
+    "nombre": "490",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Casa De Pesca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0507",
+    "nombre": "491",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Pumalín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0508",
+    "nombre": "492",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chana",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0509",
+    "nombre": "493",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Santa Bárbara",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0510",
+    "nombre": "494",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chaitén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0511",
+    "nombre": "495",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Auchemó",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0512",
+    "nombre": "496",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Bajo Palena",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0513",
+    "nombre": "497",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chulín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0514",
+    "nombre": "498",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Chuit",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0515",
+    "nombre": "499",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Imerquiña/Nayahué",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0516",
+    "nombre": "500",
+    "region": "Región de Los Lagos",
+    "provincia": "",
+    "comuna": "Talcán",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0278",
+    "nombre": "262",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Mehuín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0279",
+    "nombre": "263",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Mississipi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0280",
+    "nombre": "264",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Maiquillahue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0281",
+    "nombre": "265",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Chan-Chan",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0282",
+    "nombre": "266",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Bonifacio",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0283",
+    "nombre": "267",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "La Misión",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0284",
+    "nombre": "268",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "San Ignacio",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0285",
+    "nombre": "269",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Los Molinos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0286",
+    "nombre": "270",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "El Piojo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0287",
+    "nombre": "271",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Niebla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0288",
+    "nombre": "272",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Tres Espinos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0289",
+    "nombre": "273",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Valdivia",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0290",
+    "nombre": "274",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Isla Del Rey",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0291",
+    "nombre": "275",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Mancera",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0292",
+    "nombre": "276",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Bahía San Juan",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0293",
+    "nombre": "277",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "La Aguada",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0294",
+    "nombre": "278",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Corral Bajo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0295",
+    "nombre": "279",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Corral",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0296",
+    "nombre": "280",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Amargos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0297",
+    "nombre": "281",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "San Carlos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0298",
+    "nombre": "282",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Huape",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0299",
+    "nombre": "283",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Chaihuín",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0300",
+    "nombre": "284",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Huiro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0301",
+    "nombre": "285",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Hueicolla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0302",
+    "nombre": "286",
+    "region": "Región de Los Ríos",
+    "provincia": "",
+    "comuna": "Lamehuapi",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0537",
+    "nombre": "521",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Puerto Edén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0538",
+    "nombre": "522",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Puerto Natales",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0539",
+    "nombre": "523",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Río Canelo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0540",
+    "nombre": "524",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Los Pinos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0541",
+    "nombre": "525",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Barranco Amarillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0542",
+    "nombre": "526",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Punta Arenas (Muelle Fiscal)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0543",
+    "nombre": "527",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Punta Carrera",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0544",
+    "nombre": "528",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Bahía Mansa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0545",
+    "nombre": "529",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Bahía Chilota",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0546",
+    "nombre": "530",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Porvenir",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0547",
+    "nombre": "531",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Puerto Williams",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0548",
+    "nombre": "532",
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "provincia": "",
+    "comuna": "Puerto Toro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0026",
+    "nombre": "10",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Chanavayita",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0027",
+    "nombre": "11",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Cáñamo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0028",
+    "nombre": "12",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Patache",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0029",
+    "nombre": "13",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Chanavaya (Pabellón De Pica)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0030",
+    "nombre": "14",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Río Seco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0031",
+    "nombre": "15",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "San Marcos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0032",
+    "nombre": "16",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Chipana",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0019",
+    "nombre": "3",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Pisagua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0020",
+    "nombre": "4",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Riquelme",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0021",
+    "nombre": "5",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Puerto De Iquique",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0022",
+    "nombre": "6",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Cavancha",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0023",
+    "nombre": "7",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Playa Blanca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0024",
+    "nombre": "8",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Los Verdes",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0025",
+    "nombre": "9",
+    "region": "Región de Tarapacá",
+    "provincia": "",
+    "comuna": "Caramucho",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0125",
+    "nombre": "109",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Los Molles",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0126",
+    "nombre": "110",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Polcura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0127",
+    "nombre": "111",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Pichicuy",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0128",
+    "nombre": "112",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Ligua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0129",
+    "nombre": "113",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Papudo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0130",
+    "nombre": "114",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Zapallar",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0131",
+    "nombre": "115",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Las Cujas-Cachagua",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0132",
+    "nombre": "116",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Maitencillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0133",
+    "nombre": "117",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Horcón",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0134",
+    "nombre": "118",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Ventanas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0135",
+    "nombre": "119",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Loncura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0136",
+    "nombre": "120",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "El Manzano",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0137",
+    "nombre": "121",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "El Embarcadero",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0138",
+    "nombre": "122",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Papagallo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0139",
+    "nombre": "123",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "San Pedro De Concón",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0140",
+    "nombre": "124",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Higuerilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0141",
+    "nombre": "125",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Montemar",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0142",
+    "nombre": "126",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Portales",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0143",
+    "nombre": "127",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Sudamericana[B]",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0144",
+    "nombre": "128",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "El Membrillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0145",
+    "nombre": "129",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Laguna Verde",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0146",
+    "nombre": "130",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Quintay",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0147",
+    "nombre": "131",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Bahía Cumberland(Isla Robinson Crusoe)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0148",
+    "nombre": "132",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Alejandro Selkirk[C]",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0149",
+    "nombre": "133",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Algarrobo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0150",
+    "nombre": "134",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "El Quisco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0151",
+    "nombre": "135",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Las Cruces",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0152",
+    "nombre": "136",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Cartagena",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0153",
+    "nombre": "137",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "San Pedro-Pacheco Altamirano",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0154",
+    "nombre": "138",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Puertecito",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0155",
+    "nombre": "139",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Desembocadurarío Maipo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0156",
+    "nombre": "140",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Playa Mostazal",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0157",
+    "nombre": "141",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Hotu Iti",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0158",
+    "nombre": "142",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Laperouse (Hanga Hoonu)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0159",
+    "nombre": "143",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Vaihu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0160",
+    "nombre": "144",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Hanga Roa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0161",
+    "nombre": "145",
+    "region": "Región de Valparaíso",
+    "provincia": "",
+    "comuna": "Hanga Piko",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0192",
+    "nombre": "176",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Purema",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0193",
+    "nombre": "177",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Burca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0194",
+    "nombre": "178",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Villarrica",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0195",
+    "nombre": "179",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Dichato",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0196",
+    "nombre": "180",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Coliumo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0197",
+    "nombre": "181",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Cocholgüecaleta Grande",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0198",
+    "nombre": "182",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Cocholgüecaleta Chica",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0199",
+    "nombre": "183",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Montecristo[D]",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0200",
+    "nombre": "184",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Los Bagres",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0201",
+    "nombre": "185",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tomé",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0202",
+    "nombre": "186",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Quichiuto",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0203",
+    "nombre": "187",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "La Cata",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0204",
+    "nombre": "188",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Lirquén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0205",
+    "nombre": "189",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Cerro Verde",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0206",
+    "nombre": "190",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Penco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0207",
+    "nombre": "191",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Playa Negra",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0208",
+    "nombre": "192",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Rocuant",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0209",
+    "nombre": "193",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "El Morro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0210",
+    "nombre": "194",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Talcahuano",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0211",
+    "nombre": "195",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tumbes",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0212",
+    "nombre": "196",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Candelaria",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0213",
+    "nombre": "197",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Cantera",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0214",
+    "nombre": "198",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Puerto Inglés",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0215",
+    "nombre": "199",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "El Soldado",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0216",
+    "nombre": "200",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "San Vicente",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0217",
+    "nombre": "201",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Infiernillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0218",
+    "nombre": "202",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Lenga",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0219",
+    "nombre": "203",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Peroné",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0220",
+    "nombre": "204",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Chome",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0221",
+    "nombre": "205",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Boca Sur",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0222",
+    "nombre": "206",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Maule",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0223",
+    "nombre": "207",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Lo Rojas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0224",
+    "nombre": "208",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Puerto Norte (Isla Santa María)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0225",
+    "nombre": "209",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Puerto Sur (Isla Santa María)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0226",
+    "nombre": "210",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Pueblo Hundido",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0227",
+    "nombre": "211",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "El Morro",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0228",
+    "nombre": "212",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "La Conchilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0229",
+    "nombre": "213",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Playa Lotilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0230",
+    "nombre": "214",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "El Blanco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0231",
+    "nombre": "215",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Caleta Lota Bajo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0232",
+    "nombre": "216",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Punta Astorga",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0233",
+    "nombre": "217",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Puerto Nuevo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0234",
+    "nombre": "218",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Colcura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0235",
+    "nombre": "219",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Chivilingo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0236",
+    "nombre": "220",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Laraquete",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0237",
+    "nombre": "221",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Arauco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0238",
+    "nombre": "222",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Las Peñas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0239",
+    "nombre": "223",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tubul",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0240",
+    "nombre": "224",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Llico",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0241",
+    "nombre": "225",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Punta Lavapié",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0242",
+    "nombre": "226",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Rumena",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0243",
+    "nombre": "227",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Los Piures",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0244",
+    "nombre": "228",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Yani",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0245",
+    "nombre": "229",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Locobe",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0246",
+    "nombre": "230",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Quiapo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0247",
+    "nombre": "231",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Villarrica (Ránquil)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0248",
+    "nombre": "232",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Millonhue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0249",
+    "nombre": "233",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Lebu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0250",
+    "nombre": "234",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Morguilla",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0251",
+    "nombre": "235",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Los Cazones (Isla Mocha)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0252",
+    "nombre": "236",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "La Hacienda (Isla Mocha)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0253",
+    "nombre": "237",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "La Calera (Isla Mocha)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0254",
+    "nombre": "238",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Matadero (Isla Mocha)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0255",
+    "nombre": "239",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Islote Del Trabajo (Isla Mocha)",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0256",
+    "nombre": "240",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Pangue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0257",
+    "nombre": "241",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Huentelolén",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0258",
+    "nombre": "242",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Antiquina",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0259",
+    "nombre": "243",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tranaquepe",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0260",
+    "nombre": "244",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Quidico",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0261",
+    "nombre": "245",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tirúa",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0262",
+    "nombre": "246",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Las Misiones - Tirúa Sur 1",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0263",
+    "nombre": "247",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Puente De Tierra - Tirúa Sur 2",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0264",
+    "nombre": "248",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tranicura A - Tirúa Sur 3",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0265",
+    "nombre": "249",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Tranicura B - Tirúa Sur 4",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0266",
+    "nombre": "250",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Los Chilcos - Tirúa Sur 5",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0267",
+    "nombre": "251",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Comillahue - Tirúa Sur 6",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0268",
+    "nombre": "252",
+    "region": "Región del Biobío",
+    "provincia": "",
+    "comuna": "Casa De Piedra - Tirúa Sur 7",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0162",
+    "nombre": "146",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Boca De Rapel",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0163",
+    "nombre": "147",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Matanzas",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0164",
+    "nombre": "148",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Chorrillos",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0165",
+    "nombre": "149",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Puertecillo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0166",
+    "nombre": "150",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Topocalma",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0167",
+    "nombre": "151",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Pichilemu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0168",
+    "nombre": "152",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Cáhuil",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0169",
+    "nombre": "153",
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "provincia": "",
+    "comuna": "Bucalemu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0170",
+    "nombre": "154",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Boyeruca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0171",
+    "nombre": "155",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Llico",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0172",
+    "nombre": "156",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Lipimávida",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0173",
+    "nombre": "157",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Duao",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0174",
+    "nombre": "158",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Iloca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0175",
+    "nombre": "159",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "La Pesca",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0176",
+    "nombre": "160",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "La Trinchera",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0177",
+    "nombre": "161",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Putu",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0178",
+    "nombre": "162",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Constitución",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0179",
+    "nombre": "163",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Río Maule",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0180",
+    "nombre": "164",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Maguillines",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0181",
+    "nombre": "165",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Los Pellines",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0182",
+    "nombre": "166",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Loanco",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0183",
+    "nombre": "167",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Pelluhue",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0184",
+    "nombre": "168",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Curanipe",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0185",
+    "nombre": "169",
+    "region": "Región del Maule",
+    "provincia": "",
+    "comuna": "Cardonal",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0186",
+    "nombre": "170",
+    "region": "Región del Ñuble",
+    "provincia": "",
+    "comuna": "Buchupureo",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0187",
+    "nombre": "171",
+    "region": "Región del Ñuble",
+    "provincia": "",
+    "comuna": "Cobquecura",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0188",
+    "nombre": "172",
+    "region": "Región del Ñuble",
+    "provincia": "",
+    "comuna": "Taucú",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0189",
+    "nombre": "173",
+    "region": "Región del Ñuble",
+    "provincia": "",
+    "comuna": "Mela",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0190",
+    "nombre": "174",
+    "region": "Región del Ñuble",
+    "provincia": "",
+    "comuna": "Bocaitata",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0191",
+    "nombre": "175",
+    "region": "Región del Ñuble",
+    "provincia": "",
+    "comuna": "Perales",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0003",
+    "nombre": "Región De Antofagasta",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "28",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0001",
+    "nombre": "Región De Arica Y Parinacota",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "2",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0004",
+    "nombre": "Región De Atacama",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "30",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0014",
+    "nombre": "Región De Aysén Del General Carlos Ibáñez Del Campo",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "20",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0010",
+    "nombre": "Región De Biobío",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "77",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0005",
+    "nombre": "Región De Coquimbo",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "34",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0011",
+    "nombre": "Región De La Araucanía",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "9",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0013",
+    "nombre": "Región De Los Lagos",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "214",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0012",
+    "nombre": "Región De Los Ríos",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "25",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0015",
+    "nombre": "Región De Magallanes Y De La Antártica Chilena",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "12",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0002",
+    "nombre": "Región De Tarapacá",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "14",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0006",
+    "nombre": "Región De Valparaíso",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "37",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0009",
+    "nombre": "Región De Ñuble",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "6",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0007",
+    "nombre": "Región Del Libertador General Bernardo O'Higgins",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "8",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0008",
+    "nombre": "Región Del Maule",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "16",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-WIKI-0016",
+    "nombre": "Total",
+    "region": "Sin región",
+    "provincia": "",
+    "comuna": "532",
+    "latitud": null,
+    "longitud": null,
+    "fuente": "wikipedia"
+  },
+  {
+    "id": "CAL-0033",
+    "nombre": "El Membrillo",
+    "region": "V REGION",
+    "provincia": "Valparaiso",
+    "comuna": "Valparaiso",
+    "latitud": -33.417206,
+    "longitud": -77.644258,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0049",
+    "nombre": "Portales",
+    "region": "V REGION",
+    "provincia": "Valparaiso",
+    "comuna": "Valparaiso",
+    "latitud": -33.427059,
+    "longitud": -77.602478,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0001",
+    "nombre": "San Pedro Con Con",
+    "region": "V REGION",
+    "provincia": "Valparaiso",
+    "comuna": "Con Con",
+    "latitud": -33.313404,
+    "longitud": -77.529192,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0023",
+    "nombre": "Ventanas",
+    "region": "V REGION",
+    "provincia": "Valparaiso",
+    "comuna": "Puchuncavi",
+    "latitud": -33.134386,
+    "longitud": -77.501974,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0025",
+    "nombre": "Matanzas",
+    "region": "VI REGION",
+    "provincia": "Cardenal Caro",
+    "comuna": "Navidad",
+    "latitud": -34.363123,
+    "longitud": -77.891296,
+    "fuente": "shapefile_sernapesca"
+  },
+  {
+    "id": "CAL-0072",
+    "nombre": "Camarones",
+    "region": "XV REGION",
+    "provincia": "Arica",
+    "comuna": "Camarones",
+    "latitud": -19.476246,
+    "longitud": -70.272651,
+    "fuente": "shapefile_sernapesca"
+  }
+]

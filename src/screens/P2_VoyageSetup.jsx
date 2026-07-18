@@ -1,8 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import caletasData from '../data/caletas_chile.json';
 
 const API_BASE = 'http://localhost:3000';
 const DEBOUNCE_MS = 350;
+
+// ─── Búsqueda local sobre caletas_chile.json ─────────────────────────────────
+function buscarCaletasLocal(query, limit = 8) {
+  if (!query || query.length < 2) return [];
+  const q = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return caletasData
+    .filter(c => {
+      const nombre  = (c.nombre  || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const comuna  = (c.comuna  || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const region  = (c.region  || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return nombre.includes(q) || comuna.includes(q) || region.includes(q);
+    })
+    .slice(0, limit);
+}
 
 function useDebounce(fn, delay) {
   const timer = useRef(null);
@@ -12,12 +27,17 @@ function useDebounce(fn, delay) {
   }, [fn, delay]);
 }
 
+// ─── Tipos de destino — ahora incluye caladero ───────────────────────────────
 const TIPOS_DESTINO = [
   { id: 'puerto',    label: 'Puerto o caleta',   emoji: '⚓' },
   { id: 'salmon',    label: 'Centro salmonero',   emoji: '🐟' },
   { id: 'mitilido',  label: 'Centro mitílidos',   emoji: '🦪' },
+  { id: 'caladero',  label: 'Caladero / Zona pesca', emoji: '🎣' },
   { id: 'coordenadas', label: 'Coordenadas GPS',  emoji: '📌' },
 ];
+
+// ─── Tipos en los que el selector de especie es visible ─────────────────────
+const TIPOS_CON_ESPECIE = ['caladero', 'coordenadas'];
 
 // Configuración de búsqueda por tipo de destino
 const CONFIG_BUSQUEDA = {
@@ -59,6 +79,19 @@ const CONFIG_BUSQUEDA = {
     labelSeleccionado: (m) => `Cód. ${m.codigo_centro} — ${m.titular}`,
     queryInicial: (v) => v ? `Cód. ${v.codigo_centro} — ${v.titular}` : '',
   },
+  caladero: {
+    placeholder: 'Ej: Caramucho, Dalcahue, Carelmapu...',
+    helper: 'Busca por nombre de caleta, sector o comuna — cobertura nacional',
+    endpoint: null,               // Búsqueda local sobre caletas_chile.json
+    parseResponse: () => [],
+    renderItem: (c) => ({
+      linea1: c.nombre,
+      linea2: `${c.comuna} · ${c.region}`,
+      linea3: c.latitud ? `${c.latitud}°S, ${Math.abs(c.longitud)}°O` : null,
+    }),
+    labelSeleccionado: (c) => c?.nombre ? `${c.nombre} — ${c.comuna}` : '',
+    queryInicial: (v) => v?.nombre ? `${v.nombre} — ${v.comuna}` : '',
+  },
 };
 
 const estilos = {
@@ -94,20 +127,62 @@ const estilos = {
   sinConexion:  { fontSize: '12px', color: '#c62828', marginTop: '4px' },
   buscando:     { position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#888' },
   btnLimpiar:   { position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', fontSize: '13px', padding: 0 },
+
+  // ── Estilos exclusivos del módulo de pesca ──
+  especieBloque: {
+    marginTop: '14px',
+    background: '#fff8e1',
+    border: '1px solid #ffe082',
+    borderRadius: '8px',
+    padding: '14px',
+  },
+  especieLabel: {
+    display: 'block',
+    fontWeight: '600',
+    fontSize: '13px',
+    color: '#5d4037',
+    marginBottom: '8px',
+  },
+  especieSelect: {
+    width: '100%',
+    padding: '10px 14px',
+    border: '1px solid #ffb300',
+    borderRadius: '8px',
+    fontSize: '14px',
+    background: 'white',
+    color: '#333',
+    outline: 'none',
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+  },
+  especieHint: {
+    fontSize: '11px',
+    color: '#795548',
+    marginTop: '6px',
+    fontStyle: 'italic',
+  },
+  especieSeleccionada: {
+    marginTop: '8px',
+    padding: '8px 12px',
+    background: '#fff3e0',
+    borderRadius: '6px',
+    fontSize: '12px',
+    color: '#e65100',
+    fontStyle: 'italic',
+  },
 };
 
-// ─── Buscador genérico — sirve para puerto, salmon y mitilido ───────────────
+// ─── Buscador genérico — sirve para puerto, salmon, mitilido ────────────────
 function Buscador({ tipo, value, onSelect, onClear, error }) {
   const cfg = CONFIG_BUSQUEDA[tipo];
-  const [query, setQuery]           = useState(cfg.queryInicial(value));
+  const [query, setQuery]             = useState(cfg.queryInicial(value));
   const [sugerencias, setSugerencias] = useState([]);
-  const [buscando, setBuscando]     = useState(false);
+  const [buscando, setBuscando]       = useState(false);
   const [sinConexion, setSinConexion] = useState(false);
-  const [hoverIdx, setHoverIdx]     = useState(-1);
+  const [hoverIdx, setHoverIdx]       = useState(-1);
   const abortRef   = useRef(null);
   const wrapperRef = useRef(null);
 
-  // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     const handler = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setSugerencias([]);
@@ -116,11 +191,19 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Sincronizar si el valor externo cambia
   useEffect(() => { setQuery(cfg.queryInicial(value)); }, [value]);
 
   const buscar = async (texto) => {
     if (texto.length < 2) { setSugerencias([]); return; }
+
+    // Caladero: búsqueda local instantánea sin fetch
+    if (tipo === 'caladero') {
+      const resultados = buscarCaletasLocal(texto);
+      setSugerencias(resultados);
+      return;
+    }
+
+    if (!cfg.endpoint) return;
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();
     setBuscando(true);
@@ -152,13 +235,27 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
     setSugerencias([]);
   };
 
+  // Para caladero: texto libre sin selección del dropdown
+  const handleChangeCaladero = (texto) => {
+    setQuery(texto);
+    onClear(); // limpia selección previa mientras escribe
+    buscarD(texto); // dispara búsqueda local
+  };
+
   return (
     <div ref={wrapperRef} style={{ position: 'relative' }}>
-      {/* Input */}
       <div style={{ position: 'relative' }}>
         <input
           value={query}
-          onChange={e => { setQuery(e.target.value); onClear(); buscarD(e.target.value); }}
+          onChange={e => {
+            if (tipo === 'caladero') {
+              handleChangeCaladero(e.target.value);
+            } else {
+              setQuery(e.target.value);
+              onClear();
+              buscarD(e.target.value);
+            }
+          }}
           onKeyDown={e => {
             if (e.key === 'ArrowDown')  { e.preventDefault(); setHoverIdx(i => Math.min(i + 1, sugerencias.length - 1)); }
             if (e.key === 'ArrowUp')    { e.preventDefault(); setHoverIdx(i => Math.max(i - 1, 0)); }
@@ -169,17 +266,14 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
           autoComplete="off"
           style={{ ...estilos.input, borderColor: error ? '#f44336' : '#d0d0d0', paddingRight: value ? '36px' : '14px' }}
         />
-        {value   && <button onClick={handleLimpiar} style={estilos.btnLimpiar}>✕</button>}
+        {value && <button onClick={handleLimpiar} style={estilos.btnLimpiar}>✕</button>}
         {buscando && !value && <span style={estilos.buscando}>buscando...</span>}
       </div>
 
-      {/* Helper text — siempre visible debajo del input */}
       <div style={estilos.helper}>ℹ {cfg.helper}</div>
 
-      {/* Error de conexión */}
       {sinConexion && <div style={estilos.sinConexion}>⚠ Sin conexión al servidor</div>}
 
-      {/* Dropdown de sugerencias */}
       {sugerencias.length > 0 && (
         <div style={estilos.dropdown}>
           {sugerencias.map((item, i) => {
@@ -200,7 +294,6 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
         </div>
       )}
 
-      {/* Confirmación de selección */}
       {value && (
         <div style={estilos.seleccionado}>
           <span>✓ <strong>{cfg.labelSeleccionado(value)}</strong></span>
@@ -210,13 +303,84 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
   );
 }
 
-// ─── Input de coordenadas GPS con calculadora DMS ───────────────────────────
+// ─── Selector de especie objetivo (pesca artesanal) ──────────────────────────
+function SelectorEspecie({ especieId, onSelect, error }) {
+  const [especies, setEspecies] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [errCarga, setErrCarga] = useState(null);
+
+  useEffect(() => {
+    // Carga el listado desde el endpoint /api/marine-weather/especies
+    fetch(`${API_BASE}/api/marine-weather/especies`)
+      .then(r => r.json())
+      .then(data => {
+        setEspecies(data.data || []);
+        setCargando(false);
+      })
+      .catch(() => {
+        // Fallback: listado hardcodeado desde especies_pesca.json para no bloquear el flujo
+        setEspecies([
+          { id: 1, especie: 'Merluza del Sur',          nombre_cientifico: 'Merluccius australis' },
+          { id: 2, especie: 'Reineta',                   nombre_cientifico: 'Brama australis' },
+          { id: 3, especie: 'Congrio Dorado',            nombre_cientifico: 'Genypterus blacodes' },
+          { id: 4, especie: 'Erizo rojo',                nombre_cientifico: 'Loxechinus albus' },
+          { id: 5, especie: 'Pez Espada / Albacora',    nombre_cientifico: 'Xiphias gladius' },
+          { id: 6, especie: 'Loco',                      nombre_cientifico: 'Concholepas concholepas' },
+          { id: 7, especie: 'Sardina Común / Anchoveta', nombre_cientifico: 'Strangomera bentincki / Engraulis ringens' },
+        ]);
+        setCargando(false);
+        setErrCarga('Usando listado local — sin conexión al servidor');
+      });
+  }, []);
+
+  const especieActual = especies.find(e => e.id === Number(especieId));
+
+  return (
+    <div style={estilos.especieBloque}>
+      <label style={estilos.especieLabel}>
+        🐠 ¿Qué recurso busca explotar?
+      </label>
+
+      {cargando ? (
+        <div style={{ fontSize: '13px', color: '#888', padding: '8px 0' }}>Cargando especies...</div>
+      ) : (
+        <select
+          value={especieId || ''}
+          onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
+          style={{ ...estilos.especieSelect, borderColor: error ? '#f44336' : '#ffb300' }}
+        >
+          <option value="">— Selecciona la especie objetivo —</option>
+          {especies.map(esp => (
+            <option key={esp.id} value={esp.id}>
+              {esp.especie} ({esp.nombre_cientifico})
+            </option>
+          ))}
+        </select>
+      )}
+
+      {errCarga && <div style={estilos.especieHint}>⚠ {errCarga}</div>}
+
+      {!errCarga && !cargando && (
+        <div style={estilos.especieHint}>
+          Al verificar condiciones recibirás temperatura del mar, clorofila y alertas normativas para esta especie en el punto de destino.
+        </div>
+      )}
+
+      {especieActual && (
+        <div style={estilos.especieSeleccionada}>
+          📋 {especieActual.especie} · <em>{especieActual.nombre_cientifico}</em>
+        </div>
+      )}
+
+      {error && <div style={estilos.errorField}>⚠ {error}</div>}
+    </div>
+  );
+}
+
+// ─── Input de coordenadas GPS con calculadora DMS ────────────────────────────
 function InputCoordenadas({ value, onChange, error }) {
   const [mostrarCalc, setMostrarCalc] = useState(false);
-  const [dms, setDms] = useState({
-    latG: '', latM: '', latS: '',
-    lngG: '', lngM: '', lngS: '',
-  });
+  const [dms, setDms] = useState({ latG: '', latM: '', latS: '', lngG: '', lngM: '', lngS: '' });
   const [resultadoCalc, setResultadoCalc] = useState(null);
 
   const dmsADecimal = (g, m, s) => {
@@ -231,8 +395,7 @@ function InputCoordenadas({ value, onChange, error }) {
     const lat = dmsADecimal(dms.latG, dms.latM, dms.latS);
     const lng = dmsADecimal(dms.lngG, dms.lngM, dms.lngS);
     if (lat === null || lng === null) return;
-    const resultado = { lat: -Math.abs(lat), lng: -Math.abs(lng) };
-    setResultadoCalc(resultado);
+    setResultadoCalc({ lat: -Math.abs(lat), lng: -Math.abs(lng) });
   };
 
   const usarResultado = () => {
@@ -242,21 +405,20 @@ function InputCoordenadas({ value, onChange, error }) {
     setResultadoCalc(null);
   };
 
-  const estilosCalc = {
-    caja:       { marginTop: '12px', background: '#f0f7ff', border: '1px solid #bbdefb', borderRadius: '8px', padding: '14px' },
-    titulo:     { fontSize: '13px', fontWeight: '700', color: '#1565c0', marginBottom: '10px' },
-    fila:       { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '8px' },
-    inputDms:   { width: '100%', padding: '8px 10px', border: '1px solid #90caf9', borderRadius: '6px', boxSizing: 'border-box', fontSize: '14px', textAlign: 'center' },
-    labelDms:   { fontSize: '11px', color: '#555', marginBottom: '3px', display: 'block', textAlign: 'center' },
-    btnCalc:    { padding: '8px 16px', background: '#1565c0', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', marginTop: '4px' },
-    resultado:  { marginTop: '10px', padding: '8px 12px', background: '#e8f5e9', borderRadius: '6px', fontSize: '13px', color: '#2e7d32' },
-    btnUsar:    { marginTop: '6px', padding: '7px 14px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' },
-    ejemplo:    { fontSize: '11px', color: '#555', marginTop: '8px', lineHeight: '1.6', background: '#fff', borderRadius: '6px', padding: '8px 10px', border: '1px solid #e3f2fd' },
+  const ec = {
+    caja:     { marginTop: '12px', background: '#f0f7ff', border: '1px solid #bbdefb', borderRadius: '8px', padding: '14px' },
+    titulo:   { fontSize: '13px', fontWeight: '700', color: '#1565c0', marginBottom: '10px' },
+    fila:     { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '8px' },
+    inputDms: { width: '100%', padding: '8px 10px', border: '1px solid #90caf9', borderRadius: '6px', boxSizing: 'border-box', fontSize: '14px', textAlign: 'center' },
+    labelDms: { fontSize: '11px', color: '#555', marginBottom: '3px', display: 'block', textAlign: 'center' },
+    btnCalc:  { padding: '8px 16px', background: '#1565c0', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', marginTop: '4px' },
+    resultado:{ marginTop: '10px', padding: '8px 12px', background: '#e8f5e9', borderRadius: '6px', fontSize: '13px', color: '#2e7d32' },
+    btnUsar:  { marginTop: '6px', padding: '7px 14px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' },
+    ejemplo:  { fontSize: '11px', color: '#555', marginTop: '8px', lineHeight: '1.6', background: '#fff', borderRadius: '6px', padding: '8px 10px', border: '1px solid #e3f2fd' },
   };
 
   return (
     <div>
-      {/* Inputs decimales directos */}
       <div style={estilos.grid2}>
         <div>
           <label style={{ ...estilos.label, fontWeight: '500' }}>Latitud (°S)</label>
@@ -276,86 +438,56 @@ function InputCoordenadas({ value, onChange, error }) {
 
       <div style={estilos.helper}>ℹ Ingresa coordenadas en grados decimales negativos (Sur/Oeste)</div>
 
-      {/* Confirmación */}
       {value?.lat && value?.lng && !isNaN(value.lat) && !isNaN(value.lng) && (
         <div style={{ ...estilos.seleccionado, marginTop: '6px' }}>
           <span>✓ {parseFloat(value.lat).toFixed(6)}°S, {parseFloat(value.lng).toFixed(6)}°O</span>
         </div>
       )}
 
-      {/* Botón calculadora */}
       <button
         onClick={() => setMostrarCalc(v => !v)}
         style={{ marginTop: '10px', padding: '6px 14px', background: 'white', border: '1px solid #1565c0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#1565c0', fontWeight: '600' }}>
         {mostrarCalc ? '✕ Cerrar calculadora' : '🧮 Tengo coordenadas en grados, minutos y segundos (WGS84)'}
       </button>
 
-      {/* Calculadora DMS */}
       {mostrarCalc && (
-        <div style={estilosCalc.caja}>
-          <div style={estilosCalc.titulo}>Convertidor Datum WGS84 → Grados decimales</div>
-
-          <div style={estilosCalc.ejemplo}>
-            <strong>Ejemplo:</strong> 42° 6′ 14.19″ S se convierte así:<br />
-            • Grados: <strong>42</strong> (se quedan igual)<br />
-            • Minutos ÷ 60: 6 ÷ 60 = <strong>0.1</strong><br />
-            • Segundos ÷ 3600: 14.19 ÷ 3600 = <strong>0.003942</strong><br />
-            • Resultado: 42 + 0.1 + 0.003942 = <strong>−42.103942°</strong> (negativo porque es Sur)
+        <div style={ec.caja}>
+          <div style={ec.titulo}>Convertidor Datum WGS84 → Grados decimales</div>
+          <div style={ec.ejemplo}>
+            <strong>Ejemplo:</strong> 42° 6′ 14.19″ S → 42 + 6/60 + 14.19/3600 = <strong>−42.103942°</strong>
           </div>
 
-          {/* Latitud DMS */}
           <div style={{ marginTop: '12px', marginBottom: '4px', fontSize: '12px', fontWeight: '700', color: '#333' }}>Latitud Sur</div>
-          <div style={estilosCalc.fila}>
-            <div>
-              <label style={estilosCalc.labelDms}>Grados °</label>
-              <input type="number" min="0" max="90" placeholder="42" value={dms.latG}
-                onChange={e => setDms(d => ({ ...d, latG: e.target.value }))}
-                style={estilosCalc.inputDms} />
-            </div>
-            <div>
-              <label style={estilosCalc.labelDms}>Minutos ′</label>
-              <input type="number" min="0" max="59" placeholder="6" value={dms.latM}
-                onChange={e => setDms(d => ({ ...d, latM: e.target.value }))}
-                style={estilosCalc.inputDms} />
-            </div>
-            <div>
-              <label style={estilosCalc.labelDms}>Segundos ″</label>
-              <input type="number" min="0" max="59.999" step="0.01" placeholder="14.19" value={dms.latS}
-                onChange={e => setDms(d => ({ ...d, latS: e.target.value }))}
-                style={estilosCalc.inputDms} />
-            </div>
+          <div style={ec.fila}>
+            {[['latG','Grados °','42'],['latM','Minutos ′','6'],['latS','Segundos ″','14.19']].map(([k,lbl,ph]) => (
+              <div key={k}>
+                <label style={ec.labelDms}>{lbl}</label>
+                <input type="number" placeholder={ph} value={dms[k]}
+                  onChange={e => setDms(d => ({ ...d, [k]: e.target.value }))}
+                  style={ec.inputDms} />
+              </div>
+            ))}
           </div>
 
-          {/* Longitud DMS */}
           <div style={{ marginBottom: '4px', fontSize: '12px', fontWeight: '700', color: '#333' }}>Longitud Oeste</div>
-          <div style={estilosCalc.fila}>
-            <div>
-              <label style={estilosCalc.labelDms}>Grados °</label>
-              <input type="number" min="0" max="180" placeholder="73" value={dms.lngG}
-                onChange={e => setDms(d => ({ ...d, lngG: e.target.value }))}
-                style={estilosCalc.inputDms} />
-            </div>
-            <div>
-              <label style={estilosCalc.labelDms}>Minutos ′</label>
-              <input type="number" min="0" max="59" placeholder="7" value={dms.lngM}
-                onChange={e => setDms(d => ({ ...d, lngM: e.target.value }))}
-                style={estilosCalc.inputDms} />
-            </div>
-            <div>
-              <label style={estilosCalc.labelDms}>Segundos ″</label>
-              <input type="number" min="0" max="59.999" step="0.01" placeholder="55.2" value={dms.lngS}
-                onChange={e => setDms(d => ({ ...d, lngS: e.target.value }))}
-                style={estilosCalc.inputDms} />
-            </div>
+          <div style={ec.fila}>
+            {[['lngG','Grados °','73'],['lngM','Minutos ′','7'],['lngS','Segundos ″','55.2']].map(([k,lbl,ph]) => (
+              <div key={k}>
+                <label style={ec.labelDms}>{lbl}</label>
+                <input type="number" placeholder={ph} value={dms[k]}
+                  onChange={e => setDms(d => ({ ...d, [k]: e.target.value }))}
+                  style={ec.inputDms} />
+              </div>
+            ))}
           </div>
 
-          <button onClick={calcular} style={estilosCalc.btnCalc}>Convertir →</button>
+          <button onClick={calcular} style={ec.btnCalc}>Convertir →</button>
 
           {resultadoCalc && (
-            <div style={estilosCalc.resultado}>
+            <div style={ec.resultado}>
               <div>📍 Latitud: <strong>{resultadoCalc.lat}°</strong></div>
               <div>📍 Longitud: <strong>{resultadoCalc.lng}°</strong></div>
-              <button onClick={usarResultado} style={estilosCalc.btnUsar}>✓ Usar estas coordenadas</button>
+              <button onClick={usarResultado} style={ec.btnUsar}>✓ Usar estas coordenadas</button>
             </div>
           )}
         </div>
@@ -364,10 +496,20 @@ function InputCoordenadas({ value, onChange, error }) {
   );
 }
 
-// ─── Selector de un destino (tipo + buscador) ───────────────────────────────
-function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, error }) {
+// ─── Selector de destino (tipo + buscador + especie si aplica) ───────────────
+function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, error, errores }) {
   const { tipo } = destino;
-  const setTipo = (t) => onChange({ tipo: t, puerto: null, centro: null, coordenadas: null });
+
+  const setTipo = (t) => onChange({
+    tipo: t,
+    puerto:      null,
+    centro:      null,
+    coordenadas: null,
+    caladero:    null,
+    especie_id:  null,    // se resetea al cambiar tipo
+  });
+
+  const mostrarEspecie = TIPOS_CON_ESPECIE.includes(tipo);
 
   return (
     <div style={idx > 0 ? estilos.divider : {}}>
@@ -387,14 +529,22 @@ function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, erro
         ))}
       </div>
 
-      {/* Buscador según tipo */}
-      {(tipo === 'puerto' || tipo === 'salmon' || tipo === 'mitilido') && (
+      {/* Buscadores según tipo */}
+      {(tipo === 'puerto' || tipo === 'salmon' || tipo === 'mitilido' || tipo === 'caladero') && (
         <Buscador
           tipo={tipo}
-          value={tipo === 'puerto' ? destino.puerto : destino.centro}
-          onSelect={item => onChange({ ...destino, [tipo === 'puerto' ? 'puerto' : 'centro']: item })}
-          onClear={() => onChange({ ...destino, [tipo === 'puerto' ? 'puerto' : 'centro']: null })}
-          error={error}
+          value={tipo === 'puerto' ? destino.puerto : tipo === 'caladero' ? destino.caladero : destino.centro}
+          onSelect={item => {
+            if (tipo === 'puerto')   onChange({ ...destino, puerto: item });
+            else if (tipo === 'caladero') onChange({ ...destino, caladero: item });
+            else onChange({ ...destino, centro: item });
+          }}
+          onClear={() => {
+            if (tipo === 'puerto')   onChange({ ...destino, puerto: null });
+            else if (tipo === 'caladero') onChange({ ...destino, caladero: null });
+            else onChange({ ...destino, centro: null });
+          }}
+          error={!mostrarEspecie ? error : null}
         />
       )}
 
@@ -402,7 +552,16 @@ function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, erro
         <InputCoordenadas
           value={destino.coordenadas}
           onChange={c => onChange({ ...destino, coordenadas: c })}
-          error={error}
+          error={!mostrarEspecie ? error : null}
+        />
+      )}
+
+      {/* ── Selector de especie (solo en caladero y coordenadas) ── */}
+      {mostrarEspecie && (
+        <SelectorEspecie
+          especieId={destino.especie_id}
+          onSelect={id => onChange({ ...destino, especie_id: id })}
+          error={errores?.[`destino_${idx}_especie`]}
         />
       )}
 
@@ -411,16 +570,23 @@ function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, erro
   );
 }
 
-// ─── Pantalla principal P2 ──────────────────────────────────────────────────
-const DESTINO_VACIO = { tipo: 'puerto', puerto: null, centro: null, coordenadas: null };
+// ─── Pantalla principal P2 ───────────────────────────────────────────────────
+const DESTINO_VACIO = {
+  tipo:        'puerto',
+  puerto:      null,
+  centro:      null,
+  coordenadas: null,
+  caladero:    null,
+  especie_id:  null,
+};
 
 export default function P2_VoyageSetup() {
   const navigate = useNavigate();
-  const [vessel, setVessel]           = useState(null);
-  const [puertoZarpe, setPuertoZarpe] = useState(null);
-  const [destinos, setDestinos]       = useState([{ ...DESTINO_VACIO }]);
-  const [form, setForm]               = useState({ fecha_zarpe: '', fecha_recalada: '', combustible_disponible: '' });
-  const [errores, setErrores]         = useState({});
+  const [vessel, setVessel]             = useState(null);
+  const [puertoZarpe, setPuertoZarpe]   = useState(null);
+  const [destinos, setDestinos]         = useState([{ ...DESTINO_VACIO }]);
+  const [form, setForm]                 = useState({ fecha_zarpe: '', fecha_recalada: '', combustible_disponible: '' });
+  const [errores, setErrores]           = useState({});
   const [errorGeneral, setErrorGeneral] = useState(null);
 
   useEffect(() => {
@@ -455,25 +621,32 @@ export default function P2_VoyageSetup() {
     const updated = [...destinos];
     updated[idx] = nuevo;
     setDestinos(updated);
-    setErrores(prev => ({ ...prev, [`destino_${idx}`]: null }));
+    setErrores(prev => ({ ...prev, [`destino_${idx}`]: null, [`destino_${idx}_especie`]: null }));
   };
 
-  const agregarDestino  = () => setDestinos(prev => [...prev, { ...DESTINO_VACIO }]);
-  const quitarDestino   = (idx) => setDestinos(prev => prev.filter((_, i) => i !== idx));
+  const agregarDestino = () => setDestinos(prev => [...prev, { ...DESTINO_VACIO }]);
+  const quitarDestino  = (idx) => setDestinos(prev => prev.filter((_, i) => i !== idx));
 
   const destinoValido = (d) => {
-    if (d.tipo === 'puerto')                     return !!d.puerto;
+    if (d.tipo === 'puerto')                          return !!d.puerto;
     if (d.tipo === 'salmon' || d.tipo === 'mitilido') return !!d.centro;
-    if (d.tipo === 'coordenadas')                return d.coordenadas?.lat && d.coordenadas?.lng && !isNaN(d.coordenadas.lat) && !isNaN(d.coordenadas.lng);
+    if (d.tipo === 'coordenadas')                     return d.coordenadas?.lat && d.coordenadas?.lng && !isNaN(d.coordenadas.lat) && !isNaN(d.coordenadas.lng);
+    if (d.tipo === 'caladero')                        return !!d.caladero?.nombre;
     return false;
   };
 
   const validate = () => {
     const errs = {};
     if (!puertoZarpe) errs.zarpe = 'Selecciona el puerto de zarpe';
+
     destinos.forEach((d, i) => {
       if (!destinoValido(d)) errs[`destino_${i}`] = 'Completa este destino';
+      // Especie requerida si el tipo lo exige
+      if (TIPOS_CON_ESPECIE.includes(d.tipo) && !d.especie_id) {
+        errs[`destino_${i}_especie`] = 'Selecciona el recurso que vas a explotar';
+      }
     });
+
     if (!form.fecha_zarpe)    errs.fecha_zarpe    = 'Ingresa la fecha de zarpe';
     if (!form.fecha_recalada) errs.fecha_recalada = 'Ingresa la fecha de recalada';
     if (form.fecha_zarpe && form.fecha_recalada && form.fecha_recalada < form.fecha_zarpe)
@@ -491,15 +664,17 @@ export default function P2_VoyageSetup() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+
     const voyageData = {
       vessel,
-      puerto_zarpe: puertoZarpe,
-      destinos,
-      fecha_zarpe:           form.fecha_zarpe,
-      fecha_recalada:        form.fecha_recalada,
+      puerto_zarpe:           puertoZarpe,
+      destinos,               // incluye especie_id por destino cuando aplica
+      fecha_zarpe:            form.fecha_zarpe,
+      fecha_recalada:         form.fecha_recalada,
       combustible_disponible: parseFloat(form.combustible_disponible),
-      timestamp:             new Date().toISOString(),
+      timestamp:              new Date().toISOString(),
     };
+
     localStorage.setItem('voyage_setup', JSON.stringify(voyageData));
     localStorage.removeItem('voyage_setup_draft');
     navigate('/voyage-check');
@@ -555,6 +730,7 @@ export default function P2_VoyageSetup() {
             onQuitar={() => quitarDestino(idx)}
             mostrarQuitar={destinos.length > 1}
             error={errores[`destino_${idx}`]}
+            errores={errores}
           />
         ))}
 
