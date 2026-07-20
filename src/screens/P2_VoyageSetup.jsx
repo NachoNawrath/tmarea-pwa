@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import caletasData from '../data/caletas_chile.json';
+import maritimeData from '../data/maritime_data.json';                        // ← NUEVO
+import { isSportLicense, validateLicenseRoute } from '../utils/license-rules.js'; // ← NUEVO
+import { getNearestCapitania, isCircularRoute } from '../utils/maritime-geo.js';   // ← NUEVO
+import { LicenseAlert, DepartureModal, SafetyChecklist } from '../components/DeportiveAlerts.jsx'; // ← NUEVO
 
 const API_BASE = 'http://localhost:3000';
 const DEBOUNCE_MS = 350;
@@ -19,6 +23,18 @@ function buscarCaletasLocal(query, limit = 8) {
     .slice(0, limit);
 }
 
+// ─── Búsqueda local sobre destinos_deportivos de maritime_data.json ──────────  ← NUEVO
+function buscarDestinosDeportivos(query, limit = 6) {
+  if (!query || query.length < 2) return [];
+  const q = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return maritimeData.destinos_deportivos
+    .filter(d => {
+      const nombre = d.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return nombre.includes(q);
+    })
+    .slice(0, limit);
+}
+
 function useDebounce(fn, delay) {
   const timer = useRef(null);
   return useCallback((...args) => {
@@ -27,19 +43,26 @@ function useDebounce(fn, delay) {
   }, [fn, delay]);
 }
 
-// ─── Tipos de destino — ahora incluye caladero ───────────────────────────────
+// ─── Tipos de destino — comercial/artesanal (sin cambios) ────────────────────
 const TIPOS_DESTINO = [
-  { id: 'puerto',    label: 'Puerto o caleta',   emoji: '⚓' },
-  { id: 'salmon',    label: 'Centro salmonero',   emoji: '🐟' },
-  { id: 'mitilido',  label: 'Centro mitílidos',   emoji: '🦪' },
-  { id: 'caladero',  label: 'Caladero / Zona pesca', emoji: '🎣' },
-  { id: 'coordenadas', label: 'Coordenadas GPS',  emoji: '📌' },
+  { id: 'puerto',      label: 'Puerto o caleta',      emoji: '⚓' },
+  { id: 'salmon',      label: 'Centro salmonero',      emoji: '🐟' },
+  { id: 'mitilido',    label: 'Centro mitílidos',      emoji: '🦪' },
+  { id: 'caladero',    label: 'Caladero / Zona pesca', emoji: '🎣' },
+  { id: 'coordenadas', label: 'Coordenadas GPS',       emoji: '📌' },
 ];
 
-// ─── Tipos en los que el selector de especie es visible ─────────────────────
+// ─── Tipos de destino deportivo ──────────────────────────────────────────────  ← NUEVO
+const TIPOS_DESTINO_DEPORTIVO = [
+  { id: 'puerto',      label: 'Puerto / Caleta',       emoji: '⚓' },
+  { id: 'marina',      label: 'Marina / Club Náutico', emoji: '⛵' },
+  { id: 'fondeadero',  label: 'Fondeadero / Bahía',    emoji: '🏖️' },
+  { id: 'circular',    label: 'Paseo Circular',        emoji: '🔄' },
+  { id: 'coordenadas', label: 'Coordenadas GPS',       emoji: '📌' },
+];
+
 const TIPOS_CON_ESPECIE = ['caladero', 'coordenadas'];
 
-// Configuración de búsqueda por tipo de destino
 const CONFIG_BUSQUEDA = {
   puerto: {
     placeholder: 'Ej: Puerto Montt, Quellón, Dalcahue...',
@@ -82,7 +105,7 @@ const CONFIG_BUSQUEDA = {
   caladero: {
     placeholder: 'Ej: Caramucho, Dalcahue, Carelmapu...',
     helper: 'Busca por nombre de caleta, sector o comuna — cobertura nacional',
-    endpoint: null,               // Búsqueda local sobre caletas_chile.json
+    endpoint: null,
     parseResponse: () => [],
     renderItem: (c) => ({
       linea1: c.nombre,
@@ -91,6 +114,31 @@ const CONFIG_BUSQUEDA = {
     }),
     labelSeleccionado: (c) => c?.nombre ? `${c.nombre} — ${c.comuna}` : '',
     queryInicial: (v) => v?.nombre ? `${v.nombre} — ${v.comuna}` : '',
+  },
+  // ← NUEVO: marina y fondeadero buscan en destinos_deportivos
+  marina: {
+    placeholder: 'Ej: Club de Yates, Marina Anahuac, Cofradía...',
+    helper: 'Busca por nombre de marina o club náutico',
+    endpoint: null,
+    parseResponse: () => [],
+    renderItem: (d) => ({
+      linea1: d.name,
+      linea2: d.safety_tips,
+    }),
+    labelSeleccionado: (d) => d?.name || '',
+    queryInicial: (v) => v?.name || '',
+  },
+  fondeadero: {
+    placeholder: 'Ej: Tunquén, bahía, playa...',
+    helper: 'Busca por nombre de fondeadero o bahía',
+    endpoint: null,
+    parseResponse: () => [],
+    renderItem: (d) => ({
+      linea1: d.name,
+      linea2: d.safety_tips,
+    }),
+    labelSeleccionado: (d) => d?.name || '',
+    queryInicial: (v) => v?.name || '',
   },
 };
 
@@ -127,52 +175,29 @@ const estilos = {
   sinConexion:  { fontSize: '12px', color: '#c62828', marginTop: '4px' },
   buscando:     { position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#888' },
   btnLimpiar:   { position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', fontSize: '13px', padding: 0 },
+  especieBloque: { marginTop: '14px', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '14px' },
+  especieLabel: { display: 'block', fontWeight: '600', fontSize: '13px', color: '#5d4037', marginBottom: '8px' },
+  especieSelect: { width: '100%', padding: '10px 14px', border: '1px solid #ffb300', borderRadius: '8px', fontSize: '14px', background: 'white', color: '#333', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' },
+  especieHint: { fontSize: '11px', color: '#795548', marginTop: '6px', fontStyle: 'italic' },
+  especieSeleccionada: { marginTop: '8px', padding: '8px 12px', background: '#fff3e0', borderRadius: '6px', fontSize: '12px', color: '#e65100', fontStyle: 'italic' },
 
-  // ── Estilos exclusivos del módulo de pesca ──
-  especieBloque: {
-    marginTop: '14px',
-    background: '#fff8e1',
-    border: '1px solid #ffe082',
-    borderRadius: '8px',
-    padding: '14px',
-  },
-  especieLabel: {
-    display: 'block',
-    fontWeight: '600',
-    fontSize: '13px',
-    color: '#5d4037',
-    marginBottom: '8px',
-  },
-  especieSelect: {
-    width: '100%',
-    padding: '10px 14px',
-    border: '1px solid #ffb300',
-    borderRadius: '8px',
-    fontSize: '14px',
-    background: 'white',
-    color: '#333',
-    outline: 'none',
-    cursor: 'pointer',
-    boxSizing: 'border-box',
-  },
-  especieHint: {
-    fontSize: '11px',
-    color: '#795548',
-    marginTop: '6px',
-    fontStyle: 'italic',
-  },
-  especieSeleccionada: {
-    marginTop: '8px',
-    padding: '8px 12px',
-    background: '#fff3e0',
-    borderRadius: '6px',
-    fontSize: '12px',
-    color: '#e65100',
-    fontStyle: 'italic',
-  },
+  // ← NUEVO: estilos bloque deportivo
+  deportivoCard: { marginTop: '14px', background: '#f0f7ff', border: '1px solid #bbdefb', borderRadius: '10px', padding: '14px' },
+  deportivoTip:  { fontSize: '12px', color: '#1565c0', marginTop: '8px', fontStyle: 'italic', lineHeight: '1.5' },
+  circularBox:   { marginTop: '12px', background: '#e8f5e9', border: '1px solid #a5d6a7', borderRadius: '8px', padding: '12px' },
+  duracionGrid:  { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginTop: '8px' },
+  btnDuracion:   (activo) => ({
+    padding: '10px 4px', borderRadius: '8px', cursor: 'pointer', textAlign: 'center',
+    fontWeight: '700', fontSize: '14px',
+    background: activo ? '#e8f4fd' : 'white',
+    border: activo ? '2px solid #0052a3' : '1px solid #d0d0d0',
+    color: activo ? '#0052a3' : '#555',
+  }),
+  capitaniaBox:  { marginTop: '10px', background: '#fff', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' },
+  vhfBadge:      { display: 'inline-block', background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: '6px', padding: '3px 8px', color: '#1565c0', fontSize: '12px', fontWeight: '700' },
 };
 
-// ─── Buscador genérico — sirve para puerto, salmon, mitilido ────────────────
+// ─── Buscador genérico (sin cambios, excepto soporte marina/fondeadero) ───────
 function Buscador({ tipo, value, onSelect, onClear, error }) {
   const cfg = CONFIG_BUSQUEDA[tipo];
   const [query, setQuery]             = useState(cfg.queryInicial(value));
@@ -196,10 +221,22 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
   const buscar = async (texto) => {
     if (texto.length < 2) { setSugerencias([]); return; }
 
-    // Caladero: búsqueda local instantánea sin fetch
     if (tipo === 'caladero') {
-      const resultados = buscarCaletasLocal(texto);
-      setSugerencias(resultados);
+      setSugerencias(buscarCaletasLocal(texto));
+      return;
+    }
+
+    // ← NUEVO: marina y fondeadero usan búsqueda local en maritime_data
+    if (tipo === 'marina') {
+      const todos = maritimeData.destinos_deportivos.filter(d => d.type === 'MARINA');
+      const q = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      setSugerencias(todos.filter(d => d.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q)));
+      return;
+    }
+    if (tipo === 'fondeadero') {
+      const todos = maritimeData.destinos_deportivos.filter(d => d.type === 'ANCHORAGE');
+      const q = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      setSugerencias(todos.filter(d => d.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q)));
       return;
     }
 
@@ -229,18 +266,15 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
     setHoverIdx(-1);
   };
 
-  const handleLimpiar = () => {
-    setQuery('');
-    onClear();
-    setSugerencias([]);
-  };
+  const handleLimpiar = () => { setQuery(''); onClear(); setSugerencias([]); };
 
-  // Para caladero: texto libre sin selección del dropdown
   const handleChangeCaladero = (texto) => {
     setQuery(texto);
-    onClear(); // limpia selección previa mientras escribe
-    buscarD(texto); // dispara búsqueda local
+    onClear();
+    buscarD(texto);
   };
+
+  const esLocalSinSeleccion = ['caladero', 'marina', 'fondeadero'].includes(tipo);
 
   return (
     <div ref={wrapperRef} style={{ position: 'relative' }}>
@@ -248,7 +282,7 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
         <input
           value={query}
           onChange={e => {
-            if (tipo === 'caladero') {
+            if (esLocalSinSeleccion) {
               handleChangeCaladero(e.target.value);
             } else {
               setQuery(e.target.value);
@@ -271,7 +305,6 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
       </div>
 
       <div style={estilos.helper}>ℹ {cfg.helper}</div>
-
       {sinConexion && <div style={estilos.sinConexion}>⚠ Sin conexión al servidor</div>}
 
       {sugerencias.length > 0 && (
@@ -303,22 +336,17 @@ function Buscador({ tipo, value, onSelect, onClear, error }) {
   );
 }
 
-// ─── Selector de especie objetivo (pesca artesanal) ──────────────────────────
+// ─── SelectorEspecie (sin cambios) ───────────────────────────────────────────
 function SelectorEspecie({ especieId, onSelect, error }) {
   const [especies, setEspecies] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errCarga, setErrCarga] = useState(null);
 
   useEffect(() => {
-    // Carga el listado desde el endpoint /api/marine-weather/especies
     fetch(`${API_BASE}/api/marine-weather/especies`)
       .then(r => r.json())
-      .then(data => {
-        setEspecies(data.data || []);
-        setCargando(false);
-      })
+      .then(data => { setEspecies(data.data || []); setCargando(false); })
       .catch(() => {
-        // Fallback: listado hardcodeado desde especies_pesca.json para no bloquear el flujo
         setEspecies([
           { id: 1, especie: 'Merluza del Sur',          nombre_cientifico: 'Merluccius australis' },
           { id: 2, especie: 'Reineta',                   nombre_cientifico: 'Brama australis' },
@@ -337,10 +365,7 @@ function SelectorEspecie({ especieId, onSelect, error }) {
 
   return (
     <div style={estilos.especieBloque}>
-      <label style={estilos.especieLabel}>
-        🐠 ¿Qué recurso busca explotar?
-      </label>
-
+      <label style={estilos.especieLabel}>🐠 ¿Qué recurso busca explotar?</label>
       {cargando ? (
         <div style={{ fontSize: '13px', color: '#888', padding: '8px 0' }}>Cargando especies...</div>
       ) : (
@@ -351,42 +376,30 @@ function SelectorEspecie({ especieId, onSelect, error }) {
         >
           <option value="">— Selecciona la especie objetivo —</option>
           {especies.map(esp => (
-            <option key={esp.id} value={esp.id}>
-              {esp.especie} ({esp.nombre_cientifico})
-            </option>
+            <option key={esp.id} value={esp.id}>{esp.especie} ({esp.nombre_cientifico})</option>
           ))}
         </select>
       )}
-
       {errCarga && <div style={estilos.especieHint}>⚠ {errCarga}</div>}
-
       {!errCarga && !cargando && (
-        <div style={estilos.especieHint}>
-          Al verificar condiciones recibirás temperatura del mar, clorofila y alertas normativas para esta especie en el punto de destino.
-        </div>
+        <div style={estilos.especieHint}>Al verificar condiciones recibirás temperatura del mar, clorofila y alertas normativas para esta especie en el punto de destino.</div>
       )}
-
       {especieActual && (
-        <div style={estilos.especieSeleccionada}>
-          📋 {especieActual.especie} · <em>{especieActual.nombre_cientifico}</em>
-        </div>
+        <div style={estilos.especieSeleccionada}>📋 {especieActual.especie} · <em>{especieActual.nombre_cientifico}</em></div>
       )}
-
       {error && <div style={estilos.errorField}>⚠ {error}</div>}
     </div>
   );
 }
 
-// ─── Input de coordenadas GPS con calculadora DMS ────────────────────────────
+// ─── InputCoordenadas (sin cambios) ──────────────────────────────────────────
 function InputCoordenadas({ value, onChange, error }) {
   const [mostrarCalc, setMostrarCalc] = useState(false);
   const [dms, setDms] = useState({ latG: '', latM: '', latS: '', lngG: '', lngM: '', lngS: '' });
   const [resultadoCalc, setResultadoCalc] = useState(null);
 
   const dmsADecimal = (g, m, s) => {
-    const gn = parseFloat(g) || 0;
-    const mn = parseFloat(m) || 0;
-    const sn = parseFloat(s) || 0;
+    const gn = parseFloat(g) || 0, mn = parseFloat(m) || 0, sn = parseFloat(s) || 0;
     if (!g) return null;
     return parseFloat((gn + mn / 60 + sn / 3600).toFixed(6));
   };
@@ -435,54 +448,33 @@ function InputCoordenadas({ value, onChange, error }) {
             style={{ ...estilos.input, borderColor: error ? '#f44336' : '#d0d0d0' }} />
         </div>
       </div>
-
       <div style={estilos.helper}>ℹ Ingresa coordenadas en grados decimales negativos (Sur/Oeste)</div>
-
       {value?.lat && value?.lng && !isNaN(value.lat) && !isNaN(value.lng) && (
         <div style={{ ...estilos.seleccionado, marginTop: '6px' }}>
           <span>✓ {parseFloat(value.lat).toFixed(6)}°S, {parseFloat(value.lng).toFixed(6)}°O</span>
         </div>
       )}
-
-      <button
-        onClick={() => setMostrarCalc(v => !v)}
+      <button onClick={() => setMostrarCalc(v => !v)}
         style={{ marginTop: '10px', padding: '6px 14px', background: 'white', border: '1px solid #1565c0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#1565c0', fontWeight: '600' }}>
         {mostrarCalc ? '✕ Cerrar calculadora' : '🧮 Tengo coordenadas en grados, minutos y segundos (WGS84)'}
       </button>
-
       {mostrarCalc && (
         <div style={ec.caja}>
           <div style={ec.titulo}>Convertidor Datum WGS84 → Grados decimales</div>
-          <div style={ec.ejemplo}>
-            <strong>Ejemplo:</strong> 42° 6′ 14.19″ S → 42 + 6/60 + 14.19/3600 = <strong>−42.103942°</strong>
-          </div>
-
+          <div style={ec.ejemplo}><strong>Ejemplo:</strong> 42° 6′ 14.19″ S → 42 + 6/60 + 14.19/3600 = <strong>−42.103942°</strong></div>
           <div style={{ marginTop: '12px', marginBottom: '4px', fontSize: '12px', fontWeight: '700', color: '#333' }}>Latitud Sur</div>
           <div style={ec.fila}>
             {[['latG','Grados °','42'],['latM','Minutos ′','6'],['latS','Segundos ″','14.19']].map(([k,lbl,ph]) => (
-              <div key={k}>
-                <label style={ec.labelDms}>{lbl}</label>
-                <input type="number" placeholder={ph} value={dms[k]}
-                  onChange={e => setDms(d => ({ ...d, [k]: e.target.value }))}
-                  style={ec.inputDms} />
-              </div>
+              <div key={k}><label style={ec.labelDms}>{lbl}</label><input type="number" placeholder={ph} value={dms[k]} onChange={e => setDms(d => ({ ...d, [k]: e.target.value }))} style={ec.inputDms} /></div>
             ))}
           </div>
-
           <div style={{ marginBottom: '4px', fontSize: '12px', fontWeight: '700', color: '#333' }}>Longitud Oeste</div>
           <div style={ec.fila}>
             {[['lngG','Grados °','73'],['lngM','Minutos ′','7'],['lngS','Segundos ″','55.2']].map(([k,lbl,ph]) => (
-              <div key={k}>
-                <label style={ec.labelDms}>{lbl}</label>
-                <input type="number" placeholder={ph} value={dms[k]}
-                  onChange={e => setDms(d => ({ ...d, [k]: e.target.value }))}
-                  style={ec.inputDms} />
-              </div>
+              <div key={k}><label style={ec.labelDms}>{lbl}</label><input type="number" placeholder={ph} value={dms[k]} onChange={e => setDms(d => ({ ...d, [k]: e.target.value }))} style={ec.inputDms} /></div>
             ))}
           </div>
-
           <button onClick={calcular} style={ec.btnCalc}>Convertir →</button>
-
           {resultadoCalc && (
             <div style={ec.resultado}>
               <div>📍 Latitud: <strong>{resultadoCalc.lat}°</strong></div>
@@ -496,20 +488,21 @@ function InputCoordenadas({ value, onChange, error }) {
   );
 }
 
-// ─── Selector de destino (tipo + buscador + especie si aplica) ───────────────
-function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, error, errores }) {
+// ─── SelectorDestino — detecta perfil y muestra tabs correctos ───────────────
+function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, error, errores, isSport }) {
   const { tipo } = destino;
+  const tiposActivos = isSport ? TIPOS_DESTINO_DEPORTIVO : TIPOS_DESTINO; // ← NUEVO
 
   const setTipo = (t) => onChange({
     tipo: t,
-    puerto:      null,
-    centro:      null,
-    coordenadas: null,
-    caladero:    null,
-    especie_id:  null,    // se resetea al cambiar tipo
+    puerto: null, centro: null, coordenadas: null,
+    caladero: null, marina: null, fondeadero: null, // ← NUEVO: marina/fondeadero
+    especie_id: null,
+    duracion_circular: null,                        // ← NUEVO
   });
 
-  const mostrarEspecie = TIPOS_CON_ESPECIE.includes(tipo);
+  const mostrarEspecie = !isSport && TIPOS_CON_ESPECIE.includes(tipo);
+  const esCircular     = isSport && tipo === 'circular'; // ← NUEVO
 
   return (
     <div style={idx > 0 ? estilos.divider : {}}>
@@ -522,30 +515,87 @@ function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, erro
 
       {/* Tabs de tipo */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-        {TIPOS_DESTINO.map(t => (
+        {tiposActivos.map(t => (
           <button key={t.id} onClick={() => setTipo(t.id)} style={estilos.btnTipo(tipo === t.id)}>
             {t.emoji} {t.label}
           </button>
         ))}
       </div>
 
-      {/* Buscadores según tipo */}
+      {/* Buscadores */}
       {(tipo === 'puerto' || tipo === 'salmon' || tipo === 'mitilido' || tipo === 'caladero') && (
         <Buscador
           tipo={tipo}
           value={tipo === 'puerto' ? destino.puerto : tipo === 'caladero' ? destino.caladero : destino.centro}
           onSelect={item => {
-            if (tipo === 'puerto')   onChange({ ...destino, puerto: item });
+            if (tipo === 'puerto')        onChange({ ...destino, puerto: item });
             else if (tipo === 'caladero') onChange({ ...destino, caladero: item });
-            else onChange({ ...destino, centro: item });
+            else                          onChange({ ...destino, centro: item });
           }}
           onClear={() => {
-            if (tipo === 'puerto')   onChange({ ...destino, puerto: null });
+            if (tipo === 'puerto')        onChange({ ...destino, puerto: null });
             else if (tipo === 'caladero') onChange({ ...destino, caladero: null });
-            else onChange({ ...destino, centro: null });
+            else                          onChange({ ...destino, centro: null });
           }}
           error={!mostrarEspecie ? error : null}
         />
+      )}
+
+      {/* ← NUEVO: marina */}
+      {tipo === 'marina' && (
+        <Buscador
+          tipo="marina"
+          value={destino.marina}
+          onSelect={item => onChange({ ...destino, marina: item })}
+          onClear={() => onChange({ ...destino, marina: null })}
+          error={error}
+        />
+      )}
+
+      {/* ← NUEVO: fondeadero */}
+      {tipo === 'fondeadero' && (
+        <Buscador
+          tipo="fondeadero"
+          value={destino.fondeadero}
+          onSelect={item => onChange({ ...destino, fondeadero: item })}
+          onClear={() => onChange({ ...destino, fondeadero: null })}
+          error={error}
+        />
+      )}
+
+      {/* ← NUEVO: circular — solo muestra selector de duración */}
+      {esCircular && (
+        <div style={estilos.circularBox}>
+          <div style={{ fontSize: '13px', fontWeight: '600', color: '#2e7d32', marginBottom: '6px' }}>
+            🔄 Paseo circular — regresarás al mismo punto de zarpe
+          </div>
+          <div style={{ fontSize: '12px', color: '#555', marginBottom: '8px' }}>¿Cuánto tiempo estimas navegar?</div>
+          <div style={estilos.duracionGrid}>
+            {['1h', '2h', '3h', '4h+'].map(opt => (
+              <button key={opt} onClick={() => onChange({ ...destino, duracion_circular: opt })}
+                style={estilos.btnDuracion(destino.duracion_circular === opt)}>
+                {opt}
+              </button>
+            ))}
+          </div>
+          {!destino.duracion_circular && error && (
+            <div style={{ ...estilos.errorField, marginTop: '8px' }}>⚠ Selecciona la duración estimada</div>
+          )}
+        </div>
+      )}
+
+      {/* ← NUEVO: tip de seguridad para marina/fondeadero seleccionado */}
+      {(tipo === 'marina' && destino.marina?.safety_tips) && (
+        <div style={estilos.deportivoCard}>
+          <div style={{ fontSize: '12px', fontWeight: '700', color: '#1565c0', marginBottom: '4px' }}>💡 Nota de seguridad</div>
+          <div style={estilos.deportivoTip}>{destino.marina.safety_tips}</div>
+        </div>
+      )}
+      {(tipo === 'fondeadero' && destino.fondeadero?.safety_tips) && (
+        <div style={estilos.deportivoCard}>
+          <div style={{ fontSize: '12px', fontWeight: '700', color: '#1565c0', marginBottom: '4px' }}>💡 Nota de seguridad</div>
+          <div style={estilos.deportivoTip}>{destino.fondeadero.safety_tips}</div>
+        </div>
       )}
 
       {tipo === 'coordenadas' && (
@@ -556,7 +606,6 @@ function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, erro
         />
       )}
 
-      {/* ── Selector de especie (solo en caladero y coordenadas) ── */}
       {mostrarEspecie && (
         <SelectorEspecie
           especieId={destino.especie_id}
@@ -565,19 +614,18 @@ function SelectorDestino({ idx, destino, onChange, onQuitar, mostrarQuitar, erro
         />
       )}
 
-      {error && <div style={estilos.errorField}>⚠ {error}</div>}
+      {error && !esCircular && <div style={estilos.errorField}>⚠ {error}</div>}
     </div>
   );
 }
 
 // ─── Pantalla principal P2 ───────────────────────────────────────────────────
 const DESTINO_VACIO = {
-  tipo:        'puerto',
-  puerto:      null,
-  centro:      null,
-  coordenadas: null,
-  caladero:    null,
-  especie_id:  null,
+  tipo: 'puerto',
+  puerto: null, centro: null, coordenadas: null,
+  caladero: null, marina: null, fondeadero: null, // ← NUEVO
+  especie_id: null,
+  duracion_circular: null,                        // ← NUEVO
 };
 
 export default function P2_VoyageSetup() {
@@ -589,10 +637,18 @@ export default function P2_VoyageSetup() {
   const [errores, setErrores]           = useState({});
   const [errorGeneral, setErrorGeneral] = useState(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('vessel_profile');
-    if (!stored) { navigate('/vessel-profile'); return; }
-    setVessel(JSON.parse(stored));
+  // ← NUEVO: estado para modales deportivos
+  const [showDepartureModal, setShowDepartureModal] = useState(false);
+  const [showChecklist, setShowChecklist]           = useState(false);
+  const [licenseValidation, setLicenseValidation]   = useState(null);
+
+    useEffect(() => {
+    const storedVessel = localStorage.getItem('vessel_profile');
+    const storedUser   = localStorage.getItem('user_profile');
+    if (!storedVessel) { navigate('/vessel-profile'); return; }
+    const vessel = JSON.parse(storedVessel);
+    const user   = storedUser ? JSON.parse(storedUser) : {};
+    setVessel({ ...vessel, licenseType: user.licenseType || '' });
 
     const draft = localStorage.getItem('voyage_setup_draft');
     if (draft) {
@@ -610,6 +666,43 @@ export default function P2_VoyageSetup() {
     localStorage.setItem('voyage_setup_draft', JSON.stringify({ puerto_zarpe: puertoZarpe, destinos, form }));
   }, [puertoZarpe, destinos, form]);
 
+  // ← NUEVO: detectar perfil deportivo
+  const isSport = useMemo(() => vessel ? isSportLicense(vessel.licenseType || '') : false, [vessel]);
+
+  // ← NUEVO: capitanía más cercana al zarpe
+  const nearestCapitania = useMemo(() => {
+    if (!isSport || !puertoZarpe) return null;
+    const lat = puertoZarpe.ubicacion?.lat ?? puertoZarpe.lat;
+    const lng = puertoZarpe.ubicacion?.lng ?? puertoZarpe.lng;
+    if (!lat || !lng) return null;
+    const result = getNearestCapitania(lat, lng, maritimeData.capitanias);
+    return result?.capitania ?? null;
+  }, [isSport, puertoZarpe]);
+
+  // ← NUEVO: validación de licencia en tiempo real
+  useEffect(() => {
+    if (!isSport || !puertoZarpe || !destinos[0]) { setLicenseValidation(null); return; }
+
+    const origin = {
+      lat: puertoZarpe.ubicacion?.lat ?? puertoZarpe.lat,
+      lng: puertoZarpe.ubicacion?.lng ?? puertoZarpe.lng,
+    };
+
+    // Destino principal (primer destino)
+    const d = destinos[0];
+    let destCoords = null;
+    if (d.tipo === 'puerto'     && d.puerto)      destCoords = { lat: d.puerto.ubicacion?.lat, lng: d.puerto.ubicacion?.lng };
+    if (d.tipo === 'marina'     && d.marina)       destCoords = { lat: d.marina.lat, lng: d.marina.lng };
+    if (d.tipo === 'fondeadero' && d.fondeadero)   destCoords = { lat: d.fondeadero.lat, lng: d.fondeadero.lng };
+    if (d.tipo === 'coordenadas' && d.coordenadas) destCoords = { lat: parseFloat(d.coordenadas.lat), lng: parseFloat(d.coordenadas.lng) };
+    if (d.tipo === 'circular')                     destCoords = origin; // circular = mismo punto
+
+    if (!destCoords?.lat || !destCoords?.lng || !origin.lat || !origin.lng) { setLicenseValidation(null); return; }
+
+    const result = validateLicenseRoute(vessel.licenseType || '', origin, destCoords, []);
+    setLicenseValidation(result);
+  }, [isSport, puertoZarpe, destinos, vessel]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -624,7 +717,7 @@ export default function P2_VoyageSetup() {
     setErrores(prev => ({ ...prev, [`destino_${idx}`]: null, [`destino_${idx}_especie`]: null }));
   };
 
-  const agregarDestino = () => setDestinos(prev => [...prev, { ...DESTINO_VACIO }]);
+  const agregarDestino = () => setDestinos(prev => [...prev, { ...DESTINO_VACIO, tipo: isSport ? 'puerto' : 'puerto' }]);
   const quitarDestino  = (idx) => setDestinos(prev => prev.filter((_, i) => i !== idx));
 
   const destinoValido = (d) => {
@@ -632,6 +725,9 @@ export default function P2_VoyageSetup() {
     if (d.tipo === 'salmon' || d.tipo === 'mitilido') return !!d.centro;
     if (d.tipo === 'coordenadas')                     return d.coordenadas?.lat && d.coordenadas?.lng && !isNaN(d.coordenadas.lat) && !isNaN(d.coordenadas.lng);
     if (d.tipo === 'caladero')                        return !!d.caladero?.nombre;
+    if (d.tipo === 'marina')                          return !!d.marina;      // ← NUEVO
+    if (d.tipo === 'fondeadero')                      return !!d.fondeadero;  // ← NUEVO
+    if (d.tipo === 'circular')                        return !!d.duracion_circular; // ← NUEVO
     return false;
   };
 
@@ -641,10 +737,8 @@ export default function P2_VoyageSetup() {
 
     destinos.forEach((d, i) => {
       if (!destinoValido(d)) errs[`destino_${i}`] = 'Completa este destino';
-      // Especie requerida si el tipo lo exige
-      if (TIPOS_CON_ESPECIE.includes(d.tipo) && !d.especie_id) {
+      if (!isSport && TIPOS_CON_ESPECIE.includes(d.tipo) && !d.especie_id)
         errs[`destino_${i}_especie`] = 'Selecciona el recurso que vas a explotar';
-      }
     });
 
     if (!form.fecha_zarpe)    errs.fecha_zarpe    = 'Ingresa la fecha de zarpe';
@@ -656,6 +750,7 @@ export default function P2_VoyageSetup() {
     return errs;
   };
 
+  // ← NUEVO: flujo de confirmación deportivo pasa por checklist → modal zarpe
   const handleConfirmar = () => {
     const errs = validate();
     if (Object.keys(errs).length > 0) {
@@ -665,14 +760,28 @@ export default function P2_VoyageSetup() {
       return;
     }
 
+    if (isSport) {
+      // Perfil deportivo: primero checklist de seguridad
+      setShowChecklist(true);
+      return;
+    }
+
+    guardarYNavegar();
+  };
+
+  const guardarYNavegar = () => {
     const voyageData = {
       vessel,
       puerto_zarpe:           puertoZarpe,
-      destinos,               // incluye especie_id por destino cuando aplica
+      destinos,
       fecha_zarpe:            form.fecha_zarpe,
       fecha_recalada:         form.fecha_recalada,
       combustible_disponible: parseFloat(form.combustible_disponible),
       timestamp:              new Date().toISOString(),
+      // ← NUEVO: datos deportivos
+      is_sport_profile:       isSport,
+      license_validation:     licenseValidation,
+      nearest_capitania:      nearestCapitania,
     };
 
     localStorage.setItem('voyage_setup', JSON.stringify(voyageData));
@@ -693,9 +802,20 @@ export default function P2_VoyageSetup() {
         <h1 style={estilos.titulo}>Configurar Viaje</h1>
         <p style={estilos.subtitulo}>Ingresa los datos del viaje que vas a realizar.</p>
         <span style={estilos.nave}>🚢 {vessel.nombre || vessel.tipo} · {vessel.eslora}m · {vessel.trg} TRG · {vessel.velocidad_crucero} kn</span>
+        {/* ← NUEVO: badge perfil deportivo */}
+        {isSport && (
+          <span style={{ display: 'inline-block', marginTop: '6px', marginLeft: '8px', padding: '4px 10px', background: '#e8f5e9', borderRadius: '20px', fontSize: '12px', color: '#2e7d32', fontWeight: '600' }}>
+            ⛵ Perfil Deportivo · {vessel.tipo_licencia}
+          </span>
+        )}
       </header>
 
       {errorGeneral && <div style={estilos.errorBanner}>⚠ {errorGeneral}</div>}
+
+      {/* ← NUEVO: alerta de licencia inline (solo deportivo) */}
+      {isSport && licenseValidation?.hasViolation && (
+        <LicenseAlert alerts={licenseValidation.alerts} licenseCode={licenseValidation.licenseCode} />
+      )}
 
       {/* Puerto de zarpe */}
       <div style={estilos.seccion}>
@@ -708,6 +828,21 @@ export default function P2_VoyageSetup() {
           error={errores.zarpe}
         />
         {errores.zarpe && <div style={estilos.errorField}>⚠ {errores.zarpe}</div>}
+
+        {/* ← NUEVO: capitanía del zarpe (solo deportivo) */}
+        {isSport && nearestCapitania && (
+          <div style={estilos.capitaniaBox}>
+            <span style={{ fontSize: '18px' }}>📡</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '12px', color: '#555', marginBottom: '2px' }}>Capitanía de zarpe</div>
+              <div style={{ fontSize: '13px', fontWeight: '700', color: '#1a1a2e', marginBottom: '4px' }}>{nearestCapitania.name}</div>
+              <span style={estilos.vhfBadge}>VHF Ch {nearestCapitania.vhf_primary}</span>
+              {nearestCapitania.vhf_secondary && (
+                <span style={{ ...estilos.vhfBadge, marginLeft: '6px', opacity: 0.7 }}>Ch {nearestCapitania.vhf_secondary}</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Destinos */}
@@ -731,10 +866,14 @@ export default function P2_VoyageSetup() {
             mostrarQuitar={destinos.length > 1}
             error={errores[`destino_${idx}`]}
             errores={errores}
+            isSport={isSport}  // ← NUEVO
           />
         ))}
 
-        <button onClick={agregarDestino} style={estilos.btnAgregar}>+ Agregar otro destino</button>
+        {/* Ocultar "agregar destino" en circular (no tiene sentido) */}
+        {!(isSport && destinos[0]?.tipo === 'circular') && (
+          <button onClick={agregarDestino} style={estilos.btnAgregar}>+ Agregar otro destino</button>
+        )}
       </div>
 
       {/* Fechas */}
@@ -766,8 +905,38 @@ export default function P2_VoyageSetup() {
       {/* Acciones */}
       <div style={estilos.acciones}>
         <button onClick={() => navigate('/vessel-profile')} style={estilos.btnSecundario}>← Volver</button>
-        <button onClick={handleConfirmar} style={estilos.btnPrimario}>Verificar condiciones del viaje →</button>
+        <button onClick={handleConfirmar} style={{
+          ...estilos.btnPrimario,
+          // ← NUEVO: bloquear si hay violación ilegal de licencia
+          opacity: licenseValidation?.severity === 'illegal' ? 0.5 : 1,
+          cursor:  licenseValidation?.severity === 'illegal' ? 'not-allowed' : 'pointer',
+        }}
+          disabled={licenseValidation?.severity === 'illegal'}
+        >
+          {isSport ? 'Verificar viaje deportivo →' : 'Verificar condiciones del viaje →'}
+        </button>
       </div>
+
+      {/* ← NUEVO: Checklist de seguridad (modal paso 1 deportivo) */}
+      {showChecklist && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 999 }}>
+          <div style={{ width: '100%', maxWidth: '480px', background: '#0D2137', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px' }}>
+            <SafetyChecklist
+              onAllChecked={() => { setShowChecklist(false); setShowDepartureModal(true); }}
+              onCancel={() => setShowChecklist(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ← NUEVO: Modal de zarpe (modal paso 2 deportivo) */}
+      <DepartureModal
+        isOpen={showDepartureModal}
+        capitania={nearestCapitania}
+        destinationType={destinos[0]?.tipo?.toUpperCase()}
+        onConfirm={() => { setShowDepartureModal(false); guardarYNavegar(); }}
+        onClose={() => setShowDepartureModal(false)}
+      />
     </div>
   );
 }

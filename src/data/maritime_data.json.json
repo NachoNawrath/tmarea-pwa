@@ -1,0 +1,93 @@
+{
+  "capitanias": [
+    {
+      "id": "cap_valparaiso",
+      "name": "Gobernación Marítima de Valparaíso",
+      "lat": -33.0245,
+      "lng": -71.6322,
+      "radius_km": 40,
+      "vhf_primary": "16",
+      "vhf_secondary": "14",
+      "phone": "+56322204000",
+      "tips": "Atención a tráfico comercial mayor en la poza. Mantener resguardo."
+    },
+    {
+      "id": "cap_algarrobo",
+      "name": "Capitanía de Puerto de Algarrobo",
+      "lat": -33.3642,
+      "lng": -71.6645,
+      "radius_km": 25,
+      "vhf_primary": "16",
+      "vhf_secondary": "14",
+      "phone": "+56352481024",
+      "tips": "Zona de alta densidad de yates y veleros los fines de semana. Cuidado con fondeaderos de Yates."
+    },
+    {
+      "id": "cap_quintero",
+      "name": "Capitanía de Puerto de Quintero",
+      "lat": -32.7831,
+      "lng": -71.5264,
+      "radius_km": 30,
+      "vhf_primary": "16",
+      "vhf_secondary": "12",
+      "phone": "+56322930053",
+      "tips": "Cuidado con viento Sur-Weste (Surazo) fuerte en las tardes al aproximar a Higuerillas."
+    },
+    {
+      "id": "cap_puerto_montt",
+      "name": "Gobernación Marítima de Puerto Montt",
+      "lat": -41.4717,
+      "lng": -72.9419,
+      "radius_km": 35,
+      "vhf_primary": "16",
+      "vhf_secondary": "14",
+      "phone": "+56652253259",
+      "tips": "Zona de alta corriente por mareas en el Canal Tenglo. Verifique tabla de marea local."
+    },
+    {
+      "id": "cap_castro",
+      "name": "Capitanía de Puerto de Castro",
+      "lat": -42.4811,
+      "lng": -73.7634,
+      "radius_km": 30,
+      "vhf_primary": "16",
+      "vhf_secondary": "13",
+      "phone": "+56652632334",
+      "tips": "Tránsito constante de naves mayores acuícolas. Mantenga escucha activa."
+    }
+  ],
+  "destinos_deportivos": [
+    {
+      "id": "mar_cofradia",
+      "name": "Cofradía Náutica del Pacífico (Algarrobo)",
+      "type": "MARINA",
+      "lat": -33.3688,
+      "lng": -71.6692,
+      "safety_tips": "Suministro de agua, combustible y electricidad en muelle de cortesía."
+    },
+    {
+      "id": "mar_higuerillas",
+      "name": "Club de Yates Higuerillas (Concón)",
+      "type": "MARINA",
+      "lat": -32.9245,
+      "lng": -71.5432,
+      "safety_tips": "Acceso complejo con marejada del Norte. Consultar estado antes de aproximar."
+    },
+    {
+      "id": "fon_tunquen",
+      "name": "Fondeadero Playa Tunquén",
+      "type": "ANCHORAGE",
+      "lat": -33.2611,
+      "lng": -71.6542,
+      "safety_tips": "Fondo de arena, buen tenedero. Totalmente desprotegido del viento Norte."
+    },
+    {
+      "id": "fon_anahuac",
+      "name": "Fondeadero Marina Anahuac (Puerto Montt)",
+      "type": "MARINA",
+      "lat": -41.4851,
+      "lng": -72.9721,
+      "safety_tips": "Excelente resguardo climático en el canal."
+    }
+  ]
+}
