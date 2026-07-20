@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// react-router-dom eliminado
 
 const VESSEL_TYPES = [
   { value: 'lancha', label: 'Lancha' },
@@ -50,8 +50,8 @@ function campoNumerico(valor, min, max, label) {
   return null;
 }
 
-export default function P1_VesselProfile() {
-  const navigate = useNavigate();
+export default function P1_VesselProfile({ onComplete }) {
+  // navigate eliminado - usa onComplete prop
   const [form, setForm] = useState(EMPTY_FORM);
   const [errores, setErrores] = useState({});
   const [errorGeneral, setErrorGeneral] = useState(null);
@@ -130,7 +130,7 @@ export default function P1_VesselProfile() {
       setErrorGeneral('Error al guardar los datos. Intenta nuevamente.');
       return;
     }
-    navigate('/voyage-setup');
+    if (onComplete) onComplete();
   };
 
   const handleLimpiar = () => {

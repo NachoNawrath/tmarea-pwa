@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+// react-router-dom eliminado
 import caletasData from '../data/caletas_chile.json';
 import maritimeData from '../data/maritime_data.json';                        // ← NUEVO
 import { isSportLicense, validateLicenseRoute } from '../utils/license-rules.js'; // ← NUEVO
@@ -628,8 +628,8 @@ const DESTINO_VACIO = {
   duracion_circular: null,                        // ← NUEVO
 };
 
-export default function P2_VoyageSetup() {
-  const navigate = useNavigate();
+export default function P2_VoyageSetup({ onComplete }) {
+  // navigate eliminado
   const [vessel, setVessel]             = useState(null);
   const [puertoZarpe, setPuertoZarpe]   = useState(null);
   const [destinos, setDestinos]         = useState([{ ...DESTINO_VACIO }]);
@@ -786,7 +786,7 @@ export default function P2_VoyageSetup() {
 
     localStorage.setItem('voyage_setup', JSON.stringify(voyageData));
     localStorage.removeItem('voyage_setup_draft');
-    navigate('/voyage-check');
+    if (onComplete) onComplete(voyageData);
   };
 
   if (!vessel) return <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>Cargando...</div>;
