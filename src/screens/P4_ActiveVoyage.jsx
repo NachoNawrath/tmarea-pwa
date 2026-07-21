@@ -1,14 +1,15 @@
-﻿// src/screens/P4_ActiveVoyage.jsx
-// Pantalla de navegaciÃ³n activa con mapa MapLibre + capas PostGIS
+// src/screens/P4_ActiveVoyage.jsx
+// Pantalla de navegación activa con mapa MapLibre + capas PostGIS
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import VoyageReportButton from '../components/VoyageReportButton';
 import { RutasAustralesLayer } from '../components/map/RutasAustralesLayer';
+import { ConcesionesLayer, ConcesionesControl } from '../components/map/ConcesionesLayer';
 
 const BACKEND_URL = 'http://localhost:3000';
 
-// â”€â”€ Paleta Tmarea â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Paleta Tmarea ──────────────────────────────────────────────────────────
 const C = {
   marino:    '#0A2647',
   profundo:  '#042C53',
@@ -20,7 +21,7 @@ const C = {
   crema:     '#F1EFE8',
 };
 
-// â”€â”€ Hook: GPS del dispositivo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Hook: GPS del dispositivo ──────────────────────────────────────────────
 function useGPS() {
   const [pos, setPos] = useState(null);
   const [heading, setHeading] = useState(null);
@@ -46,7 +47,7 @@ function useGPS() {
   return { pos, heading };
 }
 
-// â”€â”€ Hook: carga capas PostGIS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Hook: carga capas PostGIS ──────────────────────────────────────────────
 function useMapLayers(voyageData) {
   const [capas, setCapas] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -94,7 +95,7 @@ function useMapLayers(voyageData) {
   return { capas, loading, error };
 }
 
-// â”€â”€ Componente principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Componente principal ───────────────────────────────────────────────────
 export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel }) {
   const mapContainer = useRef(null);
   const mapRef       = useRef(null);
@@ -114,7 +115,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
   // Inicio del viaje
   const inicioRef = useRef(new Date().toISOString());
 
-  // â”€â”€ Inicializar mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Inicializar mapa ────────────────────────────────────────────────────
   useEffect(() => {
     if (mapRef.current || !mapContainer.current) return;
 
@@ -131,7 +132,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
             type: 'raster',
             tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
             tileSize: 256,
-            attribution: 'Â© OpenStreetMap contributors',
+            attribution: '© OpenStreetMap contributors',
           },
           'openseamap': {
             type: 'raster',
@@ -156,14 +157,14 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
     };
   }, []);
 
-  // â”€â”€ Agregar capas PostGIS al mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Agregar capas PostGIS al mapa ───────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current || !capas) return;
 
     const map = mapRef.current;
 
     const addCapas = () => {
-      // â”€â”€ BatimetrÃ­a â”€â”€
+      // ── Batimetría ──
       if (capas.batimetria?.features?.length > 0) {
         if (map.getSource('batimetria')) {
           map.getSource('batimetria').setData(capas.batimetria);
@@ -182,7 +183,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
         }
       }
 
-      // â”€â”€ Costa (polÃ­gonos) â”€â”€
+      // ── Costa (polígonos) ──
       if (capas.mapa_base?.features?.length > 0) {
         if (map.getSource('costa')) {
           map.getSource('costa').setData(capas.mapa_base);
@@ -209,7 +210,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
         }
       }
 
-      // â”€â”€ Seamarks (balizas y faros) â”€â”€
+      // ── Seamarks (balizas y faros) ──
       if (capas.seamarks?.features?.length > 0) {
         if (map.getSource('seamarks')) {
           map.getSource('seamarks').setData(capas.seamarks);
@@ -229,7 +230,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
         }
       }
 
-      // â”€â”€ Ruta del viaje (lÃ­nea desde waypoints) â”€â”€
+      // ── Ruta del viaje (línea desde waypoints) ──
       const { puerto_zarpe, destinos } = voyageData;
       const waypoints = [
         [puerto_zarpe?.ubicacion?.lng, puerto_zarpe?.ubicacion?.lat],
@@ -270,14 +271,14 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
     }
   }, [capas, voyageData]);
 
-  // â”€â”€ Actualizar posiciÃ³n GPS en el mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Actualizar posición GPS en el mapa ─────────────────────────────────
   useEffect(() => {
     if (!mapRef.current || !pos) return;
 
     if (markerRef.current) {
       markerRef.current.setLngLat([pos.lng, pos.lat]);
     } else {
-      // Icono de embarcaciÃ³n
+      // Icono de embarcación
       const el = document.createElement('div');
       el.style.cssText = `
         width: 28px; height: 28px;
@@ -293,13 +294,13 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
         .addTo(mapRef.current);
     }
 
-    // Rotar segÃºn heading
+    // Rotar según heading
     if (heading != null && markerRef.current._element) {
       markerRef.current._element.style.transform = `rotate(${heading}deg)`;
     }
   }, [pos, heading]);
 
-  // â”€â”€ Registrar tramo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Registrar tramo ────────────────────────────────────────────────────
   const registrarTramo = useCallback((registrado) => {
     if (!tramoActivo) return;
     const ahora = new Date().toISOString();
@@ -313,12 +314,12 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
       duracion_min: Math.round(duracion_min),
       distancia_mn: tramoActivo.distancia_mn || null,
       registrado,
-      nota:         registrado ? null : 'Tramo navegado de memoria â€” excluido del informe',
+      nota:         registrado ? null : 'Tramo navegado de memoria — excluido del informe',
     }]);
     setTramoActivo(null);
   }, [tramoActivo]);
 
-  // â”€â”€ Cerrar viaje â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Cerrar viaje ───────────────────────────────────────────────────────
   const [combPropulsion, setCombPropulsion] = useState('');
   const [combGenerador,  setCombGenerador]  = useState('');
   const [horaLlegada,    setHoraLlegada]    = useState('');
@@ -339,7 +340,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
     setShowReport(true);
   };
 
-  // â”€â”€ ETA restante (estimado simple) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── ETA restante (estimado simple) ─────────────────────────────────────
   const etaRestante = () => {
     const etaTotal = voyageData?.navegacion_estimada?.eta_horas;
     if (!etaTotal) return null;
@@ -349,18 +350,18 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
     return `${Math.floor(restante)}h ${Math.round((restante % 1) * 60)}m`;
   };
 
-  // â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── RENDER ──────────────────────────────────────────────────────────────
   return (
     <div style={styles.container}>
 
-      {/* â”€â”€ Header â”€â”€ */}
+      {/* ── Header ── */}
       <div style={styles.header}>
-        <button style={styles.cancelBtn} onClick={() => setShowClose(true)}>âœ•</button>
+        <button style={styles.cancelBtn} onClick={() => setShowClose(true)}>✕</button>
         <div style={styles.headerCenter}>
           <span style={styles.headerTitle}>
             T<span style={{ color: C.electrico }}>m</span>area
           </span>
-          <span style={styles.headerSub}>NAVEGACIÃ“N ACTIVA</span>
+          <span style={styles.headerSub}>NAVEGACIÓN ACTIVA</span>
         </div>
         <div style={styles.gpsIndicator}>
           <span style={{ ...styles.gpsDot, backgroundColor: pos ? C.turquesa : '#666' }} />
@@ -368,40 +369,42 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
         </div>
       </div>
 
-      {/* â”€â”€ Mapa â”€â”€ */}
+      {/* ── Mapa ── */}
       <div ref={mapContainer} style={styles.map} />
       <RutasAustralesLayer map={mapRef.current} visible={true} />
+      <ConcesionesLayer map={mapRef.current} bbox={bbox} gruposVisibles={gruposVisibles} />
+      <ConcesionesControl gruposVisibles={gruposVisibles} onToggle={g => setGruposVisibles(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])} />
 
-      {/* â”€â”€ Loading capas â”€â”€ */}
+      {/* ── Loading capas ── */}
       {loadingCapas && (
         <div style={styles.loadingOverlay}>
-          <span style={styles.loadingText}>ðŸ—ºï¸ Cargando capas nÃ¡uticasâ€¦</span>
+          <span style={styles.loadingText}>🗺️ Cargando capas náuticas…</span>
         </div>
       )}
 
-      {/* â”€â”€ Bottom Sheet â”€â”€ */}
+      {/* ── Bottom Sheet ── */}
       <div style={{ ...styles.sheet, height: sheetOpen ? '55%' : '120px' }}>
 
         {/* Handle */}
         <div style={styles.sheetHandle} onClick={() => setSheetOpen(s => !s)}>
           <div style={styles.sheetBar} />
-          <span style={styles.sheetHint}>{sheetOpen ? 'â–¼ Ocultar' : 'â–² Detalles'}</span>
+          <span style={styles.sheetHint}>{sheetOpen ? '▼ Ocultar' : '▲ Detalles'}</span>
         </div>
 
-        {/* MÃ©tricas rÃ¡pidas â€” siempre visibles */}
+        {/* Métricas rápidas — siempre visibles */}
         <div style={styles.metricsRow}>
           <div style={styles.metric}>
             <span style={styles.metricLabel}>ETA restante</span>
-            <span style={styles.metricValue}>{etaRestante() || 'â€”'}</span>
+            <span style={styles.metricValue}>{etaRestante() || '—'}</span>
           </div>
           <div style={styles.metric}>
             <span style={styles.metricLabel}>Rumbo</span>
-            <span style={styles.metricValue}>{heading != null ? `${Math.round(heading)}Â°` : 'â€”'}</span>
+            <span style={styles.metricValue}>{heading != null ? `${Math.round(heading)}°` : '—'}</span>
           </div>
           <div style={styles.metric}>
-            <span style={styles.metricLabel}>PosiciÃ³n</span>
+            <span style={styles.metricLabel}>Posición</span>
             <span style={styles.metricValue}>
-              {pos ? `${pos.lat.toFixed(3)}, ${pos.lng.toFixed(3)}` : 'â€”'}
+              {pos ? `${pos.lat.toFixed(3)}, ${pos.lng.toFixed(3)}` : '—'}
             </span>
           </div>
         </div>
@@ -415,12 +418,12 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
             {tramoActivo ? (
               <div style={styles.tramoActivo}>
                 <span style={styles.tramoAcLabel}>
-                  Tramo activo: {tramoActivo.desde} â†’ {tramoActivo.hasta}
+                  Tramo activo: {tramoActivo.desde} → {tramoActivo.hasta}
                 </span>
                 <div style={styles.tramoBtns}>
                   <button style={{ ...styles.tramoBtn, backgroundColor: C.turquesa }}
                     onClick={() => registrarTramo(true)}>
-                    âœ“ Registrar
+                    ✓ Registrar
                   </button>
                   <button style={{ ...styles.tramoBtn, backgroundColor: '#666' }}
                     onClick={() => registrarTramo(false)}>
@@ -448,25 +451,25 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
                     borderLeftColor: t.registrado ? C.turquesa : '#666',
                   }}>
                     <span style={styles.tramoRowText}>
-                      {t.desde} â†’ {t.hasta}
+                      {t.desde} → {t.hasta}
                     </span>
                     <span style={styles.tramoRowSub}>
-                      {Math.round(t.duracion_min)} min Â· {t.registrado ? 'âœ“ Registrado' : 'âŠ˜ Excluido'}
+                      {Math.round(t.duracion_min)} min · {t.registrado ? '✓ Registrado' : '⊘ Excluido'}
                     </span>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* BotÃ³n cerrar viaje */}
+            {/* Botón cerrar viaje */}
             <button style={styles.cerrarViajeBtn} onClick={() => setShowClose(true)}>
-              ðŸ Cerrar viaje y generar informe
+              🏁 Cerrar viaje y generar informe
             </button>
           </div>
         )}
       </div>
 
-      {/* â”€â”€ Modal cierre de viaje â”€â”€ */}
+      {/* ── Modal cierre de viaje ── */}
       {showClose && !showReport && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -479,7 +482,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
               onChange={e => setHoraLlegada(new Date(e.target.value).toISOString())}
             />
 
-            <label style={styles.inputLabel}>Combustible propulsiÃ³n consumido (L)</label>
+            <label style={styles.inputLabel}>Combustible propulsión consumido (L)</label>
             <input
               type="number"
               placeholder="Ej: 580"
@@ -497,7 +500,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
               onChange={e => setCombGenerador(e.target.value)}
             />
 
-            <label style={styles.inputLabel}>Observaciones del patrÃ³n (opcional)</label>
+            <label style={styles.inputLabel}>Observaciones del patrón (opcional)</label>
             <textarea
               placeholder="Novedades, condiciones reales, incidentes..."
               style={{ ...styles.input, height: 70, resize: 'none' }}
@@ -510,14 +513,14 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
                 Volver al mapa
               </button>
               <button style={styles.modalBtnConfirm} onClick={handleCerrarViaje}>
-                Generar informe â†’
+                Generar informe →
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* â”€â”€ Modal informe â”€â”€ */}
+      {/* ── Modal informe ── */}
       {showReport && closingData && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -542,7 +545,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
   );
 }
 
-// â”€â”€ Estilos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Estilos ────────────────────────────────────────────────────────────────
 const styles = {
   container: {
     position: 'relative',
