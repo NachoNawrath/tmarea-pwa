@@ -8,7 +8,7 @@ import S0_5Registro from './components/screens/S0_5Registro';
 // Pantallas principales
 import P1_VesselProfile from './screens/P1_VesselProfile';
 import P2_VoyageSetup   from './screens/P2_VoyageSetup';
-import VoyageVerification from './screens/VoyageVerification';
+import VoyageVerification from './screens/P3_VoyageVerification';
 import P4_ActiveVoyage  from './screens/P4_ActiveVoyage';
 
 // ─────────────────────────────────────────────────────────────────────────────
