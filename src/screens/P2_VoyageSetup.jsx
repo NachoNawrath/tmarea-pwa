@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 // react-router-dom eliminado
 import caletasData from '../data/caletas_chile.json';
 import maritimeData from '../data/maritime_data.json';                        // ← NUEVO
@@ -791,7 +791,7 @@ export default function P2_VoyageSetup({ onComplete }) {
 
   if (!vessel) return <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>Cargando...</div>;
 
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
   const autonomia = vessel.consumo_nominal && form.combustible_disponible && !isNaN(form.combustible_disponible)
     ? Math.round((form.combustible_disponible / vessel.consumo_nominal) * vessel.velocidad_crucero)
     : null;
