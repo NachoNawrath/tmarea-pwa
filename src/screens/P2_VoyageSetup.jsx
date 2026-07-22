@@ -92,7 +92,7 @@ const CONFIG_BUSQUEDA = {
   mitilido: {
     placeholder: 'Ej: 100339, Low Oyarzun, Putemún, Quellón...',
     helper: 'Busca por código RNA/SERNAPESCA, apellido del titular o sector geográfico',
-    endpoint: (q) => `${API_BASE}/api/mitilidos/search?q=${encodeURIComponent(q)}`,
+    endpoint: (q) => `${API_BASE}/api/concesiones?q=${encodeURIComponent(q)}&grupo=MOLUSCOS`,
     parseResponse: (data) => data.data || [],
     renderItem: (m) => ({
       linea1: m.codigo_centro ? `Código ${m.codigo_centro}` : m.ubicacion || 'Sin nombre',

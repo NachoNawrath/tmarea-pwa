@@ -103,6 +103,16 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
 
   const { pos, heading }        = useGPS();
   const { capas, loading: loadingCapas } = useMapLayers(voyageData);
+  const bbox = React.useMemo(() => {
+  if (!voyageData?.puerto_zarpe) return null;
+  const lat1 = voyageData.puerto_zarpe.ubicacion?.lat;
+  const lng1 = voyageData.puerto_zarpe.ubicacion?.lng;
+  const destino = voyageData.destinos?.[0]?.puerto || voyageData.destinos?.[0]?.centro || voyageData.destinos?.[0]?.marina || null;
+  const lat2 = destino?.ubicacion?.lat || destino?.lat || lat1;
+  const lng2 = destino?.ubicacion?.lng || destino?.lng || lng1;
+  if (!lat1 || !lng1) return null;
+  return { lat1, lng1, lat2, lng2 };
+}, [voyageData]);
 
   // Estado del viaje
   const [sheetOpen,    setSheetOpen]    = useState(false);
@@ -111,6 +121,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
   const [tramoActivo,  setTramoActivo]  = useState(null);
   const [closingData,  setClosingData]  = useState(null); // datos al cerrar viaje
   const [showReport,   setShowReport]   = useState(false);
+  const [gruposVisibles, setGruposVisibles] = useState(['MOLUSCOS', 'SALMONES', 'ALGAS', 'PECES', 'ABALONES o EQUINODERMOS']);
 
   // Inicio del viaje
   const inicioRef = useRef(new Date().toISOString());
