@@ -141,7 +141,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
         <span style={styles.routePort}>{puerto_zarpe?.nombre || '—'}</span>
         <span style={styles.routeArrow}>→</span>
         <span style={styles.routePort}>
-          {destino?.puerto?.nombre || destino?.marina?.nombre_marina || destino?.fondeadero?.nombre || '—'}
+        {destino?.puerto?.nombre || destino?.centro?.nombre || destino?.marina?.nombre_marina || destino?.fondeadero?.nombre || '-'}
         </span>
       </div>
 

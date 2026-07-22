@@ -409,7 +409,7 @@ export function useVoyageVerification(voyageData) {
 
     try {
       const { puerto_zarpe, destinos } = voyageData;
-      const puerto_recalada = destinos?.[0]?.puerto || destinos?.[0]?.marina || null;
+    const puerto_recalada = destinos?.[0]?.puerto || destinos?.[0]?.marina || destinos?.[0]?.centro || null;
 
       const ruta_puntos = [
         { lat: puerto_zarpe.ubicacion.lat, lng: puerto_zarpe.ubicacion.lng },
