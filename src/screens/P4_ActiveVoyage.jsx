@@ -102,6 +102,17 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
   const markerRef    = useRef(null);
 
   const { pos, heading }        = useGPS();
+  const gpsCenteredRef = useRef(false);
+
+useEffect(() => {
+  if (!pos || !mapRef.current || gpsCenteredRef.current) return;
+  gpsCenteredRef.current = true;
+  mapRef.current.flyTo({
+    center: [pos.lng, pos.lat],
+    zoom: 11,
+    duration: 1500
+  });
+}, [pos]);
   const { capas, loading: loadingCapas } = useMapLayers(voyageData);
   const bbox = React.useMemo(() => {
   if (!voyageData?.puerto_zarpe) return null;
@@ -241,39 +252,64 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
         }
       }
 
-      // ── Ruta del viaje (línea desde waypoints) ──
-      const { puerto_zarpe, destinos } = voyageData;
-      const waypoints = [
-        [puerto_zarpe?.ubicacion?.lng, puerto_zarpe?.ubicacion?.lat],
-        ...(destinos || []).map(d => [
-          d.puerto?.ubicacion?.lng || d.marina?.lng || d.fondeadero?.lng || 0,
-          d.puerto?.ubicacion?.lat || d.marina?.lat || d.fondeadero?.lat || 0,
-        ]).filter(c => c[0] !== 0),
-      ];
+// ── Ruta del viaje (motor náutico por tramos) ──
+const { puerto_zarpe, destinos } = voyageData || {};
+const TRAMO_COLORES = { VERDE: '#2ecc71', AMARILLO: '#f39c12', ROJO: '#e74c3c' };
 
-      if (waypoints.length >= 2) {
-        const rutaGeoJSON = {
+['ruta-verde', 'ruta-amarillo', 'ruta-rojo'].forEach(id => {
+  if (map.getLayer(id)) map.removeLayer(id);
+  if (map.getSource(id)) map.removeSource(id);
+});
+
+const latOrigen  = puerto_zarpe?.ubicacion?.lat;
+const lonOrigen  = puerto_zarpe?.ubicacion?.lng;
+const destino    = (destinos || [])[0];
+const latDestino = destino?.puerto?.ubicacion?.lat || destino?.marina?.lat || destino?.fondeadero?.lat;
+const lonDestino = destino?.puerto?.ubicacion?.lng || destino?.marina?.lng || destino?.fondeadero?.lng;
+
+if (latOrigen && lonOrigen && latDestino && lonDestino) {
+fetch(BACKEND_URL + '/api/rutas/calcular', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      lat_origen: latOrigen, lon_origen: lonOrigen,
+      lat_destino: latDestino, lon_destino: lonDestino
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.ok || !data.tramos) return;
+    const grupos = { VERDE: [], AMARILLO: [], ROJO: [] };
+    for (const tramo of data.tramos) {
+      const c = tramo.confianza || 'AMARILLO';
+      if (grupos[c]) grupos[c].push(tramo.coords);
+    }
+    Object.entries(grupos).forEach(([confianza, coordSets]) => {
+      if (coordSets.length === 0) return;
+      const id = `ruta-${confianza.toLowerCase()}`;
+      const geojson = {
+        type: 'FeatureCollection',
+        features: coordSets.map(coords => ({
           type: 'Feature',
-          geometry: { type: 'LineString', coordinates: waypoints },
-        };
-
-        if (map.getSource('ruta')) {
-          map.getSource('ruta').setData(rutaGeoJSON);
-        } else {
-          map.addSource('ruta', { type: 'geojson', data: rutaGeoJSON });
-          map.addLayer({
-            id: 'ruta-line',
-            type: 'line',
-            source: 'ruta',
-            paint: {
-              'line-color': C.naranja,
-              'line-width': 3,
-              'line-dasharray': [2, 1],
-            },
-          });
+          geometry: { type: 'LineString', coordinates: coords }
+        }))
+      };
+      map.addSource(id, { type: 'geojson', data: geojson });
+      map.addLayer({
+        id,
+        type: 'line',
+        source: id,
+        paint: {
+          'line-color': TRAMO_COLORES[confianza],
+          'line-width': confianza === 'VERDE' ? 3 : 2.5,
+          'line-dasharray': confianza === 'VERDE' ? [1] : [3, 2],
+          'line-opacity': 0.9
         }
-      }
-    };
+      });
+    });
+  })
+  .catch(err => console.warn('[ruta náutica]', err.message));}
+}
 
     if (map.loaded()) {
       addCapas();
