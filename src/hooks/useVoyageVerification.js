@@ -194,7 +194,7 @@ async function fetchWeather(ruta_puntos, signal) {
   if (cached) return { ...cached, from_cache: true };
 
   const { ok, data, error } = await safeFetch(
-    `${BACKEND_URL}/api/marine-weather/analyze`,
+    `${BACKEND_URL}/api/sitport/weather-ruta`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
