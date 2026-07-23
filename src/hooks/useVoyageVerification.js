@@ -221,8 +221,8 @@ async function fetchNavigation(voyageData, signal) {
   const ruta_puntos = [
     { lat: puerto_zarpe.ubicacion.lat, lng: puerto_zarpe.ubicacion.lng },
     ...(destinos || []).map((d) => ({
-      lat: d.puerto?.ubicacion?.lat || d.marina?.lat || d.fondeadero?.lat || 0,
-      lng: d.puerto?.ubicacion?.lng || d.marina?.lng || d.fondeadero?.lng || 0,
+      lat: d.puerto?.ubicacion?.lat || d.marina?.lat || d.fondeadero?.lat || d.centro?.ubicacion?.lat || d.centro?.lat || 0, 
+      lng: d.puerto?.ubicacion?.lng || d.marina?.lng || d.fondeadero?.lng || d.centro?.ubicacion?.lng || d.centro?.lng || 0,
     })),
   ].filter((p) => p.lat !== 0 && p.lng !== 0);
 
@@ -414,8 +414,8 @@ export function useVoyageVerification(voyageData) {
       const ruta_puntos = [
         { lat: puerto_zarpe.ubicacion.lat, lng: puerto_zarpe.ubicacion.lng },
         ...(destinos || []).map((d) => ({
-          lat: d.puerto?.ubicacion?.lat || d.marina?.lat || d.fondeadero?.lat || 0,
-          lng: d.puerto?.ubicacion?.lng || d.marina?.lng || d.fondeadero?.lng || 0,
+          lat: d.puerto?.ubicacion?.lat || d.marina?.lat || d.fondeadero?.lat || d.centro?.ubicacion?.lat || d.centro?.lat || 0,
+          lng: d.puerto?.ubicacion?.lng || d.marina?.lng || d.fondeadero?.lng || d.centro?.ubicacion?.lng || d.centro?.lng || 0,
         })),
       ].filter((p) => p.lat !== 0 && p.lng !== 0);
 
