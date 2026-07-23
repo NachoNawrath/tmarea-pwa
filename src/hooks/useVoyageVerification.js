@@ -256,12 +256,15 @@ async function fetchNavigation(voyageData, signal) {
     return { error: error || 'Sin datos de navegación', autonomia_ok: null };
   }
 
-  const autonomia_ok =
-    data.combustible_disponible_litros == null
-      ? true
-      : data.consumo_total_litros <= data.combustible_disponible_litros;
+const payload = data.data || data;
+const resumen = payload.resumen || payload;
 
-  const result = { ...data, autonomia_ok, error: null };
+  const autonomia_ok =
+    resumen.combustible_disponible_litros == null
+      ? true
+      : resumen.consumo_total_litros <= resumen.combustible_disponible_litros;
+
+  const result = { ...resumen, segmentos: payload.segmentos, autonomia_ok, error: null };
   cacheSet(cacheKey, result);
   return result;
 }
@@ -451,7 +454,7 @@ export function useVoyageVerification(voyageData) {
       ]);
 
       // Si llegó una ejecución más nueva mientras esperábamos → descartar
-      if (runIdRef.current !== currentRunId || signal.aborted) return;
+      if (runIdRef.current !== currentRunId) return;
 
       // Extraer resultados — si settled con 'rejected' usamos fallback conservador
       const [zarpeR, recaladaR, weatherR, navR] = results;
@@ -496,7 +499,7 @@ export function useVoyageVerification(voyageData) {
       if (runIdRef.current !== currentRunId || signal.aborted) return;
       safeSetState((s) => ({ ...s, loading: false, error: err.message }));
     }
-  }, [voyageData, safeSetState]);
+  }, [voyageData]);
 
   // Ejecutar al montar y cuando cambie voyageData
   useEffect(() => {
@@ -508,8 +511,7 @@ export function useVoyageVerification(voyageData) {
       mountedRef.current = false;
       abortRef.current?.abort();
     };
-  }, [run]);
-
+  }, [voyageData]);
   // Exponer retry manual (también cancela ejecución previa vía run())
   return { ...state, retry: run };
 }
