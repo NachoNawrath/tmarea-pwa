@@ -44,7 +44,7 @@ function evaluarRestriccionTRG(restriccion, vessel) {
     // Sin datos de TRG — mostrar restricción genérica
     return {
       aplica: true,
-      mensaje: restriccion.descripcion || 'Restricción activa — verificar con Capitanía.',
+      mensaje: restriccion.Observacion || restriccion.MotivoRestriccion || restriccion.descripcion || 'Restricción activa — verificar con Capitanía.',
     };
   }
 
