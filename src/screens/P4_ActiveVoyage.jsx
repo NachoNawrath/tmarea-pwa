@@ -279,21 +279,21 @@ fetch(BACKEND_URL + '/api/rutas/calcular', {
   .then(r => r.json())
   .then(data => {
     if (!data.ok || !data.tramos) return;
-    const grupos = { VERDE: [], AMARILLO: [], ROJO: [] };
+const grupos = { VERDE: [], AMARILLO: [], ROJO: [] };
     for (const tramo of data.tramos) {
       const c = tramo.confianza || 'AMARILLO';
-      if (grupos[c]) grupos[c].push(tramo.coords);
-    }
-    Object.entries(grupos).forEach(([confianza, coordSets]) => {
-      if (coordSets.length === 0) return;
+      if (grupos[c] && tramo.coords?.length) {
+        const pts = grupos[c].length > 0 ? tramo.coords.slice(1) : tramo.coords;
+        grupos[c].push(...pts);
+      }
+    }   
+Object.entries(grupos).forEach(([confianza, coordArray]) => {
+      if (coordArray.length < 2) return;
       const id = `ruta-${confianza.toLowerCase()}`;
       const geojson = {
-        type: 'FeatureCollection',
-        features: coordSets.map(coords => ({
-          type: 'Feature',
-          geometry: { type: 'LineString', coordinates: coords }
-        }))
-      };
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: coordArray }
+      };    
       map.addSource(id, { type: 'geojson', data: geojson });
       map.addLayer({
         id,
