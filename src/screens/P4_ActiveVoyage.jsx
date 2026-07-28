@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import VoyageReportButton from '../components/VoyageReportButton';
 import { RutasAustralesLayer } from '../components/map/RutasAustralesLayer';
 import { ConcesionesLayer, ConcesionesControl } from '../components/map/ConcesionesLayer';
+import { normalizeLicense } from '../utils/license-rules.js';
 
 const BACKEND_URL = 'http://localhost:3000';
 
@@ -101,6 +102,7 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
   const mapRef       = useRef(null);
   const mapLoadedRef = useRef(false); // ver nota junto a map.once('load', ...) en la inicialización del mapa
   const markerRef    = useRef(null);
+  const rutaMarkersRef = useRef([]); // markers A/B + cambios de rumbo de la ruta calculada
 
   const { pos, heading }        = useGPS();
   const gpsCenteredRef = useRef(false);
@@ -126,6 +128,19 @@ useEffect(() => {
   return { lat1, lng1, lat2, lng2 };
 }, [voyageData]);
 
+  // Origen/destino para el cálculo de ruta (motor raster) — hoisted para
+  // reutilizar entre el efecto que dibuja el mapa y el de comparación.
+  const origenDestino = React.useMemo(() => {
+    const { puerto_zarpe, destinos } = voyageData || {};
+    const latOrigen = puerto_zarpe?.ubicacion?.lat;
+    const lonOrigen = puerto_zarpe?.ubicacion?.lng;
+    const destino = (destinos || [])[0];
+    const latDestino = destino?.puerto?.ubicacion?.lat || destino?.marina?.lat || destino?.fondeadero?.lat;
+    const lonDestino = destino?.puerto?.ubicacion?.lng || destino?.marina?.lng || destino?.fondeadero?.lng;
+    if (!latOrigen || !lonOrigen || !latDestino || !lonDestino) return null;
+    return { latOrigen, lonOrigen, latDestino, lonDestino };
+  }, [voyageData]);
+
   // Estado del viaje
   const [sheetOpen,    setSheetOpen]    = useState(false);
   const [showClose,    setShowClose]    = useState(false);
@@ -134,6 +149,14 @@ useEffect(() => {
   const [closingData,  setClosingData]  = useState(null); // datos al cerrar viaje
   const [showReport,   setShowReport]   = useState(false);
   const [gruposVisibles, setGruposVisibles] = useState(['MOLUSCOS', 'SALMONES', 'ALGAS', 'PECES', 'ABALONES o EQUINODERMOS']);
+
+  // Motor raster (Fase 3 redefinida, docs/handoff-fase2.md) — P4 consume
+  // /calcular-v2. rutaV2 alimenta el panel de detalles (distancia_mn,
+  // pct_en_resguardo, pct_batimetria). compararMotores es un toggle
+  // TEMPORAL para QA visual contra /calcular (motor viejo) — se saca
+  // cuando la ruta nueva quede verificada en pantalla.
+  const [rutaV2, setRutaV2] = useState(null);
+  const [compararMotores, setCompararMotores] = useState(false);
 
   // Inicio del viaje
   const inicioRef = useRef(new Date().toISOString());
@@ -261,63 +284,157 @@ useEffect(() => {
         }
       }
 
-// ── Ruta del viaje (motor náutico por tramos) ──
-const { puerto_zarpe, destinos } = voyageData || {};
-const TRAMO_COLORES = { VERDE: '#2ecc71', AMARILLO: '#f39c12', ROJO: '#e74c3c' };
-
-['ruta-verde', 'ruta-amarillo', 'ruta-rojo'].forEach(id => {
+// ── Ruta del viaje: motor raster (Fase 3 redefinida, docs/handoff-fase2.md) ──
+// P4 consume /calcular-v2. Los tramos NO tipo 'aproximacion_final' se
+// concatenan en UNA sola polilínea (todavía sin diferenciar
+// confianza_batimetrica por color — queda para un refinamiento posterior,
+// spec §7.5). Los tramos 'aproximacion_final' (spec §7.3: snap del punto
+// real a la celda navegable más cercana) se dibujan PUNTEADOS y por
+// separado — no son la ruta trazada, quedan a criterio del patrón.
+['ruta-verde', 'ruta-amarillo', 'ruta-rojo', 'ruta-halo', 'ruta-calculada',
+ 'ruta-v2-halo', 'ruta-v2', 'ruta-v2-aprox',
+ 'ruta-v1-compare-halo', 'ruta-v1-compare'].forEach(id => {
   if (map.getLayer(id)) map.removeLayer(id);
   if (map.getSource(id)) map.removeSource(id);
 });
+rutaMarkersRef.current.forEach(m => m.remove());
+rutaMarkersRef.current = [];
 
-const latOrigen  = puerto_zarpe?.ubicacion?.lat;
-const lonOrigen  = puerto_zarpe?.ubicacion?.lng;
-const destino    = (destinos || [])[0];
-const latDestino = destino?.puerto?.ubicacion?.lat || destino?.marina?.lat || destino?.fondeadero?.lat;
-const lonDestino = destino?.puerto?.ubicacion?.lng || destino?.marina?.lng || destino?.fondeadero?.lng;
+const makeMarker = (lon, lat, label, bg) => {
+  const el = document.createElement('div');
+  el.style.cssText = `
+    width: 22px; height: 22px; border-radius: 50%;
+    background: ${bg}; border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font: bold 11px sans-serif;
+  `;
+  el.textContent = label;
+  const marker = new maplibregl.Marker({ element: el }).setLngLat([lon, lat]).addTo(map);
+  rutaMarkersRef.current.push(marker);
+};
 
-if (latOrigen && lonOrigen && latDestino && lonDestino) {
-fetch(BACKEND_URL + '/api/rutas/calcular', {
+if (origenDestino) {
+  const { latOrigen, lonOrigen, latDestino, lonDestino } = origenDestino;
+
+  // calado_m: vessel_profile de localStorage (P1.1). OJO: el campo
+  // calado_m no existe hoy en el formulario de P1 -- si falta (undefined),
+  // no se manda en el body y el backend aplica su default (1.5 m).
+  // licencia: user_profile.licenseType normalizado a los codigos que
+  // espera el backend (PDB/CDC/CDAM); las licencias comerciales y
+  // cualquier valor no reconocido caen a 'PNM' (perfiles-costo.js las
+  // trata igual que PNM de todos modos en esta fase).
+  let calado_m;
+  let licencia = 'PNM';
+  try {
+    const vessel = JSON.parse(localStorage.getItem('vessel_profile') || 'null');
+    if (vessel?.calado_m) calado_m = parseFloat(vessel.calado_m);
+  } catch { /* localStorage corrupto -- se usa el default del backend */ }
+  try {
+    const user = JSON.parse(localStorage.getItem('user_profile') || 'null');
+    licencia = normalizeLicense(user?.licenseType) || 'PNM';
+  } catch { /* idem */ }
+
+  fetch(BACKEND_URL + '/api/rutas/calcular-v2', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       lat_origen: latOrigen, lon_origen: lonOrigen,
-      lat_destino: latDestino, lon_destino: lonDestino
-    })
+      lat_destino: latDestino, lon_destino: lonDestino,
+      ...(calado_m ? { calado_m } : {}),
+      licencia,
+    }),
   })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.ok || !data.tramos) return;
-const grupos = { VERDE: [], AMARILLO: [], ROJO: [] };
-    for (const tramo of data.tramos) {
-      const c = tramo.confianza || 'AMARILLO';
-      if (grupos[c] && tramo.coords?.length) {
-        const pts = grupos[c].length > 0 ? tramo.coords.slice(1) : tramo.coords;
-        grupos[c].push(...pts);
+    .then(r => r.json())
+    .then(data => {
+      setRutaV2(data);
+      if (!data.ok || !data.tramos) return;
+
+      const tramosRuta  = data.tramos.filter(t => t.tipo !== 'aproximacion_final' && t.coords?.length >= 2);
+      const tramosAprox = data.tramos.filter(t => t.tipo === 'aproximacion_final' && t.coords?.length >= 2);
+
+      if (tramosRuta.length > 0) {
+        const coordsConcatenadas = tramosRuta.flatMap(t => t.coords);
+        map.addSource('ruta-v2', {
+          type: 'geojson',
+          data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coordsConcatenadas } },
+        });
+        map.addLayer({
+          id: 'ruta-v2-halo', type: 'line', source: 'ruta-v2',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#ffffff', 'line-width': 5, 'line-opacity': 0.7 },
+        });
+        map.addLayer({
+          id: 'ruta-v2', type: 'line', source: 'ruta-v2',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': C.electrico, 'line-width': 3, 'line-opacity': 0.95 },
+        });
       }
-    }   
-Object.entries(grupos).forEach(([confianza, coordArray]) => {
-      if (coordArray.length < 2) return;
-      const id = `ruta-${confianza.toLowerCase()}`;
-      const geojson = {
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: coordArray }
-      };    
-      map.addSource(id, { type: 'geojson', data: geojson });
-      map.addLayer({
-        id,
-        type: 'line',
-        source: id,
-        paint: {
-          'line-color': TRAMO_COLORES[confianza],
-          'line-width': confianza === 'VERDE' ? 3 : 2.5,
-          'line-dasharray': confianza === 'VERDE' ? [1] : [3, 2],
-          'line-opacity': 0.9
-        }
-      });
-    });
-  })
-  .catch(err => console.warn('[ruta náutica]', err.message));}
+
+      // Nota: no se aplica turf.simplify sobre esta geometría — varios
+      // tramos incluyen vértices insertados a propósito por el backend
+      // (string-pulling, land-masking). Simplificar sin volver a validar
+      // contra la costa podría reabrir un cruce de tierra.
+
+      if (tramosAprox.length > 0) {
+        map.addSource('ruta-v2-aprox', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: tramosAprox.map(t => ({
+              type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: t.coords },
+            })),
+          },
+        });
+        map.addLayer({
+          id: 'ruta-v2-aprox', type: 'line', source: 'ruta-v2-aprox',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': C.electrico, 'line-width': 2.5, 'line-opacity': 0.75, 'line-dasharray': [2, 2] },
+        });
+      }
+
+      makeMarker(lonOrigen, latOrigen, 'A', C.electrico);
+      makeMarker(lonDestino, latDestino, 'B', C.coral);
+    })
+    .catch(err => console.warn('[ruta v2/raster]', err.message));
+
+  // ── Comparación temporal con el motor viejo ───────────────────────────
+  // Toggle de QA (botón "Comparar motores" en el mapa). Se saca junto con
+  // nautical-graph-router.js/coastline-guard.js una vez verificada la ruta
+  // nueva en pantalla — por ahora ninguno de los dos se toca ni se borra.
+  if (compararMotores) {
+    fetch(BACKEND_URL + '/api/rutas/calcular', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lat_origen: latOrigen, lon_origen: lonOrigen,
+        lat_destino: latDestino, lon_destino: lonDestino,
+      }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.ok || !data.tramos) return;
+        const coordsV1 = data.tramos.filter(t => t.coords?.length >= 2).flatMap(t => t.coords);
+        if (coordsV1.length < 2) return;
+
+        map.addSource('ruta-v1-compare', {
+          type: 'geojson',
+          data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coordsV1 } },
+        });
+        map.addLayer({
+          id: 'ruta-v1-compare-halo', type: 'line', source: 'ruta-v1-compare',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#ffffff', 'line-width': 5, 'line-opacity': 0.6 },
+        });
+        map.addLayer({
+          id: 'ruta-v1-compare', type: 'line', source: 'ruta-v1-compare',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': C.naranja, 'line-width': 3, 'line-opacity': 0.9 },
+        });
+      })
+      .catch(err => console.warn('[ruta v1/comparación]', err.message));
+  }
+}
 }
 
     if (mapLoadedRef.current) {
@@ -325,7 +442,7 @@ Object.entries(grupos).forEach(([confianza, coordArray]) => {
     } else {
       map.once('load', addCapas);
     }
-  }, [capas, voyageData]);
+  }, [capas, voyageData, origenDestino, compararMotores]);
 
   // ── Actualizar posición GPS en el mapa ─────────────────────────────────
   useEffect(() => {
@@ -427,9 +544,35 @@ Object.entries(grupos).forEach(([confianza, coordArray]) => {
 
       {/* ── Mapa ── */}
       <div ref={mapContainer} style={styles.map} />
-      <RutasAustralesLayer map={mapRef.current} visible={true} />
-      <ConcesionesLayer map={mapRef.current} bbox={bbox} gruposVisibles={gruposVisibles} />
-      <ConcesionesControl gruposVisibles={gruposVisibles} onToggle={g => setGruposVisibles(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])} />
+      {/* Oculta durante navegación activa — capa esquemática de referencia (Art.45),
+          redundante con la ruta calculada real y confunde la lectura del mapa.
+          Se preserva para volver a mostrarla como overlay opcional (toggle) más adelante. */}
+      {/* <RutasAustralesLayer map={mapRef.current} visible={true} /> */}
+      {/* Oculta durante navegación activa — se reutiliza para alertas de proximidad a centros acuícolas (bioseguridad) */}
+      {/* <ConcesionesLayer map={mapRef.current} bbox={bbox} gruposVisibles={gruposVisibles} /> */}
+      {/* <ConcesionesControl gruposVisibles={gruposVisibles} onToggle={g => setGruposVisibles(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])} /> */}
+
+      {/* ── Toggle temporal de comparación de motores (QA Fase 3) ──
+          Se saca cuando la ruta nueva quede verificada — ver
+          docs/handoff-fase2.md y la nota junto a compararMotores arriba. */}
+      <div style={styles.compararWrap}>
+        <button
+          style={{ ...styles.compararBtn, ...(compararMotores ? styles.compararBtnActivo : {}) }}
+          onClick={() => setCompararMotores(v => !v)}
+        >
+          🔬 {compararMotores ? 'Comparando motores' : 'Comparar motores'}
+        </button>
+        {compararMotores && (
+          <div style={styles.compararLeyenda}>
+            <span style={styles.compararLeyendaItem}>
+              <span style={{ ...styles.compararSwatch, background: C.electrico }} /> Nuevo (raster)
+            </span>
+            <span style={styles.compararLeyendaItem}>
+              <span style={{ ...styles.compararSwatch, background: C.naranja }} /> Anterior (grafo)
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* ── Loading capas ── */}
       {loadingCapas && (
@@ -468,6 +611,45 @@ Object.entries(grupos).forEach(([confianza, coordArray]) => {
         {/* Contenido expandido */}
         {sheetOpen && (
           <div style={styles.sheetContent}>
+
+            {/* Ruta calculada (motor raster) — campos nuevos que el motor
+                anterior no tenía. pct_batimetria es el que importa: el
+                patrón lo tiene que ver ANTES de zarpar (docs/handoff-fase2.md,
+                Fase 3 — hoy es 100% ROJO, no hay fuente de batimetría de eje
+                verificada para los canales chilenos). */}
+            <div style={styles.sectionTitle}>Ruta calculada</div>
+            {!rutaV2 && <span style={styles.rutaCalculandoText}>Calculando ruta…</span>}
+            {rutaV2 && !rutaV2.ok && (
+              <span style={styles.rutaCalculandoText}>No se pudo calcular la ruta: {rutaV2.error || 'error desconocido'}</span>
+            )}
+            {rutaV2?.ok && (
+              <div style={styles.rutaMetrics}>
+                <div style={styles.metricsRow}>
+                  <div style={styles.metric}>
+                    <span style={styles.metricLabel}>Distancia</span>
+                    <span style={styles.metricValue}>{rutaV2.distancia_mn} mn</span>
+                  </div>
+                  <div style={styles.metric}>
+                    <span style={styles.metricLabel}>En resguardo</span>
+                    <span style={styles.metricValue}>{Math.round((rutaV2.pct_en_resguardo || 0) * 100)}%</span>
+                  </div>
+                </div>
+                <div style={styles.batimetriaBox}>
+                  <span style={styles.batimetriaLabel}>Confianza batimétrica de la ruta</span>
+                  <div style={styles.batimetriaBar}>
+                    {['verde', 'amarillo', 'rojo'].map(nivel => {
+                      const pct = Math.round((rutaV2.pct_batimetria?.[nivel] || 0) * 100);
+                      if (pct === 0) return null;
+                      const color = nivel === 'verde' ? '#2ecc71' : nivel === 'amarillo' ? '#f39c12' : '#e74c3c';
+                      return <div key={nivel} style={{ ...styles.batimetriaSeg, width: `${pct}%`, background: color }} />;
+                    })}
+                  </div>
+                  <span style={styles.batimetriaPctRojo}>
+                    {Math.round((rutaV2.pct_batimetria?.rojo || 0) * 100)}% sin dato de profundidad verificado — navegue con sonda
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Tramos */}
             <div style={styles.sectionTitle}>Control de tramos</div>
@@ -660,6 +842,33 @@ const styles = {
   loadingText: {
     color: '#fff', fontSize: 12,
   },
+  compararWrap: {
+    position: 'absolute',
+    top: 62, right: 10,
+    zIndex: 15,
+    display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6,
+  },
+  compararBtn: {
+    background: 'rgba(10,38,71,0.85)', color: '#fff',
+    borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.25)', borderRadius: 20,
+    padding: '7px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+  },
+  compararBtnActivo: {
+    background: '#F57C00', borderColor: '#F57C00',
+  },
+  compararLeyenda: {
+    background: 'rgba(255,255,255,0.95)', borderRadius: 10,
+    padding: '6px 10px', display: 'flex', flexDirection: 'column', gap: 4,
+    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+  },
+  compararLeyendaItem: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    fontSize: 10, color: '#0A2647', fontWeight: 600, whiteSpace: 'nowrap',
+  },
+  compararSwatch: {
+    width: 12, height: 3, borderRadius: 2, display: 'inline-block',
+  },
   sheet: {
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
@@ -703,6 +912,30 @@ const styles = {
   sectionTitle: {
     fontSize: 11, fontWeight: 700, color: '#888',
     letterSpacing: 1, textTransform: 'uppercase',
+  },
+  rutaCalculandoText: {
+    fontSize: 12, color: '#999', fontStyle: 'italic',
+  },
+  rutaMetrics: {
+    display: 'flex', flexDirection: 'column', gap: 8,
+  },
+  batimetriaBox: {
+    display: 'flex', flexDirection: 'column', gap: 5,
+    backgroundColor: 'rgba(231,76,60,0.06)', borderRadius: 10, padding: '9px 12px',
+  },
+  batimetriaLabel: {
+    fontSize: 10, color: '#888', fontWeight: 700,
+    letterSpacing: 0.3, textTransform: 'uppercase',
+  },
+  batimetriaBar: {
+    display: 'flex', width: '100%', height: 8, borderRadius: 4, overflow: 'hidden',
+    backgroundColor: '#eee',
+  },
+  batimetriaSeg: {
+    height: '100%',
+  },
+  batimetriaPctRojo: {
+    fontSize: 11, color: '#c0392b', fontWeight: 700,
   },
   tramoActivo: {
     backgroundColor: 'rgba(26,110,189,0.07)',
