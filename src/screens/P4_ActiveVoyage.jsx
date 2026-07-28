@@ -99,6 +99,7 @@ function useMapLayers(voyageData) {
 export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel }) {
   const mapContainer = useRef(null);
   const mapRef       = useRef(null);
+  const mapLoadedRef = useRef(false); // ver nota junto a map.once('load', ...) en la inicialización del mapa
   const markerRef    = useRef(null);
 
   const { pos, heading }        = useGPS();
@@ -172,6 +173,14 @@ useEffect(() => {
     });
 
     mapRef.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    // map.loaded() no sirve para saber si el evento 'load' YA se disparó --
+    // puede volver a false despues, mientras haya tiles pendientes (churn
+    // normal de un mapa raster). El efecto que agrega capas necesitaba
+    // saber "ya cargó una vez", no "está reposado ahora mismo"; con
+    // map.loaded() se quedaba esperando un 'load' que ya habia pasado y
+    // nunca agregaba la ruta. mapLoadedRef guarda ese hecho una sola vez.
+    mapRef.current.once('load', () => { mapLoadedRef.current = true; });
 
     return () => {
       mapRef.current?.remove();
@@ -311,10 +320,10 @@ Object.entries(grupos).forEach(([confianza, coordArray]) => {
   .catch(err => console.warn('[ruta náutica]', err.message));}
 }
 
-    if (map.loaded()) {
+    if (mapLoadedRef.current) {
       addCapas();
     } else {
-      map.on('load', addCapas);
+      map.once('load', addCapas);
     }
   }, [capas, voyageData]);
 
