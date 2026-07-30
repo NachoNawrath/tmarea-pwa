@@ -149,7 +149,7 @@ export default function PortStatusBlock({ portStatus, vessel }) {
       {/* Header del bloque */}
       <div style={styles.blockHeader}>
         <span style={styles.blockIcon}>⚓</span>
-        <span style={styles.blockTitle}>Estado de puertos</span>
+        <span style={styles.blockTitle}>Condición de puertos</span>
       </div>
 
       {/* Cards de zarpe y recalada */}

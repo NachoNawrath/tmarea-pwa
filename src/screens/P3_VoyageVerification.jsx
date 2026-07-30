@@ -133,7 +133,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
           <span style={{ color: '#fff', fontWeight: 700 }}>
             T<span style={{ color: C.electrico }}>m</span>area
           </span>
-          <span style={styles.headerSub}>Cotejo de navegación</span>
+          <span style={styles.headerSub}>Condiciones de la navegación</span>
         </div>
         <div style={{ width: 60 }} />
       </div>
@@ -224,7 +224,6 @@ const styles = {
     fontFamily: 'Arial',
     fontWeight: 800,
     fontSize: 36,
-    color: C.marino,
     color: '#fff',
   },
   loadingTagline: {

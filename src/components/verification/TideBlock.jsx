@@ -160,7 +160,7 @@ export default function TideBlock({ tide }) {
     <div style={styles.block}>
       <div style={styles.blockHeader}>
         <span style={styles.blockIcon}>🌊</span>
-        <span style={styles.blockTitle}>Marea en zarpe y recalada</span>
+        <span style={styles.blockTitle}>Mareas en zarpe y recalada</span>
       </div>
 
       <div style={styles.cardsContainer}>

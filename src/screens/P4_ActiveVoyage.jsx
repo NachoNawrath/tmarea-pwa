@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import VoyageReportButton from '../components/VoyageReportButton';
 import { RutasAustralesLayer } from '../components/map/RutasAustralesLayer';
 import { ConcesionesLayer, ConcesionesControl } from '../components/map/ConcesionesLayer';
+import { WindLayer } from '../components/map/WindLayer';
 import { normalizeLicense } from '../utils/license-rules.js';
 import TideCurvePanel from '../components/voyage/TideCurvePanel';
 
@@ -172,8 +173,52 @@ useEffect(() => {
   const [compararMotores, setCompararMotores] = useState(false);
   const [tidePanelOpen, setTidePanelOpen] = useState(false);
 
+  // Viento SITPORT por bahía a lo largo de la ruta (P4 §3). Visible por
+  // defecto: el viento es información que el patrón quiere ver de entrada.
+  const [windData, setWindData] = useState([]);
+  const [windVisible, setWindVisible] = useState(true);
+
   // Inicio del viaje
   const inicioRef = useRef(new Date().toISOString());
+
+  // ── Viento SITPORT en ruta (P4 §3) ──────────────────────────────────────
+  // Se pide UNA vez al montar (y se refresca cada 30 min mientras P4 siga
+  // montado — SITPORT actualiza ~cada 25-35 min). Si falla, no se muestran
+  // flechas y no se emite error visible.
+  useEffect(() => {
+    const zarpe = voyageData?.puerto_zarpe?.ubicacion;
+    if (zarpe?.lat == null || zarpe?.lng == null) return;
+
+    const ruta_puntos = [{ lat: zarpe.lat, lng: zarpe.lng }];
+    if (recaladaCoords) ruta_puntos.push({ lat: recaladaCoords.lat, lng: recaladaCoords.lng });
+    if (ruta_puntos.length < 2) return; // sin recalada no hay ruta que muestrear
+
+    const controller = new AbortController();
+
+    const fetchViento = () => {
+      fetch(`${BACKEND_URL}/api/sitport/weather-ruta`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruta_puntos }),
+        signal: controller.signal,
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data?.success && Array.isArray(data.bahias_en_ruta)) {
+            setWindData(data.bahias_en_ruta);
+          }
+        })
+        .catch(() => { /* sin flechas, sin error visible */ });
+    };
+
+    fetchViento();
+    const intervalo = setInterval(fetchViento, 30 * 60 * 1000);
+
+    return () => {
+      controller.abort();
+      clearInterval(intervalo);
+    };
+  }, [voyageData, recaladaCoords]);
 
   // ── Inicializar mapa ────────────────────────────────────────────────────
   useEffect(() => {
@@ -217,7 +262,23 @@ useEffect(() => {
     // saber "ya cargó una vez", no "está reposado ahora mismo"; con
     // map.loaded() se quedaba esperando un 'load' que ya habia pasado y
     // nunca agregaba la ruta. mapLoadedRef guarda ese hecho una sola vez.
-    mapRef.current.once('load', () => { mapLoadedRef.current = true; });
+    mapRef.current.once('load', () => {
+      mapLoadedRef.current = true;
+
+      // Encuadre inicial (P4 §2): mostrar zarpe y recalada juntos en vez de
+      // arrancar centrado solo en el zarpe (en viajes largos el destino
+      // quedaba fuera de pantalla). Se ejecuta UNA sola vez, en 'load'; si el
+      // patrón mueve el mapa después, no se vuelve a forzar. Sin recalada
+      // conocida se mantiene el center/zoom de inicialización (fallback).
+      const map = mapRef.current;
+      const zLat = puerto_zarpe?.ubicacion?.lat;
+      const zLng = puerto_zarpe?.ubicacion?.lng;
+      if (map && recaladaCoords && zLat != null && zLng != null) {
+        const sw = [Math.min(zLng, recaladaCoords.lng), Math.min(zLat, recaladaCoords.lat)];
+        const ne = [Math.max(zLng, recaladaCoords.lng), Math.max(zLat, recaladaCoords.lat)];
+        map.fitBounds([sw, ne], { padding: 60, duration: 0 });
+      }
+    });
 
     return () => {
       mapRef.current?.remove();
@@ -558,6 +619,9 @@ if (origenDestino) {
 
       {/* ── Mapa ── */}
       <div ref={mapContainer} style={styles.map} />
+
+      {/* Flechas de viento SITPORT por bahía (P4 §3) */}
+      <WindLayer map={mapRef.current} windData={windData} visible={windVisible} />
       {/* Oculta durante navegación activa — capa esquemática de referencia (Art.45),
           redundante con la ruta calculada real y confunde la lectura del mapa.
           Se preserva para volver a mostrarla como overlay opcional (toggle) más adelante. */}
@@ -588,8 +652,14 @@ if (origenDestino) {
         )}
       </div>
 
-      {/* ── Toggle panel de curva de marea (recalada) ── */}
+      {/* ── Toggles de capas: viento (flechas) y marea (curva de recalada) ── */}
       <div style={styles.tideToggleWrap}>
+        <button
+          style={{ ...styles.compararBtn, ...(windVisible ? styles.compararBtnActivo : {}) }}
+          onClick={() => setWindVisible((v) => !v)}
+        >
+          💨 Viento
+        </button>
         <button
           style={{ ...styles.compararBtn, ...(tidePanelOpen ? styles.compararBtnActivo : {}) }}
           onClick={() => setTidePanelOpen((v) => !v)}
@@ -904,6 +974,7 @@ const styles = {
     position: 'absolute',
     top: 62, left: 10,
     zIndex: 15,
+    display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
   },
   sheet: {
     position: 'absolute',
