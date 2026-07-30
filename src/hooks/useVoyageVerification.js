@@ -1,6 +1,7 @@
 // src/hooks/useVoyageVerification.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getCapitania } from '../utils/capitanias.js';
+import { evaluarRestriccionAB } from '../utils/restricciones.js';
 import { normalizeLicense } from '../utils/license-rules.js';
 
 const BACKEND_URL = 'http://localhost:3000';
@@ -114,14 +115,41 @@ function anySignal(signals) {
 // ─────────────────────────────────────────────────────────────────────────────
 // LÓGICA DE NEGOCIO — VEREDICTO
 // ─────────────────────────────────────────────────────────────────────────────
-function calcularVeredicto({ portStatus, weather, navigation }) {
+// Una restricción de tránsito es "de cierre/temporal" (la más severa) si su
+// condición o su texto oficial hablan de PUERTO CERRADO o TEMPORAL.
+function esCierreOTemporal(r) {
+  const t = `${r?.condicion || ''} ${r?.observacion || ''}`.toUpperCase();
+  return t.includes('CERRADO') || t.includes('TEMPORAL');
+}
+
+// Escalamiento del veredicto por restricciones intermedias que BLOQUEAN a la
+// nave (cotejo de AB en coral). Devuelve 'UV' | 'U' | null.
+//   - bloquea + cierre/temporal → 'UV' (no navegar)
+//   - bloquea                    → 'U'  (precaución)
+// Las restricciones que no aplican a la nave o son indeterminadas no escalan.
+export function escalarPorTransito(transitRestrictions, vessel) {
+  const lista = transitRestrictions?.restricciones_intermedias || [];
+  let nivel = null; // null < 'U' < 'UV'
+  for (const r of lista) {
+    const ab = evaluarRestriccionAB(r, vessel);
+    if (ab?.estado !== 'bloquea') continue;
+    if (esCierreOTemporal(r)) return 'UV';
+    nivel = 'U';
+  }
+  return nivel;
+}
+
+function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions, vessel }) {
+  const rank = { Q: 0, U: 1, UV: 2 };
+
+  let base = 'Q';
   if (
     portStatus?.zarpe?.estado === 'rojo' ||
     portStatus?.recalada?.estado === 'rojo' ||
     weather?.condicion_puerto === 'temporal'
-  ) return 'UV';
-
-  if (
+  ) {
+    base = 'UV';
+  } else if (
     portStatus?.zarpe?.estado === 'ambar' ||
     portStatus?.recalada?.estado === 'ambar' ||
     portStatus?.zarpe?.dato_viejo ||
@@ -129,9 +157,13 @@ function calcularVeredicto({ portStatus, weather, navigation }) {
     weather?.condicion_puerto === 'mal_tiempo' ||
     weather?.alerta_nivel === 'alto' ||
     navigation?.autonomia_ok === false
-  ) return 'U';
+  ) {
+    base = 'U';
+  }
 
-  return 'Q';
+  // Las restricciones de tránsito solo pueden subir el veredicto, nunca bajarlo.
+  const esc = escalarPorTransito(transitRestrictions, vessel);
+  return esc && rank[esc] > rank[base] ? esc : base;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -256,6 +288,36 @@ async function fetchWeather(ruta_puntos, signal) {
   }
 
   const result = { ...data, error: null };
+  cacheSet(cacheKey, result);
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FETCH RESTRICCIONES DE TRÁNSITO — restricciones SITPORT en bahías intermedias
+// de la ruta (jurisdicciones que se cruzan, distintas de zarpe y recalada).
+// Mismo patrón de resiliencia; si falla devuelve null y no bloquea el resto de P3.
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchTransitRestrictions(ruta_puntos, signal) {
+  const cacheKey = `transit:${JSON.stringify(ruta_puntos)}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return { ...cached, from_cache: true };
+
+  const { ok, data } = await safeFetch(
+    `${BACKEND_URL}/api/sitport/restricciones-ruta`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ruta_puntos }),
+    },
+    { signal }
+  );
+
+  if (!ok || !data || !data.success) return null;
+
+  const result = {
+    restricciones_intermedias: data.restricciones_intermedias || [],
+    total: data.total || 0,
+  };
   cacheSet(cacheKey, result);
   return result;
 }
@@ -515,6 +577,7 @@ export function useVoyageVerification(voyageData) {
     error: null,
     portStatus: null,
     weather: null,
+    transitRestrictions: null,
     navigation: null,
     tide: null,
     normative: null,
@@ -556,6 +619,7 @@ export function useVoyageVerification(voyageData) {
       error: null,
       portStatus: null,
       weather: null,
+      transitRestrictions: null,
       navigation: null,
       tide: null,
       normative: null,
@@ -604,6 +668,10 @@ export function useVoyageVerification(voyageData) {
           return fetchTide(recaladaUbicacion?.lat, recaladaUbicacion?.lng, etaLlegada, signal);
         });
 
+      // Misma ruta densificada (~50 km) que consume el clima; se reutiliza para
+      // las restricciones de tránsito para no interpolar dos veces.
+      const rutaDensa = densificarRuta(ruta_puntos);
+
       // Promise.allSettled → ningún fallo individual rompe todo el proceso
       // (a diferencia de Promise.all que aborta ante el primer rechazo)
       const results = await Promise.allSettled([
@@ -619,17 +687,18 @@ export function useVoyageVerification(voyageData) {
               signal
             )
           : Promise.resolve({ nombre: 'Sin destino definido', estado: 'ambar', restricciones: [], dato_viejo: true }),
-        fetchWeather(densificarRuta(ruta_puntos), signal),
+        fetchWeather(rutaDensa, signal),
         navPromise,
         fetchTide(puerto_zarpe.ubicacion?.lat, puerto_zarpe.ubicacion?.lng, fecha_zarpe, signal),
         tideRecaladaPromise,
+        fetchTransitRestrictions(rutaDensa, signal),
       ]);
 
       // Si llegó una ejecución más nueva mientras esperábamos → descartar
       if (runIdRef.current !== currentRunId) return;
 
       // Extraer resultados — si settled con 'rejected' usamos fallback conservador
-      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR] = results;
+      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR, transitR] = results;
 
       const zarpeStatus = zarpeR.status === 'fulfilled'
         ? zarpeR.value
@@ -655,6 +724,10 @@ export function useVoyageVerification(voyageData) {
         ? tideRecaladaR.value
         : { error: tideRecaladaR.reason?.message || 'Sin datos de marea', height_m: null, trend: null, next_high: null, next_low: null, station_used: null, distance_mn: null };
 
+      // Restricciones de tránsito — null si falló o no hubo ninguna intermedia;
+      // el bloque no se muestra y no bloquea el resto de P3.
+      const transitRestrictions = transitR.status === 'fulfilled' ? transitR.value : null;
+
       // Paso 4 — Veredicto
       safeSetState((s) => ({ ...s, loadingStep: 3 }));
 
@@ -673,7 +746,13 @@ export function useVoyageVerification(voyageData) {
         weather: weatherData,
         portStatus,
       });
-      const veredicto = calcularVeredicto({ portStatus, weather: weatherData, navigation: navData });
+      const veredicto = calcularVeredicto({
+        portStatus,
+        weather: weatherData,
+        navigation: navData,
+        transitRestrictions,
+        vessel: voyageData?.vessel,
+      });
 
       safeSetState(() => ({
         loading: false,
@@ -681,6 +760,7 @@ export function useVoyageVerification(voyageData) {
         error: null,
         portStatus,
         weather: weatherData,
+        transitRestrictions,
         navigation: navData,
         tide,
         normative,

@@ -1,5 +1,6 @@
 // src/components/verification/VoyageVerdict.jsx
 import React from 'react';
+import { evaluarRestriccionAB } from '../../utils/restricciones.js';
 
 const C = {
   marino:    '#0A2647',
@@ -40,11 +41,19 @@ const VEREDICTO_CONFIG = {
   },
 };
 
-export default function VoyageVerdict({ veredicto, portStatus, weather, navigation }) {
+export default function VoyageVerdict({ veredicto, portStatus, weather, navigation, transitRestrictions, vessel }) {
   const cfg = VEREDICTO_CONFIG[veredicto] || VEREDICTO_CONFIG.U;
 
   // Construir lista de razones del veredicto
   const razones = [];
+
+  // Restricciones de tránsito que BLOQUEAN a la nave (cotejo de AB en coral).
+  // Son las que subieron el veredicto en el hook; se listan como motivo.
+  const transitBloqueantes = (transitRestrictions?.restricciones_intermedias || [])
+    .filter((r) => evaluarRestriccionAB(r, vessel)?.estado === 'bloquea');
+  for (const r of transitBloqueantes) {
+    razones.push(`Restricción de tránsito en zona intermedia (${r.nombre_bahia})`);
+  }
 
   if (portStatus?.zarpe?.estado === 'rojo') {
     razones.push(`Puerto de zarpe "${portStatus.zarpe.nombre}" cerrado`);
