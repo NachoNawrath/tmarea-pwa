@@ -181,14 +181,16 @@ export default function WeatherBlock({ weather }) {
               const cap = (b.lat != null && b.lng != null)
                 ? getCapitania(b.lat, b.lng)
                 : null;
-              // Como los tramos van ordenados norte→sur, las bahías de una misma
-              // Gobernación quedan consecutivas: el teléfono se informa una sola
-              // vez y no se repite en cada fila de la misma jurisdicción.
+              // Cada bahía sigue informando su Gobernación, pero el teléfono se
+              // muestra una sola vez por jurisdicción: como los tramos van
+              // ordenados norte→sur, las bahías de una misma Gobernación quedan
+              // consecutivas, así que el número aparece solo en la primera del
+              // grupo y las siguientes solo repiten el nombre.
               const prev = i > 0 ? tramosViento[i - 1] : null;
               const prevCap = (prev && prev.lat != null && prev.lng != null)
                 ? getCapitania(prev.lat, prev.lng)
                 : null;
-              const mostrarCap = cap && cap.nombre !== prevCap?.nombre;
+              const mostrarTel = cap && cap.nombre !== prevCap?.nombre;
               return (
                 <div key={b.id_bahia ?? i} style={styles.tramoRow}>
                   <div style={styles.tramoTop}>
@@ -197,15 +199,20 @@ export default function WeatherBlock({ weather }) {
                     <span style={styles.tramoDir}>{b.direccion_viento || '—'}</span>
                     <span style={styles.tramoDot}>{ind.dot}</span>
                   </div>
-                  {mostrarCap && (
+                  {cap && (
                     <div style={styles.tramoCap}>
-                      📞 Gob. Marítima de {cap.nombre} —{' '}
-                      <a
-                        href={`tel:${cap.telefono.replace(/\s+/g, '')}`}
-                        style={styles.tramoCapTel}
-                      >
-                        {cap.telefono}
-                      </a>
+                      {mostrarTel ? '📞' : ''} Gob. Marítima de {cap.nombre}
+                      {mostrarTel && (
+                        <>
+                          {' — '}
+                          <a
+                            href={`tel:${cap.telefono.replace(/\s+/g, '')}`}
+                            style={styles.tramoCapTel}
+                          >
+                            {cap.telefono}
+                          </a>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
