@@ -181,6 +181,14 @@ export default function WeatherBlock({ weather }) {
               const cap = (b.lat != null && b.lng != null)
                 ? getCapitania(b.lat, b.lng)
                 : null;
+              // Como los tramos van ordenados norte→sur, las bahías de una misma
+              // Gobernación quedan consecutivas: el teléfono se informa una sola
+              // vez y no se repite en cada fila de la misma jurisdicción.
+              const prev = i > 0 ? tramosViento[i - 1] : null;
+              const prevCap = (prev && prev.lat != null && prev.lng != null)
+                ? getCapitania(prev.lat, prev.lng)
+                : null;
+              const mostrarCap = cap && cap.nombre !== prevCap?.nombre;
               return (
                 <div key={b.id_bahia ?? i} style={styles.tramoRow}>
                   <div style={styles.tramoTop}>
@@ -189,7 +197,7 @@ export default function WeatherBlock({ weather }) {
                     <span style={styles.tramoDir}>{b.direccion_viento || '—'}</span>
                     <span style={styles.tramoDot}>{ind.dot}</span>
                   </div>
-                  {cap && (
+                  {mostrarCap && (
                     <div style={styles.tramoCap}>
                       📞 Gob. Marítima de {cap.nombre} —{' '}
                       <a
