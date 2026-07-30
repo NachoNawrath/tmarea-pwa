@@ -1,5 +1,6 @@
 // src/components/verification/WeatherBlock.jsx
 import React from 'react';
+import { getCapitania } from '../../utils/capitanias.js';
 
 const C = {
   marino:    '#0A2647',
@@ -175,12 +176,30 @@ export default function WeatherBlock({ weather }) {
             {tramosViento.map((b, i) => {
               const kt = Math.round(b.velocidad_viento_kt);
               const ind = indicadorViento(b.velocidad_viento_kt);
+              // Gobernación Marítima jurisdiccional de la bahía (por lat/lng),
+              // siempre visible para que el patrón tenga el teléfono a mano.
+              const cap = (b.lat != null && b.lng != null)
+                ? getCapitania(b.lat, b.lng)
+                : null;
               return (
                 <div key={b.id_bahia ?? i} style={styles.tramoRow}>
-                  <span style={styles.tramoNombre}>{b.nombre || b.nombre_bahia || '—'}</span>
-                  <span style={{ ...styles.tramoKt, color: ind.color }}>{kt} kt</span>
-                  <span style={styles.tramoDir}>{b.direccion_viento || '—'}</span>
-                  <span style={styles.tramoDot}>{ind.dot}</span>
+                  <div style={styles.tramoTop}>
+                    <span style={styles.tramoNombre}>{b.nombre || b.nombre_bahia || '—'}</span>
+                    <span style={{ ...styles.tramoKt, color: ind.color }}>{kt} kt</span>
+                    <span style={styles.tramoDir}>{b.direccion_viento || '—'}</span>
+                    <span style={styles.tramoDot}>{ind.dot}</span>
+                  </div>
+                  {cap && (
+                    <div style={styles.tramoCap}>
+                      📞 Gob. Marítima de {cap.nombre} —{' '}
+                      <a
+                        href={`tel:${cap.telefono.replace(/\s+/g, '')}`}
+                        style={styles.tramoCapTel}
+                      >
+                        {cap.telefono}
+                      </a>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -304,10 +323,27 @@ const styles = {
   },
   tramoRow: {
     display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    padding: '5px 0',
+    borderBottom: '1px solid #f5f5f5',
+  },
+  tramoTop: {
+    display: 'flex',
     alignItems: 'center',
     gap: 8,
-    padding: '4px 0',
-    borderBottom: '1px solid #f5f5f5',
+  },
+  tramoCap: {
+    fontFamily: 'Arial',
+    fontSize: 11,
+    color: '#999',
+    lineHeight: 1.3,
+  },
+  tramoCapTel: {
+    color: C.electrico,
+    fontWeight: 700,
+    textDecoration: 'none',
+    whiteSpace: 'nowrap',
   },
   tramoNombre: {
     fontFamily: 'Arial',
