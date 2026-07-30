@@ -24,6 +24,35 @@ const C = {
   crema:     '#F1EFE8',
 };
 
+// ── Ruta muestreada para el viento SITPORT (P4 §3) ──────────────────────────
+// El backend matchea bahías por proximidad contra cada punto de la ruta; con
+// solo zarpe y recalada se pierden las bahías del corredor central. Interpolamos
+// puntos equidistantes (~50 km) en línea recta entre ambos extremos.
+function distanciaKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function construirRutaPuntos(zarpe, recalada, pasoKm = 50) {
+  if (!recalada) return [{ lat: zarpe.lat, lng: zarpe.lng }];
+  const distTotal = distanciaKm(zarpe.lat, zarpe.lng, recalada.lat, recalada.lng);
+  const segmentos = Math.max(1, Math.ceil(distTotal / pasoKm));
+  const puntos = [];
+  for (let i = 0; i <= segmentos; i++) {
+    const t = i / segmentos;
+    puntos.push({
+      lat: zarpe.lat + (recalada.lat - zarpe.lat) * t,
+      lng: zarpe.lng + (recalada.lng - zarpe.lng) * t,
+    });
+  }
+  return puntos; // incluye zarpe (i=0) y recalada (i=segmentos)
+}
+
 // ── Hook: GPS del dispositivo ──────────────────────────────────────────────
 function useGPS() {
   const [pos, setPos] = useState(null);
@@ -189,9 +218,10 @@ useEffect(() => {
     const zarpe = voyageData?.puerto_zarpe?.ubicacion;
     if (zarpe?.lat == null || zarpe?.lng == null) return;
 
-    const ruta_puntos = [{ lat: zarpe.lat, lng: zarpe.lng }];
-    if (recaladaCoords) ruta_puntos.push({ lat: recaladaCoords.lat, lng: recaladaCoords.lng });
-    if (ruta_puntos.length < 2) return; // sin recalada no hay ruta que muestrear
+    if (!recaladaCoords) return; // sin recalada no hay corredor que muestrear
+    // Muestreo cada ~50 km para que el backend matchee todas las bahías del
+    // corredor, no solo las de los extremos.
+    const ruta_puntos = construirRutaPuntos(zarpe, recaladaCoords, 50);
 
     const controller = new AbortController();
 

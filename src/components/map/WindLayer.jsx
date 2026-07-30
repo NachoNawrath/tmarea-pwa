@@ -22,16 +22,18 @@ function colorPorVelocidad(kt) {
   return '#5DCAA5';               // turquesa — calma/suave
 }
 
-// ── Tamaño proporcional a la velocidad (20px a 40px) ────────────────────────
+// ── Tamaño proporcional a la velocidad (30px a 40px) ────────────────────────
+// Mínimo 30px para que la flecha sea claramente más grande que las boyas
+// (seamarks) naranjas del mapa y no se confunda con ellas.
 function tamanoPorVelocidad(kt) {
   const v = Number(kt) || 0;
-  return Math.round(Math.max(20, Math.min(40, 20 + (v / 25) * 20)));
+  return Math.round(Math.max(30, Math.min(40, 30 + (v / 25) * 10)));
 }
 
-// ── Elemento DOM de una flecha (arrow SVG + etiqueta de velocidad) ──────────
+// ── Elemento DOM de una flecha (disco + arrow SVG + etiqueta de velocidad) ──
 function crearElementoFlecha(bahia) {
-  const kt    = Number(bahia.velocidadViento) || 0;
-  const dir   = (bahia.textoDireccionViento || '').toUpperCase().trim();
+  const kt    = Number(bahia.velocidad_viento_kt) || 0;
+  const dir   = (bahia.direccion_viento || '').toUpperCase().trim();
   const grados = DIRECCION_GRADOS[dir] ?? 0;
 
   // La flecha SVG base apunta al norte (arriba). La dirección indica DE DÓNDE
@@ -42,24 +44,39 @@ function crearElementoFlecha(bahia) {
   const color = colorPorVelocidad(kt);
 
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;align-items:center;gap:4px;pointer-events:none;';
+  // z-index alto: las flechas quedan por encima de las boyas/seamarks del mapa.
+  wrap.style.cssText = 'display:flex;align-items:center;gap:5px;pointer-events:none;z-index:5;';
 
+  // Disco de fondo (NO rota): blanco semi-transparente con borde del color de
+  // intensidad. Separa visualmente la flecha del fondo y de las boyas naranjas.
+  const disc = document.createElement('div');
+  disc.style.cssText =
+    `width:${size}px;height:${size}px;border-radius:50%;box-sizing:border-box;` +
+    `background:rgba(255,255,255,0.7);border:2px solid ${color};` +
+    'box-shadow:0 1px 4px rgba(0,0,0,0.45);' +
+    'display:flex;align-items:center;justify-content:center;';
+
+  const arrowSize = Math.round(size * 0.68);
   const arrow = document.createElement('div');
   arrow.style.cssText =
-    `width:${size}px;height:${size}px;transform:rotate(${rotacion}deg);` +
-    'transform-origin:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));';
+    `width:${arrowSize}px;height:${arrowSize}px;` +
+    `transform:rotate(${rotacion}deg);transform-origin:center;`;
   arrow.innerHTML =
-    `<svg viewBox="0 0 24 24" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">` +
+    `<svg viewBox="0 0 24 24" width="${arrowSize}" height="${arrowSize}" xmlns="http://www.w3.org/2000/svg">` +
     `<path d="M12 2 L18 20 L12 15 L6 20 Z" fill="${color}" stroke="#ffffff" ` +
-    `stroke-width="1" stroke-linejoin="round"/></svg>`;
+    `stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+  disc.appendChild(arrow);
 
+  // Etiqueta de velocidad — pill oscuro para que "15 kt" se lea sin hover
+  // sobre cualquier zona del mapa (claro u oscuro).
   const label = document.createElement('span');
   label.textContent = `${Math.round(kt)} kt`;
   label.style.cssText =
-    'font:600 11px Arial,sans-serif;color:#F1EFE8;white-space:nowrap;' +
-    'text-shadow:0 1px 2px rgba(0,0,0,0.85),0 0 3px rgba(0,0,0,0.6);';
+    'font:700 11px Arial,sans-serif;color:#F1EFE8;white-space:nowrap;' +
+    'background:rgba(10,38,71,0.78);padding:2px 6px;border-radius:6px;' +
+    'text-shadow:0 1px 2px rgba(0,0,0,0.6);';
 
-  wrap.appendChild(arrow);
+  wrap.appendChild(disc);
   wrap.appendChild(label);
   return wrap;
 }
