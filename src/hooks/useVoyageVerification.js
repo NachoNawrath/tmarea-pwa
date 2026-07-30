@@ -188,6 +188,52 @@ async function fetchPortStatus(nombrePuerto, ubicacion, signal) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// MUESTREO DE RUTA PARA EL VIENTO SITPORT (misma lógica que P4_ActiveVoyage)
+// El backend matchea bahías por proximidad contra cada punto de la ruta; con
+// solo zarpe y recalada se pierden las bahías del corredor central. Se
+// interpolan puntos equidistantes (~50 km) para que el weather-ruta traiga
+// todos los tramos y no solo los extremos.
+// ─────────────────────────────────────────────────────────────────────────────
+function distanciaKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function construirRutaPuntos(zarpe, recalada, pasoKm = 50) {
+  if (!recalada) return [{ lat: zarpe.lat, lng: zarpe.lng }];
+  const distTotal = distanciaKm(zarpe.lat, zarpe.lng, recalada.lat, recalada.lng);
+  const segmentos = Math.max(1, Math.ceil(distTotal / pasoKm));
+  const puntos = [];
+  for (let i = 0; i <= segmentos; i++) {
+    const t = i / segmentos;
+    puntos.push({
+      lat: zarpe.lat + (recalada.lat - zarpe.lat) * t,
+      lng: zarpe.lng + (recalada.lng - zarpe.lng) * t,
+    });
+  }
+  return puntos; // incluye zarpe (i=0) y recalada (i=segmentos)
+}
+
+// Densifica una polilínea de puntos base (zarpe + destinos) interpolando
+// ~50 km en cada tramo. Con un solo destino equivale exactamente a la ruta
+// muestreada de P4; con varios, interpola tramo a tramo sin duplicar los
+// vértices de unión.
+function densificarRuta(puntos, pasoKm = 50) {
+  if (!Array.isArray(puntos) || puntos.length < 2) return puntos;
+  const out = [puntos[0]];
+  for (let i = 0; i < puntos.length - 1; i++) {
+    const seg = construirRutaPuntos(puntos[i], puntos[i + 1], pasoKm);
+    for (let j = 1; j < seg.length; j++) out.push(seg[j]);
+  }
+  return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // FETCH CLIMA — con caché y fallback
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchWeather(ruta_puntos, signal) {
@@ -573,7 +619,7 @@ export function useVoyageVerification(voyageData) {
               signal
             )
           : Promise.resolve({ nombre: 'Sin destino definido', estado: 'ambar', restricciones: [], dato_viejo: true }),
-        fetchWeather(ruta_puntos, signal),
+        fetchWeather(densificarRuta(ruta_puntos), signal),
         navPromise,
         fetchTide(puerto_zarpe.ubicacion?.lat, puerto_zarpe.ubicacion?.lng, fecha_zarpe, signal),
         tideRecaladaPromise,
