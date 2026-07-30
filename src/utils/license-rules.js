@@ -1,10 +1,11 @@
 /**
  * license-rules.js
  * Validador de restricciones de navegación deportiva según DIRECTEMAR
- * Arts. 51-54 Reglamento General de Deportes Náuticos
+ * TM-002 (D.S. (M) N° 214/2015, mod. D.S. (M) N° 126/2022), Art. 14
  *
  * Tipos de licencia deportiva reconocidos:
- *   PDB  — Patrón Deportivo de Bahía
+ *   PLDB — Patrón de Lancha Deportiva de Bahía (solo a motor)
+ *   PDB  — Patrón Deportivo de Bahía (vela y motor)
  *   CDC  — Capitán Deportivo Costero
  *   CDAM — Capitán Deportivo de Alta Mar
  *
@@ -15,7 +16,6 @@
  */
 
 import {
-  haversineKm,
   estimateDistanceToCoastNM,
   getMaxCoastDistanceOnRoute,
   nauticalMilesToKm,
@@ -24,19 +24,25 @@ import {
 // ─── CONSTANTES REGULATORIAS ─────────────────────────────────────────────────
 
 export const LICENSE_TYPES = {
+  PLDB: 'PLDB', // Patrón de Lancha Deportiva de Bahía
   PDB:  'PDB',   // Patrón Deportivo de Bahía
   CDC:  'CDC',   // Capitán Deportivo Costero
   CDAM: 'CDAM', // Capitán Deportivo de Alta Mar
 };
 
-// Licencias deportivas que activan esta lógica
-const SPORT_LICENSE_SET = new Set([
+// Licencias deportivas que activan esta lógica. Solo determina si las
+// reglas de este archivo aplican — el ámbito deportivo/comercial de la
+// nave se deriva de su uso declarado (§15.3 del spec), no de este set.
+export const LICENCIAS_DEPORTIVAS = new Set([
+  LICENSE_TYPES.PLDB,
   LICENSE_TYPES.PDB,
   LICENSE_TYPES.CDC,
   LICENSE_TYPES.CDAM,
+  'Patrón de Lancha Deportiva de Bahía',
   'Patrón Deportivo de Bahía',
   'Capitán Deportivo Costero',
   'Capitán Deportivo de Alta Mar',
+  'patron_lancha_deportiva_bahia',
   'patron_deportivo_bahia',
   'capitan_deportivo_costero',
   'capitan_deportivo_alta_mar',
@@ -44,19 +50,23 @@ const SPORT_LICENSE_SET = new Set([
 
 // Mapeo alias → código interno
 const LICENSE_ALIAS_MAP = {
+  'Patrón de Lancha Deportiva de Bahía': LICENSE_TYPES.PLDB,
   'Patrón Deportivo de Bahía':      LICENSE_TYPES.PDB,
   'Capitán Deportivo Costero':       LICENSE_TYPES.CDC,
   'Capitán Deportivo de Alta Mar':   LICENSE_TYPES.CDAM,
+  'patron_lancha_deportiva_bahia':   LICENSE_TYPES.PLDB,
   'patron_deportivo_bahia':          LICENSE_TYPES.PDB,
   'capitan_deportivo_costero':       LICENSE_TYPES.CDC,
   'capitan_deportivo_alta_mar':      LICENSE_TYPES.CDAM,
+  PLDB: LICENSE_TYPES.PLDB,
   PDB:  LICENSE_TYPES.PDB,
   CDC:  LICENSE_TYPES.CDC,
   CDAM: LICENSE_TYPES.CDAM,
 };
 
-const PDB_MAX_DISTANCE_NM  = 2;    // 2 MN desde puerto de zarpe
-const CDC_MAX_COAST_NM     = 12;   // 12 MN desde la costa
+const MN_60_M           = 111120;  // 60 MN en metros
+const MN_12_M           = 22224;   // 12 MN en metros
+const CDC_MAX_COAST_NM  = 60;      // TM-002 Art. 14 c — corrige el 12 del reglamento derogado
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -75,45 +85,14 @@ export function normalizeLicense(licenseType) {
  * @returns {boolean}
  */
 export function isSportLicense(licenseType) {
-  return SPORT_LICENSE_SET.has(licenseType);
+  return LICENCIAS_DEPORTIVAS.has(licenseType);
 }
 
 // ─── VALIDADORES ─────────────────────────────────────────────────────────────
 
 /**
- * Valida restricción PDB (Patrón de Bahía).
- * Regla: no puede alejarse más de 2 MN del puerto de zarpe.
- *
- * @param {{ lat: number, lng: number }} origin — coordenadas del zarpe
- * @param {{ lat: number, lng: number }} destination — coordenadas del destino
- * @param {Array<{lat,lng}>} waypoints — puntos intermedios (opcional)
- * @returns {{ violation: boolean, distanceKm: number, distanceNM: number, message: string|null }}
- */
-function validatePDB(origin, destination, waypoints = []) {
-  const allPoints = [destination, ...waypoints];
-  let maxDistKm = 0;
-
-  for (const pt of allPoints) {
-    const d = haversineKm(origin.lat, origin.lng, pt.lat, pt.lng);
-    if (d > maxDistKm) maxDistKm = d;
-  }
-
-  const maxDistNM = maxDistKm / 1.852;
-  const violation = maxDistNM > PDB_MAX_DISTANCE_NM;
-
-  return {
-    violation,
-    distanceKm: Math.round(maxDistKm * 10) / 10,
-    distanceNM: Math.round(maxDistNM * 10) / 10,
-    message: violation
-      ? `Tu ruta alcanza ${maxDistNM.toFixed(1)} MN desde el zarpe. Tu licencia PDB autoriza hasta ${PDB_MAX_DISTANCE_NM} MN dentro de la bahía.`
-      : null,
-  };
-}
-
-/**
  * Valida restricción CDC (Costero).
- * Regla: ningún punto de la ruta puede superar 12 MN de la costa.
+ * Regla: ningún punto de la ruta puede superar 60 MN de la costa (TM-002 Art. 14 c).
  *
  * @param {{ lat: number, lng: number }} destination
  * @param {Array<{lat,lng}>} waypoints
@@ -178,16 +157,16 @@ export function validateLicenseRoute(licenseType, origin, destination, waypoints
 
   const alerts = [];
 
-  if (licenseCode === LICENSE_TYPES.PDB) {
-    const result = validatePDB(origin, destination, waypoints);
-    if (result.violation) {
-      alerts.push({
-        code: 'WARNING_RESTRICTION',
-        severity: 'warning',
-        message: result.message,
-        detail: `Distancia máxima detectada: ${result.distanceNM} MN`,
-      });
-    }
+  // PLDB y PDB: no existe límite nacional de bahía (TM-002 delega el número
+  // en la Autoridad Marítima competente). Sin corte automático de distancia;
+  // se muestra la advertencia como único límite práctico (spec §6.2/§14).
+  if (licenseCode === LICENSE_TYPES.PLDB || licenseCode === LICENSE_TYPES.PDB) {
+    alerts.push({
+      code: 'WARNING_RESTRICTION',
+      severity: 'warning',
+      message: 'El límite de tu zona de bahía lo fija tu Capitanía de Puerto. Verifícalo antes de zarpar.',
+      detail: 'No existe un límite nacional vigente para licencias de bahía (TM-002).',
+    });
   }
 
   if (licenseCode === LICENSE_TYPES.CDC) {
@@ -210,6 +189,75 @@ export function validateLicenseRoute(licenseType, origin, destination, waypoints
     : 'none';
 
   return { licenseCode, isSport: true, hasViolation, severity, alerts };
+}
+
+// ─── LÍMITE EFECTIVO POR LICENCIA × CLASIFICACIÓN DE NAVE (spec §6.2/§15.4) ──
+
+// Clasificación de la embarcación (Circular D.G.T.M. y M.M. A-41/014) y su
+// límite propio de distancia a costa, en metros. null = sin límite propio.
+const LIMITE_POR_CLASIFICACION = {
+  ALTA_MAR:    null,
+  COSTERA_60:  MN_60_M,
+  COSTERA_12:  MN_12_M,
+  BAHIA_VELA:  null,
+  BAHIA_MOTOR: null,
+};
+
+/**
+ * Límite efectivo de distancia a costa, en metros.
+ * Aplica el mínimo entre licencia y clasificación de nave, más el tope de
+ * 12 MN por vela sin motor auxiliar operativo (spec §6.2/§15.4).
+ *
+ * @param {string} licencia — tipo de licencia (alias o código)
+ * @param {string} clasificacion — 'ALTA_MAR'|'COSTERA_60'|'COSTERA_12'|'BAHIA_VELA'|'BAHIA_MOTOR'
+ * @param {{ propulsion?: string, motor_operativo?: boolean }} nave
+ * @returns {number|null} límite en metros, o null si no hay corte aplicable
+ */
+export function limiteEfectivoM(licencia, clasificacion, nave = {}) {
+  const licenciaCodigo = normalizeLicense(licencia) ?? licencia;
+
+  // PLDB, PDB (bahía, sin valor nacional), CDAM (sin límite) y PNM (comercial,
+  // sin corte de distancia propio) devuelven null aquí — ver tabla spec §15.4.
+  const limiteLicencia = licenciaCodigo === LICENSE_TYPES.CDC ? MN_60_M : null;
+
+  const limiteClasificacion = LIMITE_POR_CLASIFICACION[clasificacion] ?? null;
+
+  const topeVela = nave?.propulsion === 'vela' && !nave?.motor_operativo
+    ? MN_12_M
+    : null;
+
+  const limites = [limiteLicencia, limiteClasificacion, topeVela].filter((v) => v !== null);
+  return limites.length > 0 ? Math.min(...limites) : null;
+}
+
+// ─── DERIVACIÓN DE AB DESDE ESLORA (TM-002 Art. 28) ──────────────────────────
+
+// Tabla del Art. 28, embarcaciones deportivas < 24 m. Ordenada ascendente por
+// eslora máxima; se usa la primera fila que la eslora declarada no supere.
+const TABLA_AB_ESLORA = [
+  { esloraMaxM: 8,     ab: 5.0 },
+  { esloraMaxM: 10,    ab: 10.0 },
+  { esloraMaxM: 12,    ab: 15.0 },
+  { esloraMaxM: 13,    ab: 17.5 },
+  { esloraMaxM: 15,    ab: 22.3 },
+  { esloraMaxM: 16,    ab: 25.0 },
+  { esloraMaxM: 18,    ab: 30.5 },
+  { esloraMaxM: 20,    ab: 36.5 },
+  { esloraMaxM: 22,    ab: 42.5 },
+  { esloraMaxM: 23.99, ab: 50.0 },
+];
+
+/**
+ * Arqueo bruto derivado de la eslora, para embarcaciones deportivas < 24 m
+ * (TM-002 Art. 28). Devuelve null fuera de rango — esas naves requieren
+ * certificado de arqueo.
+ * @param {number} eslora_m
+ * @returns {number|null}
+ */
+export function arqueoBrutoDesdeEslora(eslora_m) {
+  if (!eslora_m || eslora_m <= 0) return null;
+  const fila = TABLA_AB_ESLORA.find((f) => eslora_m <= f.esloraMaxM);
+  return fila ? fila.ab : null;
 }
 
 // ─── CHECKLIST DE EQUIPAMIENTO ───────────────────────────────────────────────

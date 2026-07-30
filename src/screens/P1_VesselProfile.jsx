@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { arqueoBrutoDesdeEslora } from '../utils/license-rules.js';
 // react-router-dom eliminado
 
 const VESSEL_TYPES = [
@@ -10,6 +11,27 @@ const VESSEL_TYPES = [
   { value: 'otro', label: 'Otro' },
 ];
 
+const USOS = [
+  { value: 'pesca', label: 'Pesca' },
+  { value: 'acuicultura', label: 'Acuicultura' },
+  { value: 'transporte', label: 'Transporte' },
+  { value: 'recreativo', label: 'Recreativo' },
+];
+
+const PROPULSIONES = [
+  { value: 'motor', label: 'Motor' },
+  { value: 'vela', label: 'Vela' },
+  { value: 'mixto', label: 'Mixto (vela y motor)' },
+];
+
+const CLASIFICACIONES = [
+  { value: 'ALTA_MAR', label: 'Alta Mar' },
+  { value: 'COSTERA_60', label: 'Costera 60 MN' },
+  { value: 'COSTERA_12', label: 'Costera 12 MN' },
+  { value: 'BAHIA_VELA', label: 'Bahía Vela' },
+  { value: 'BAHIA_MOTOR', label: 'Bahía Motor' },
+];
+
 const EMPTY_FORM = {
   nombre: '',
   matricula: '',
@@ -17,6 +39,13 @@ const EMPTY_FORM = {
   eslora: '',
   manga: '',
   trg: '',
+  ab: '',
+  calado_m: '',
+  uso: '',
+  propulsion: '',
+  tiene_motor_auxiliar: false,
+  motor_operativo: false,
+  clasificacion: '',
   velocidad_crucero: '',
   consumo_nominal: '',
 };
@@ -38,6 +67,8 @@ const estilos = {
   btnSecundario: { padding: '12px 20px', background: '#f5f5f5', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: '500' },
   btnPrimario: { flex: 1, padding: '13px 20px', background: '#0052a3', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: '700' },
   hint: { fontSize: '12px', color: '#777', marginTop: '4px' },
+  checkboxRow: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' },
+  checkboxLabel: { fontSize: '14px', color: '#333' },
   resumen: { background: '#f0f7ff', border: '1px solid #bbdefb', borderRadius: '8px', padding: '14px 16px', marginTop: '20px', fontSize: '13px', color: '#1565c0' },
 };
 
@@ -57,24 +88,52 @@ export default function P1_VesselProfile({ onComplete }) {
   const [errorGeneral, setErrorGeneral] = useState(null);
   const [guardado, setGuardado] = useState(false);
   const [tieneDatoPrevio, setTieneDatoPrevio] = useState(false);
+  const [abManual, setAbManual] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('vessel_profile');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setForm(parsed);
+        setForm({ ...EMPTY_FORM, ...parsed });
         setGuardado(true);
         setTieneDatoPrevio(true);
+        setAbManual(true); // dato ya guardado: no pisar el AB del usuario
       } catch {
         localStorage.removeItem('vessel_profile');
       }
     }
   }, []);
 
+  // Ámbito se deriva del uso, no de la licencia (spec §15.3)
+  const ambitoDeportivo = form.uso === 'recreativo';
+
+  // AB se autocompleta desde la eslora para embarcaciones deportivas
+  // (TM-002 Art. 28), pero queda editable — se deja de autocompletar en
+  // cuanto el usuario lo edita a mano.
+  useEffect(() => {
+    if (!ambitoDeportivo || abManual) return;
+    const calculado = arqueoBrutoDesdeEslora(parseFloat(form.eslora));
+    if (calculado !== null) {
+      setForm(prev => ({ ...prev, ab: String(calculado) }));
+    }
+  }, [ambitoDeportivo, form.eslora, abManual]);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const nuevoValor = type === 'checkbox' ? checked : value;
+    setForm(prev => {
+      const next = { ...prev, [name]: nuevoValor };
+      if (name === 'propulsion' && nuevoValor !== 'vela') {
+        next.tiene_motor_auxiliar = false;
+        next.motor_operativo = false;
+      }
+      if (name === 'tiene_motor_auxiliar' && !nuevoValor) {
+        next.motor_operativo = false;
+      }
+      return next;
+    });
+    if (name === 'ab') setAbManual(true);
     setErrores(prev => ({ ...prev, [name]: null }));
     setGuardado(false);
     setErrorGeneral(null);
@@ -92,6 +151,17 @@ export default function P1_VesselProfile({ onComplete }) {
     }
     const trg = campoNumerico(form.trg, 0.1, 100000, 'TRG');
     if (trg) errs.trg = trg;
+    // AB es opcional (no todos los patrones lo conocen). Solo se valida el
+    // rango si el patrón ingresó un valor; en blanco es válido.
+    if (form.ab !== '' && form.ab != null) {
+      const ab = campoNumerico(form.ab, 0.1, 100000, 'AB');
+      if (ab) errs.ab = ab;
+    }
+    const calado = campoNumerico(form.calado_m, 0.1, 20, 'Calado');
+    if (calado) errs.calado_m = calado;
+    if (!form.uso) errs.uso = 'Selecciona el uso de la embarcación';
+    if (!form.propulsion) errs.propulsion = 'Selecciona el tipo de propulsión';
+    if (ambitoDeportivo && !form.clasificacion) errs.clasificacion = 'Selecciona la clasificación de la nave';
     const vel = campoNumerico(form.velocidad_crucero, 1, 80, 'Velocidad crucero');
     if (vel) errs.velocidad_crucero = vel;
     const cons = campoNumerico(form.consumo_nominal, 0.1, 10000, 'Consumo nominal');
@@ -139,6 +209,7 @@ export default function P1_VesselProfile({ onComplete }) {
     setErrores({});
     setGuardado(false);
     setTieneDatoPrevio(false);
+    setAbManual(false);
     localStorage.removeItem('vessel_profile');
   };
 
@@ -204,15 +275,94 @@ export default function P1_VesselProfile({ onComplete }) {
         </div>
       </div>
 
-      {/* TRG */}
-      <div style={estilos.seccion}>
-        <label style={estilos.label}>TRG — Tonelaje de Registro Grueso *</label>
-        <input name="trg" type="number" value={form.trg} onChange={handleChange}
-          placeholder="Ej: 45" min="0.1" step="0.1"
-          style={{ ...estilos.input, borderColor: errores.trg ? '#f44336' : '#d0d0d0' }} />
-        {errores.trg && <div style={estilos.errorField}>⚠ {errores.trg}</div>}
-        <div style={estilos.hint}>El TRG define qué restricciones portuarias aplican a tu embarcación.</div>
+      {/* TRG / AB */}
+      <div style={estilos.grid2}>
+        <div>
+          <label style={estilos.label}>TRG — Tonelaje de Registro Grueso *</label>
+          <input name="trg" type="number" value={form.trg} onChange={handleChange}
+            placeholder="Ej: 45" min="0.1" step="0.1"
+            style={{ ...estilos.input, borderColor: errores.trg ? '#f44336' : '#d0d0d0' }} />
+          {errores.trg && <div style={estilos.errorField}>⚠ {errores.trg}</div>}
+        </div>
+        <div>
+          <label style={estilos.label}>Arqueo Bruto (AB)</label>
+          <input name="ab" type="number" value={form.ab} onChange={handleChange}
+            placeholder="Ej: 15" min="0.1" step="0.1"
+            style={{ ...estilos.input, borderColor: errores.ab ? '#f44336' : '#d0d0d0' }} />
+          {errores.ab && <div style={estilos.errorField}>⚠ {errores.ab}</div>}
+          {ambitoDeportivo ? (
+            <div style={estilos.hint}>Autocompletado desde la eslora (TM-002 Art. 28). Editable si tienes certificado de arqueo.</div>
+          ) : (
+            <div style={estilos.hint}>Aparece en el Certificado de Matrícula de la nave. Si no lo conoces, déjalo en blanco.</div>
+          )}
+        </div>
       </div>
+      <div style={estilos.hint}>El TRG y el AB definen qué restricciones portuarias aplican a tu embarcación.</div>
+
+      {/* Calado */}
+      <div style={estilos.seccion}>
+        <label style={estilos.label}>Calado (m) *</label>
+        <input name="calado_m" type="number" value={form.calado_m} onChange={handleChange}
+          placeholder="Ej: 1.2" min="0.1" step="0.1"
+          style={{ ...estilos.input, borderColor: errores.calado_m ? '#f44336' : '#d0d0d0' }} />
+        {errores.calado_m && <div style={estilos.errorField}>⚠ {errores.calado_m}</div>}
+        <div style={estilos.hint}>Usado por el router para el margen de resguardo y el cotejo vertical por sonda.</div>
+      </div>
+
+      {/* Uso / Propulsión */}
+      <div style={estilos.grid2}>
+        <div>
+          <label style={estilos.label}>Uso de la embarcación *</label>
+          <select name="uso" value={form.uso} onChange={handleChange}
+            style={{ ...estilos.select, borderColor: errores.uso ? '#f44336' : '#d0d0d0' }}>
+            <option value="">Seleccionar...</option>
+            {USOS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
+          </select>
+          {errores.uso && <div style={estilos.errorField}>⚠ {errores.uso}</div>}
+        </div>
+        <div>
+          <label style={estilos.label}>Propulsión *</label>
+          <select name="propulsion" value={form.propulsion} onChange={handleChange}
+            style={{ ...estilos.select, borderColor: errores.propulsion ? '#f44336' : '#d0d0d0' }}>
+            <option value="">Seleccionar...</option>
+            {PROPULSIONES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+          </select>
+          {errores.propulsion && <div style={estilos.errorField}>⚠ {errores.propulsion}</div>}
+        </div>
+      </div>
+
+      {/* Motor auxiliar — solo a vela */}
+      {form.propulsion === 'vela' && (
+        <div style={estilos.seccion}>
+          <div style={estilos.checkboxRow}>
+            <input id="tiene_motor_auxiliar" name="tiene_motor_auxiliar" type="checkbox"
+              checked={form.tiene_motor_auxiliar} onChange={handleChange} />
+            <label htmlFor="tiene_motor_auxiliar" style={estilos.checkboxLabel}>Tiene motor auxiliar</label>
+          </div>
+          {form.tiene_motor_auxiliar && (
+            <div style={estilos.checkboxRow}>
+              <input id="motor_operativo" name="motor_operativo" type="checkbox"
+                checked={form.motor_operativo} onChange={handleChange} />
+              <label htmlFor="motor_operativo" style={estilos.checkboxLabel}>El motor auxiliar está operativo</label>
+            </div>
+          )}
+          <div style={estilos.hint}>Sin motor auxiliar operativo, tu límite de distancia a costa queda en 12 MN independiente de tu licencia y clasificación.</div>
+        </div>
+      )}
+
+      {/* Clasificación — solo ámbito deportivo */}
+      {ambitoDeportivo && (
+        <div style={estilos.seccion}>
+          <label style={estilos.label}>Clasificación de la nave *</label>
+          <select name="clasificacion" value={form.clasificacion} onChange={handleChange}
+            style={{ ...estilos.select, borderColor: errores.clasificacion ? '#f44336' : '#d0d0d0' }}>
+            <option value="">Seleccionar...</option>
+            {CLASIFICACIONES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+          {errores.clasificacion && <div style={estilos.errorField}>⚠ {errores.clasificacion}</div>}
+          <div style={estilos.hint}>Está en tu certificado de matrícula y de navegabilidad. No se infiere de la eslora.</div>
+        </div>
+      )}
 
       {/* Operación */}
       <div style={estilos.grid2}>

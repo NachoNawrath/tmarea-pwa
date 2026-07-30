@@ -64,7 +64,7 @@ function useGPS() {
 
     watchRef.current = navigator.geolocation.watchPosition(
       (p) => {
-        setPos({ lat: p.coords.latitude, lng: p.coords.longitude });
+        setPos({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy });
         if (p.coords.heading != null) setHeading(p.coords.heading);
       },
       (err) => console.warn('[GPS]', err.message),
@@ -138,12 +138,21 @@ export default function P4_ActiveVoyage({ voyageData, onVoyageComplete, onCancel
   const { pos, heading }        = useGPS();
   const gpsCenteredRef = useRef(false);
 
+// Re-centrado en el PRIMER fix GPS confiable (P4 §1). El mapa arranca centrado
+// en las coordenadas del puerto de zarpe (puerto_zarpe.ubicacion), que pueden
+// estar tierra adentro; sin esto el barco aparecía en una posición falsa hasta
+// que el patrón movía el mapa a mano. Solo se re-centra una vez y solo si el fix
+// es confiable (accuracy < 500 m): en desktop la posición viene por IP con
+// accuracy de varios km — no se centra ahí a propósito, el fix real llega en el
+// celular. En fixes posteriores NO se re-centra (el patrón pudo mover el mapa);
+// el texto de POSICIÓN del bottom sheet sí se actualiza en cada fix (usa `pos`).
 useEffect(() => {
   if (!pos || !mapRef.current || gpsCenteredRef.current) return;
+  if (pos.accuracy == null || pos.accuracy >= 500) return;
   gpsCenteredRef.current = true;
   mapRef.current.flyTo({
     center: [pos.lng, pos.lat],
-    zoom: 11,
+    zoom: 13,
     duration: 1500
   });
 }, [pos]);
