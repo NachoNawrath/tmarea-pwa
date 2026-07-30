@@ -7,6 +7,7 @@ import VoyageReportButton from '../components/VoyageReportButton';
 import { RutasAustralesLayer } from '../components/map/RutasAustralesLayer';
 import { ConcesionesLayer, ConcesionesControl } from '../components/map/ConcesionesLayer';
 import { normalizeLicense } from '../utils/license-rules.js';
+import TideCurvePanel from '../components/voyage/TideCurvePanel';
 
 const BACKEND_URL = 'http://localhost:3000';
 
@@ -128,6 +129,18 @@ useEffect(() => {
   return { lat1, lng1, lat2, lng2 };
 }, [voyageData]);
 
+  // Coordenadas de recalada para la curva de marea (P4 §2). A diferencia de
+  // bbox, NO cae de vuelta a zarpe si falta el destino -- mostrar la marea
+  // de zarpe rotulada como recalada sería incorrecto, mejor "no disponible".
+  const recaladaCoords = React.useMemo(() => {
+    const destino = voyageData?.destinos?.[0]?.puerto || voyageData?.destinos?.[0]?.centro ||
+      voyageData?.destinos?.[0]?.marina || voyageData?.destinos?.[0]?.fondeadero || null;
+    const lat = destino?.ubicacion?.lat ?? destino?.lat;
+    const lng = destino?.ubicacion?.lng ?? destino?.lng;
+    if (lat == null || lng == null) return null;
+    return { lat, lng };
+  }, [voyageData]);
+
   // Origen/destino para el cálculo de ruta (motor raster) — hoisted para
   // reutilizar entre el efecto que dibuja el mapa y el de comparación.
   const origenDestino = React.useMemo(() => {
@@ -157,6 +170,7 @@ useEffect(() => {
   // cuando la ruta nueva quede verificada en pantalla.
   const [rutaV2, setRutaV2] = useState(null);
   const [compararMotores, setCompararMotores] = useState(false);
+  const [tidePanelOpen, setTidePanelOpen] = useState(false);
 
   // Inicio del viaje
   const inicioRef = useRef(new Date().toISOString());
@@ -574,6 +588,23 @@ if (origenDestino) {
         )}
       </div>
 
+      {/* ── Toggle panel de curva de marea (recalada) ── */}
+      <div style={styles.tideToggleWrap}>
+        <button
+          style={{ ...styles.compararBtn, ...(tidePanelOpen ? styles.compararBtnActivo : {}) }}
+          onClick={() => setTidePanelOpen((v) => !v)}
+        >
+          🌊 Marea
+        </button>
+      </div>
+
+      <TideCurvePanel
+        open={tidePanelOpen}
+        onClose={() => setTidePanelOpen(false)}
+        lat={recaladaCoords?.lat}
+        lng={recaladaCoords?.lng}
+      />
+
       {/* ── Loading capas ── */}
       {loadingCapas && (
         <div style={styles.loadingOverlay}>
@@ -868,6 +899,11 @@ const styles = {
   },
   compararSwatch: {
     width: 12, height: 3, borderRadius: 2, display: 'inline-block',
+  },
+  tideToggleWrap: {
+    position: 'absolute',
+    top: 62, left: 10,
+    zIndex: 15,
   },
   sheet: {
     position: 'absolute',

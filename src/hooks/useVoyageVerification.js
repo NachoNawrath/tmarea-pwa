@@ -213,6 +213,38 @@ async function fetchWeather(ruta_puntos, signal) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FETCH MAREA — con caché y fallback
+// El backend expone lat/lon (no lat/lng) en la query string; las ubicaciones
+// del frontend usan `.lng` (mismo campo que ya consumen fetchNavigation y
+// P4_ActiveVoyage) — se traduce acá, no se asume `.lon` en ningún objeto de
+// voyageData.
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchTide(lat, lng, datetimeISO, signal) {
+  if (lat == null || lng == null) {
+    return { error: 'Sin coordenadas', height_m: null, trend: null, next_high: null, next_low: null, station_used: null, distance_mn: null };
+  }
+
+  const cacheKey = `tide:${lat},${lng},${datetimeISO}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return { ...cached, from_cache: true };
+
+  const params = new URLSearchParams({ lat, lon: lng, datetime: datetimeISO });
+  const { ok, data, error } = await safeFetch(
+    `${BACKEND_URL}/api/tide/predict?${params.toString()}`,
+    {},
+    { signal }
+  );
+
+  if (!ok || !data) {
+    return { error: error || 'Sin datos de marea', height_m: null, trend: null, next_high: null, next_low: null, station_used: null, distance_mn: null };
+  }
+
+  const result = { ...data, error: null };
+  cacheSet(cacheKey, result);
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // FETCH NAVEGACIÓN — con caché y fallback
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchNavigation(voyageData, signal) {
@@ -365,6 +397,7 @@ export function useVoyageVerification(voyageData) {
     portStatus: null,
     weather: null,
     navigation: null,
+    tide: null,
     normative: null,
     veredicto: null,
     completedAt: null,
@@ -405,14 +438,19 @@ export function useVoyageVerification(voyageData) {
       portStatus: null,
       weather: null,
       navigation: null,
+      tide: null,
       normative: null,
       veredicto: null,
       completedAt: null,
     }));
 
     try {
-      const { puerto_zarpe, destinos } = voyageData;
+      const { puerto_zarpe, destinos, fecha_zarpe } = voyageData;
     const puerto_recalada = destinos?.[0]?.puerto || destinos?.[0]?.marina || destinos?.[0]?.centro || null;
+
+      // Ubicación de recalada: mismo fallback que usa fetchPortStatus más abajo
+      // (algunos destinos traen `ubicacion.lat/lng`, otros lat/lng al nivel raíz).
+      const recaladaUbicacion = puerto_recalada?.ubicacion || { lat: puerto_recalada?.lat, lng: puerto_recalada?.lng };
 
       const ruta_puntos = [
         { lat: puerto_zarpe.ubicacion.lat, lng: puerto_zarpe.ubicacion.lng },
@@ -434,6 +472,19 @@ export function useVoyageVerification(voyageData) {
       if (runIdRef.current !== currentRunId || signal.aborted) return;
       safeSetState((s) => ({ ...s, loadingStep: 2 }));
 
+      // La marea en recalada corresponde a la hora de LLEGADA, no de zarpe —
+      // se encadena sobre navPromise (misma promesa referenciada dos veces,
+      // no dispara un segundo cálculo) para usar eta_llegada_iso apenas esté
+      // disponible; si el cálculo de navegación falla o no trae ETA, cae a
+      // fecha_zarpe.
+      const navPromise = fetchNavigation(voyageData, signal);
+      const tideRecaladaPromise = navPromise
+        .catch(() => null)
+        .then((navResult) => {
+          const etaLlegada = navResult?.eta_llegada_iso || fecha_zarpe;
+          return fetchTide(recaladaUbicacion?.lat, recaladaUbicacion?.lng, etaLlegada, signal);
+        });
+
       // Promise.allSettled → ningún fallo individual rompe todo el proceso
       // (a diferencia de Promise.all que aborta ante el primer rechazo)
       const results = await Promise.allSettled([
@@ -445,19 +496,21 @@ export function useVoyageVerification(voyageData) {
         puerto_recalada
           ? fetchPortStatus(
               puerto_recalada.nombre || puerto_recalada.nombre_marina || 'Destino',
-              puerto_recalada.ubicacion || { lat: puerto_recalada.lat, lng: puerto_recalada.lng },
+              recaladaUbicacion,
               signal
             )
           : Promise.resolve({ nombre: 'Sin destino definido', estado: 'ambar', restricciones: [], dato_viejo: true }),
         fetchWeather(ruta_puntos, signal),
-        fetchNavigation(voyageData, signal),
+        navPromise,
+        fetchTide(puerto_zarpe.ubicacion?.lat, puerto_zarpe.ubicacion?.lng, fecha_zarpe, signal),
+        tideRecaladaPromise,
       ]);
 
       // Si llegó una ejecución más nueva mientras esperábamos → descartar
       if (runIdRef.current !== currentRunId) return;
 
       // Extraer resultados — si settled con 'rejected' usamos fallback conservador
-      const [zarpeR, recaladaR, weatherR, navR] = results;
+      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR] = results;
 
       const zarpeStatus = zarpeR.status === 'fulfilled'
         ? zarpeR.value
@@ -475,10 +528,22 @@ export function useVoyageVerification(voyageData) {
         ? navR.value
         : { error: navR.reason?.message, autonomia_ok: null };
 
+      const tideZarpe = tideZarpeR.status === 'fulfilled'
+        ? tideZarpeR.value
+        : { error: tideZarpeR.reason?.message || 'Sin datos de marea', height_m: null, trend: null, next_high: null, next_low: null, station_used: null, distance_mn: null };
+
+      const tideRecalada = tideRecaladaR.status === 'fulfilled'
+        ? tideRecaladaR.value
+        : { error: tideRecaladaR.reason?.message || 'Sin datos de marea', height_m: null, trend: null, next_high: null, next_low: null, station_used: null, distance_mn: null };
+
       // Paso 4 — Veredicto
       safeSetState((s) => ({ ...s, loadingStep: 3 }));
 
       const portStatus = { zarpe: zarpeStatus, recalada: recaladaStatus };
+      const tide = {
+        zarpe: { ...tideZarpe, nombre_puerto: puerto_zarpe.nombre },
+        recalada: { ...tideRecalada, nombre_puerto: puerto_recalada?.nombre || puerto_recalada?.nombre_marina || 'Destino' },
+      };
       const normative = buildNormativeReminders(voyageData);
       const veredicto = calcularVeredicto({ portStatus, weather: weatherData, navigation: navData });
 
@@ -489,6 +554,7 @@ export function useVoyageVerification(voyageData) {
         portStatus,
         weather: weatherData,
         navigation: navData,
+        tide,
         normative,
         veredicto,
         completedAt: new Date().toISOString(),

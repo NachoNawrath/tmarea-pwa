@@ -3,6 +3,7 @@ import React from 'react';
 import { useVoyageVerification } from '../hooks/useVoyageVerification';
 import PortStatusBlock from '../components/verification/PortStatusBlock';
 import WeatherBlock from '../components/verification/WeatherBlock';
+import TideBlock from '../components/verification/TideBlock';
 import NavigationBlock from '../components/verification/NavigationBlock';
 import NormativeBlock from '../components/verification/NormativeBlock';
 import VoyageVerdict from '../components/verification/VoyageVerdict';
@@ -110,6 +111,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
     portStatus,
     weather,
     navigation,
+    tide,
     normative,
     veredicto,
     completedAt,
@@ -157,6 +159,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
       <div style={styles.blocksContainer}>
         <PortStatusBlock portStatus={portStatus} vessel={vessel} />
         <WeatherBlock weather={weather} ruta={voyageData} />
+        <TideBlock tide={tide} />
         <NavigationBlock navigation={navigation} voyageData={voyageData} />
         <NormativeBlock reminders={normative} licenseType={vessel?.licenseType} />
       </div>
