@@ -207,6 +207,15 @@ useEffect(() => {
   const [windData, setWindData] = useState([]);
   const [windVisible, setWindVisible] = useState(true);
 
+  // Puntos muestreados de la ruta (~50 km). Se usan para el fetch de viento y
+  // también para posicionar las flechas sobre la línea de ruta (WindLayer las
+  // snappea al punto más cercano en vez de dibujarlas en la costa).
+  const rutaPuntos = React.useMemo(() => {
+    const zarpe = voyageData?.puerto_zarpe?.ubicacion;
+    if (zarpe?.lat == null || zarpe?.lng == null || !recaladaCoords) return [];
+    return construirRutaPuntos(zarpe, recaladaCoords, 50);
+  }, [voyageData, recaladaCoords]);
+
   // Inicio del viaje
   const inicioRef = useRef(new Date().toISOString());
 
@@ -218,10 +227,8 @@ useEffect(() => {
     const zarpe = voyageData?.puerto_zarpe?.ubicacion;
     if (zarpe?.lat == null || zarpe?.lng == null) return;
 
-    if (!recaladaCoords) return; // sin recalada no hay corredor que muestrear
-    // Muestreo cada ~50 km para que el backend matchee todas las bahías del
-    // corredor, no solo las de los extremos.
-    const ruta_puntos = construirRutaPuntos(zarpe, recaladaCoords, 50);
+    if (rutaPuntos.length < 2) return; // sin corredor que muestrear
+    const ruta_puntos = rutaPuntos;
 
     const controller = new AbortController();
 
@@ -248,7 +255,7 @@ useEffect(() => {
       controller.abort();
       clearInterval(intervalo);
     };
-  }, [voyageData, recaladaCoords]);
+  }, [voyageData, recaladaCoords, rutaPuntos]);
 
   // ── Inicializar mapa ────────────────────────────────────────────────────
   useEffect(() => {
@@ -650,8 +657,8 @@ if (origenDestino) {
       {/* ── Mapa ── */}
       <div ref={mapContainer} style={styles.map} />
 
-      {/* Flechas de viento SITPORT por bahía (P4 §3) */}
-      <WindLayer map={mapRef.current} windData={windData} visible={windVisible} />
+      {/* Flechas de viento SITPORT por bahía (P4 §3) — snapeadas a la ruta */}
+      <WindLayer map={mapRef.current} windData={windData} rutaPuntos={rutaPuntos} visible={windVisible} />
       {/* Oculta durante navegación activa — capa esquemática de referencia (Art.45),
           redundante con la ruta calculada real y confunde la lectura del mapa.
           Se preserva para volver a mostrarla como overlay opcional (toggle) más adelante. */}

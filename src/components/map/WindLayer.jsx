@@ -15,6 +15,23 @@ const DIRECCION_GRADOS = {
   W: 270,  WNW: 292.5, NW: 315,  NNW: 337.5,
 };
 
+// ── Punto de ruta más cercano a una bahía ───────────────────────────────────
+// Corrige la longitud por cos(lat) para que la distancia sea razonable en el
+// corredor austral; suficiente para elegir el punto interpolado más cercano.
+function puntoMasCercano(lat, lng, puntos) {
+  if (!Array.isArray(puntos) || puntos.length === 0) return null;
+  const kx = Math.cos((lat * Math.PI) / 180);
+  let mejor = null;
+  let mejorD = Infinity;
+  for (const p of puntos) {
+    const dLat = p.lat - lat;
+    const dLng = (p.lng - lng) * kx;
+    const d = dLat * dLat + dLng * dLng;
+    if (d < mejorD) { mejorD = d; mejor = p; }
+  }
+  return mejor;
+}
+
 // ── Color por intensidad (paleta Tmarea) ────────────────────────────────────
 function colorPorVelocidad(kt) {
   if (kt >= 25) return '#E8512A'; // coral — fuerte
@@ -82,10 +99,10 @@ function crearElementoFlecha(bahia) {
 }
 
 // ── Componente ──────────────────────────────────────────────────────────────
-export function WindLayer({ map, windData, visible = true }) {
+export function WindLayer({ map, windData, rutaPuntos = [], visible = true }) {
   const markersRef = useRef([]);
 
-  // Crea / recrea los markers cuando cambian el mapa o los datos de viento
+  // Crea / recrea los markers cuando cambian el mapa, los datos o la ruta
   useEffect(() => {
     if (!map || !Array.isArray(windData) || windData.length === 0) return;
 
@@ -97,10 +114,15 @@ export function WindLayer({ map, windData, visible = true }) {
       const lng = Number(bahia.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
+      // El viento es el de la estación SITPORT, pero la flecha se dibuja sobre
+      // la línea de ruta: se snappea al punto interpolado más cercano. Si no hay
+      // ruta, cae a la posición de la bahía (costa).
+      const snap = puntoMasCercano(lat, lng, rutaPuntos) || { lat, lng };
+
       const el = crearElementoFlecha(bahia);
       el.style.display = visible ? '' : 'none';
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([lng, lat])
+        .setLngLat([snap.lng, snap.lat])
         .addTo(map);
       markersRef.current.push(marker);
     });
@@ -112,7 +134,7 @@ export function WindLayer({ map, windData, visible = true }) {
     };
     // `visible` se aplica en el efecto de abajo; no recreamos por él a propósito
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, windData]);
+  }, [map, windData, rutaPuntos]);
 
   // Toggle de visibilidad sin recrear los markers
   useEffect(() => {
