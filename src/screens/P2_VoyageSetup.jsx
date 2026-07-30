@@ -2,7 +2,7 @@
 // react-router-dom eliminado
 import caletasData from '../data/caletas_chile.json';
 import maritimeData from '../data/maritime_data.json';                        // ← NUEVO
-import { isSportLicense, validateLicenseRoute } from '../utils/license-rules.js'; // ← NUEVO
+import { isSportLicense, validateLicenseRoute, LICENCIAS_DEPORTIVAS } from '../utils/license-rules.js'; // ← NUEVO
 import { getNearestCapitania, isCircularRoute } from '../utils/maritime-geo.js';   // ← NUEVO
 import { LicenseAlert, DepartureModal, SafetyChecklist } from '../components/DeportiveAlerts.jsx'; // ← NUEVO
 
@@ -666,8 +666,22 @@ export default function P2_VoyageSetup({ onComplete }) {
     localStorage.setItem('voyage_setup_draft', JSON.stringify({ puerto_zarpe: puertoZarpe, destinos, form }));
   }, [puertoZarpe, destinos, form]);
 
-  // ← NUEVO: detectar perfil deportivo
-  const isSport = useMemo(() => vessel ? isSportLicense(vessel.licenseType || '') : false, [vessel]);
+  // Ámbito deportivo/comercial se deriva del uso declarado de la nave, no
+  // de la licencia (spec §15.3). is_sport_profile se conserva como alias
+  // de ambito === 'deportivo' para no romper el resto del componente.
+  const ambito = useMemo(() => (vessel?.uso === 'recreativo' ? 'deportivo' : 'comercial'), [vessel]);
+  const isSport = ambito === 'deportivo';
+
+  // Una licencia deportiva no habilita actividad comercial (TM-002 Art. 22):
+  // si el ámbito es comercial pero la licencia del patrón es deportiva, el
+  // cotejo bloquea y el viaje no se guarda.
+  const bloqueoAmbito = useMemo(() => {
+    if (!vessel) return null;
+    const licenciaEsDeportiva = LICENCIAS_DEPORTIVAS.has(vessel.licenseType || '');
+    return ambito === 'comercial' && licenciaEsDeportiva
+      ? 'Tu licencia es deportiva y no habilita actividad comercial (pesca, acuicultura o transporte). Regulariza tu licencia con DIRECTEMAR antes de zarpar.'
+      : null;
+  }, [ambito, vessel]);
 
   // ← NUEVO: capitanía más cercana al zarpe
   const nearestCapitania = useMemo(() => {
@@ -733,6 +747,7 @@ export default function P2_VoyageSetup({ onComplete }) {
 
   const validate = () => {
     const errs = {};
+    if (bloqueoAmbito) errs.ambito = bloqueoAmbito;
     if (!puertoZarpe) errs.zarpe = 'Selecciona el puerto de zarpe';
 
     destinos.forEach((d, i) => {
@@ -811,6 +826,8 @@ export default function P2_VoyageSetup({ onComplete }) {
       </header>
 
       {errorGeneral && <div style={estilos.errorBanner}>⚠ {errorGeneral}</div>}
+
+      {bloqueoAmbito && <div style={estilos.errorBanner}>🚫 {bloqueoAmbito}</div>}
 
       {/* ← NUEVO: alerta de licencia inline (solo deportivo) */}
       {isSport && licenseValidation?.hasViolation && (

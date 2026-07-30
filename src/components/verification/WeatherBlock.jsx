@@ -25,10 +25,27 @@ function MetricPill({ label, value, unit, alerta }) {
   );
 }
 
+// Color/indicador por intensidad de viento (paleta Tmarea).
+//   🟢 < 15 kt · 🟡 15–25 kt · 🔴 > 25 kt
+function indicadorViento(kt) {
+  if (kt == null || isNaN(kt)) return { dot: '⚪', color: '#999' };
+  if (kt > 25) return { dot: '🔴', color: C.coral };
+  if (kt >= 15) return { dot: '🟡', color: C.ambar };
+  return { dot: '🟢', color: C.turquesa };
+}
+
 export default function WeatherBlock({ weather }) {
   if (!weather) return null;
 
   const peor = weather.peor_tramo || null;
+
+  // Tramos de viento de la ruta, ordenados de norte a sur (lat descendente:
+  // en Chile el sur es más negativo). Solo tiene sentido mostrarlos si hay 2+.
+  const tramosViento = Array.isArray(weather.bahias_en_ruta)
+    ? [...weather.bahias_en_ruta]
+        .filter((b) => b && b.velocidad_viento_kt != null)
+        .sort((a, b) => (b.lat ?? 0) - (a.lat ?? 0))
+    : [];
 
   const condicionColor =
     weather.condicion_puerto === 'temporal'   ? C.coral  :
@@ -149,11 +166,26 @@ export default function WeatherBlock({ weather }) {
         </p>
       )}
 
-      {/* Bahías en ruta (detalle colapsable futuro) */}
-      {weather.bahias_en_ruta?.length > 0 && (
-        <p style={styles.notaTexto}>
-          {weather.bahias_en_ruta.length} bahía(s) SITPORT en la ruta consultadas.
-        </p>
+      {/* Viento por tramo de la ruta (norte → sur). Solo con 2+ tramos: con
+          uno solo no agrega valor sobre el peor tramo ya mostrado. */}
+      {tramosViento.length > 1 && (
+        <div style={styles.tramoBox}>
+          <span style={styles.tramoTitulo}>Viento por tramo de la ruta</span>
+          <div style={styles.tramoList}>
+            {tramosViento.map((b, i) => {
+              const kt = Math.round(b.velocidad_viento_kt);
+              const ind = indicadorViento(b.velocidad_viento_kt);
+              return (
+                <div key={b.id_bahia ?? i} style={styles.tramoRow}>
+                  <span style={styles.tramoNombre}>{b.nombre || b.nombre_bahia || '—'}</span>
+                  <span style={{ ...styles.tramoKt, color: ind.color }}>{kt} kt</span>
+                  <span style={styles.tramoDir}>{b.direccion_viento || '—'}</span>
+                  <span style={styles.tramoDot}>{ind.dot}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Fuente */}
@@ -250,6 +282,61 @@ const styles = {
     color: '#999',
     margin: 0,
     lineHeight: 1.4,
+  },
+  tramoBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    borderTop: '1px solid #eee',
+    paddingTop: 10,
+  },
+  tramoTitulo: {
+    fontFamily: 'Arial',
+    fontWeight: 700,
+    fontSize: 10,
+    letterSpacing: 1,
+    color: '#888',
+    textTransform: 'uppercase',
+  },
+  tramoList: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  tramoRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '4px 0',
+    borderBottom: '1px solid #f5f5f5',
+  },
+  tramoNombre: {
+    fontFamily: 'Arial',
+    fontSize: 13,
+    color: '#0A2647',
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  tramoKt: {
+    fontFamily: 'Arial',
+    fontSize: 13,
+    fontWeight: 700,
+    width: 52,
+    textAlign: 'right',
+  },
+  tramoDir: {
+    fontFamily: 'Arial',
+    fontSize: 12,
+    color: '#888',
+    width: 34,
+    textAlign: 'center',
+  },
+  tramoDot: {
+    fontSize: 12,
+    width: 18,
+    textAlign: 'center',
   },
   resumenTexto: {
     fontFamily: 'Arial',

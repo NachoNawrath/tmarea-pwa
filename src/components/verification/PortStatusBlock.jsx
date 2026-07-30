@@ -1,5 +1,6 @@
 // src/components/verification/PortStatusBlock.jsx
 import React, { useState } from 'react';
+import { getCapitania } from '../../utils/capitanias.js';
 
 const C = {
   marino:    '#0A2647',
@@ -61,12 +62,65 @@ function evaluarRestriccionTRG(restriccion, vessel) {
   }
 }
 
+/**
+ * Coteja una restricción de Arqueo Bruto (AB) contra el AB de la nave.
+ * SITPORT publica restricciones tipo "CERRADO PARA EEMM A 25 AB SECTOR ..." —
+ * embarcaciones menores a 25 AB no pueden navegar ahí. Si la restricción no
+ * menciona AB, retorna null (no aplica este cotejo).
+ * @returns {{ color: string, icono: string, mensaje: string } | null}
+ */
+function evaluarRestriccionAB(restriccion, vessel) {
+  const texto =
+    restriccion?.Observacion ||
+    restriccion?.MotivoRestriccion ||
+    restriccion?.descripcion ||
+    restriccion?.motivo ||
+    '';
+
+  // "EEMM A 25 AB" (formato SITPORT) o cualquier "<número> AB".
+  const match = texto.match(/EEMM\s*A\s*(\d+)\s*AB/i) || texto.match(/(\d+)\s*AB\b/i);
+  if (!match) return null;
+
+  const limite = parseInt(match[1], 10);
+  const abRaw = vessel?.ab;
+  const ab_nave = abRaw != null && abRaw !== '' && !isNaN(abRaw) ? Number(abRaw) : null;
+
+  if (ab_nave == null) {
+    return {
+      color: C.ambar,
+      icono: '⚠',
+      mensaje:
+        'Verifica si esta restricción aplica a tu embarcación — ingresa tu Arqueo Bruto (AB) en el perfil para cotejo automático',
+    };
+  }
+
+  if (ab_nave < limite) {
+    return {
+      color: C.coral,
+      icono: '⚠',
+      mensaje: `Esta restricción aplica a tu embarcación (AB ${ab_nave} < ${limite} AB)`,
+    };
+  }
+
+  return {
+    color: C.turquesa,
+    icono: 'ℹ',
+    mensaje: `Tu embarcación (AB ${ab_nave}) no está afectada por esta restricción`,
+  };
+}
+
 function PuertoCard({ data, tipo, vessel }) {
   const [expanded, setExpanded] = useState(false);
   const cfg = ESTADO_CONFIG[data?.estado] || ESTADO_CONFIG.ambar;
 
   const restricciones = data?.restricciones || [];
   const tieneRestricciones = restricciones.length > 0;
+
+  // Gobernación Marítima jurisdiccional del puerto (por latitud). data.ubicacion
+  // viene inyectada por useVoyageVerification a partir de las coords del puerto.
+  const capitania = data?.ubicacion
+    ? getCapitania(data.ubicacion.lat, data.ubicacion.lng)
+    : null;
 
   return (
     <div style={{ ...styles.puertoCard, backgroundColor: cfg.bg, borderLeft: `3px solid ${cfg.color}` }}>
@@ -81,6 +135,21 @@ function PuertoCard({ data, tipo, vessel }) {
           <span style={{ ...styles.estadoLabel, color: cfg.color }}>{cfg.label}</span>
         </div>
       </div>
+
+      {/* Gobernación Marítima jurisdiccional — teléfono clickeable (tel:) para
+          llamar directo desde el celular. Va debajo del puerto y arriba del
+          estado de restricciones. */}
+      {capitania && (
+        <div style={styles.capitaniaRow}>
+          📞 Gobernación Marítima de {capitania.nombre} —{' '}
+          <a
+            href={`tel:${capitania.telefono.replace(/\s+/g, '')}`}
+            style={styles.capitaniaTel}
+          >
+            {capitania.telefono}
+          </a>
+        </div>
+      )}
 
       {/* Timestamp */}
       {data?.timestamp && (
@@ -109,6 +178,7 @@ function PuertoCard({ data, tipo, vessel }) {
             <div style={styles.restriccionesContainer}>
               {restricciones.map((r, i) => {
                 const eval_trg = evaluarRestriccionTRG(r, vessel);
+                const eval_ab = evaluarRestriccionAB(r, vessel);
                 return (
                   <div
                     key={i}
@@ -118,6 +188,13 @@ function PuertoCard({ data, tipo, vessel }) {
                     }}
                   >
                     <p style={styles.restriccionTexto}>{eval_trg.mensaje}</p>
+                    {/* Cotejo de Arqueo Bruto (AB) — solo si la restricción
+                        menciona un límite de AB. */}
+                    {eval_ab && (
+                      <p style={{ ...styles.restriccionAB, color: eval_ab.color }}>
+                        {eval_ab.icono} {eval_ab.mensaje}
+                      </p>
+                    )}
                     {r.vigente_desde && (
                       <span style={styles.restriccionFecha}>
                         Desde: {r.vigente_desde}
@@ -244,6 +321,25 @@ const styles = {
     fontFamily: 'Arial',
     fontSize: 11,
     color: '#999',
+  },
+  capitaniaRow: {
+    fontFamily: 'Arial',
+    fontSize: 12,
+    color: '#888',
+    lineHeight: 1.4,
+  },
+  capitaniaTel: {
+    color: C.electrico,
+    fontWeight: 700,
+    textDecoration: 'none',
+    whiteSpace: 'nowrap',
+  },
+  restriccionAB: {
+    fontFamily: 'Arial',
+    fontSize: 12,
+    fontWeight: 600,
+    margin: '2px 0 0',
+    lineHeight: 1.4,
   },
   expandBtn: {
     background: 'none',

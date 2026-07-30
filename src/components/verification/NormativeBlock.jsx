@@ -11,34 +11,43 @@ const C = {
 };
 
 const NIVEL_CONFIG = {
-  critico: {
-    icon: '🚨',
+  // R6 — obligatorio pero destacado en coral (viento sobre umbral de licencia)
+  alerta: {
+    icon: '⚠',
     color: C.coral,
     bg: 'rgba(232,81,42,0.08)',
     border: C.coral,
-    label: 'CRÍTICO',
-  },
-  bloqueante: {
-    icon: '⛔',
-    color: C.coral,
-    bg: 'rgba(232,81,42,0.06)',
-    border: C.coral,
-    label: 'BLOQUEANTE',
+    label: 'OBLIGATORIO',
+    order: 0,
   },
   obligatorio: {
     icon: '📋',
+    color: C.turquesa,
+    bg: 'rgba(93,202,165,0.10)',
+    border: C.turquesa,
+    label: 'OBLIGATORIO',
+    order: 1,
+  },
+  recomendado: {
+    icon: '💡',
+    color: C.ambar,
+    bg: 'rgba(255,193,7,0.09)',
+    border: C.ambar,
+    label: 'RECOMENDADO',
+    order: 2,
+  },
+  informativo: {
+    icon: 'ℹ',
     color: C.electrico,
     bg: 'rgba(26,110,189,0.06)',
     border: C.electrico,
-    label: 'OBLIGATORIO',
+    label: 'INFORMATIVO',
+    order: 3,
   },
-  limite: {
-    icon: '⚠️',
-    color: C.ambar,
-    bg: 'rgba(255,193,7,0.08)',
-    border: C.ambar,
-    label: 'LÍMITE DE LICENCIA',
-  },
+  // Niveles heredados (por compatibilidad; el generador actual no los emite)
+  critico:    { icon: '🚨', color: C.coral, bg: 'rgba(232,81,42,0.08)', border: C.coral, label: 'CRÍTICO', order: 0 },
+  bloqueante: { icon: '⛔', color: C.coral, bg: 'rgba(232,81,42,0.06)', border: C.coral, label: 'BLOQUEANTE', order: 0 },
+  limite:     { icon: '⚠️', color: C.ambar, bg: 'rgba(255,193,7,0.08)', border: C.ambar, label: 'LÍMITE DE LICENCIA', order: 2 },
 };
 
 function ReminderCard({ reminder }) {
@@ -85,13 +94,19 @@ export default function NormativeBlock({ reminders, licenseType }) {
 
   if (!reminders || reminders.length === 0) return null;
 
-  // Separar críticos/bloqueantes del resto
-  const criticos = reminders.filter((r) => r.nivel === 'critico' || r.nivel === 'bloqueante');
-  const resto = reminders.filter((r) => r.nivel !== 'critico' && r.nivel !== 'bloqueante');
+  // Orden: OBLIGATORIO (incl. alerta coral) primero, luego RECOMENDADO, luego
+  // INFORMATIVO. El generador solo devuelve reglas cuya condición se cumple.
+  const ordenDe = (r) => NIVEL_CONFIG[r.nivel]?.order ?? 99;
+  const ordenados = [...reminders].sort((a, b) => ordenDe(a) - ordenDe(b));
 
-  // Siempre mostrar críticos; el resto se expande
-  const visibles = expanded ? reminders : criticos.concat(resto.slice(0, 2));
-  const hayMas = reminders.length > visibles.length;
+  // Prioritarios (obligatorios/alerta) siempre visibles; recomendados e
+  // informativos se colapsan tras los primeros 2.
+  const esPrioritario = (r) => ordenDe(r) <= 1;
+  const prioritarios = ordenados.filter(esPrioritario);
+  const secundarios = ordenados.filter((r) => !esPrioritario(r));
+
+  const visibles = expanded ? ordenados : prioritarios.concat(secundarios.slice(0, 2));
+  const hayMas = ordenados.length > visibles.length;
 
   return (
     <div style={styles.block}>

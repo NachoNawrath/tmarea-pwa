@@ -1,5 +1,7 @@
 // src/hooks/useVoyageVerification.js
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { getCapitania } from '../utils/capitanias.js';
+import { normalizeLicense } from '../utils/license-rules.js';
 
 const BACKEND_URL = 'http://localhost:3000';
 
@@ -302,75 +304,146 @@ const resumen = payload.resumen || payload;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RECORDATORIOS NORMATIVOS — lógica local, sin red
+// RECORDATORIOS NORMATIVOS — sistema de reglas contextuales (local, sin red)
+// Cada regla evalúa una condición del viaje concreto y solo se agrega si se
+// cumple. Datos: voyageData + el resultado de los fetch (navigation, weather,
+// portStatus). Niveles: 'alerta' (coral, R6), 'obligatorio', 'recomendado',
+// 'informativo'. Referencias normativas por regla en el campo `norma`.
 // ─────────────────────────────────────────────────────────────────────────────
-function buildNormativeReminders(voyageData) {
-  const { vessel, is_sport_profile, license_validation, nearest_capitania } = voyageData;
-  const licenseType = vessel?.licenseType || '';
+
+// Umbral de viento (kt) según la categoría de la licencia/nave (Circular
+// A-41/013): Alta Mar 30, Costera 26, Bahía 20. Se resuelve primero por la
+// clasificación de la nave (P1) y, si no está, por el tipo de licencia.
+function umbralVientoLicencia(vessel, licenseType) {
+  const porClasificacion = {
+    ALTA_MAR:    { umbral: 30, categoria: 'Alta Mar' },
+    COSTERA_60:  { umbral: 26, categoria: 'Costera' },
+    COSTERA_12:  { umbral: 26, categoria: 'Costera' },
+    BAHIA_VELA:  { umbral: 20, categoria: 'Bahía' },
+    BAHIA_MOTOR: { umbral: 20, categoria: 'Bahía' },
+  };
+  if (vessel?.clasificacion && porClasificacion[vessel.clasificacion]) {
+    return porClasificacion[vessel.clasificacion];
+  }
+
+  const codigo = normalizeLicense(licenseType);
+  const porLicencia = {
+    CDAM: { umbral: 30, categoria: 'Alta Mar' },
+    CDC:  { umbral: 26, categoria: 'Costera' },
+    PDB:  { umbral: 20, categoria: 'Bahía' },
+    PLDB: { umbral: 20, categoria: 'Bahía' },
+  };
+  return porLicencia[codigo] || { umbral: 26, categoria: 'Costera' };
+}
+
+function buildNormativeReminders(voyageData, context = {}) {
+  const { navigation, weather, portStatus } = context;
+  const vessel = voyageData?.vessel || {};
+  const licenseType = (vessel.licenseType || vessel.tipo_licencia || voyageData?.tipo_licencia || '').toString();
   const reminders = [];
 
+  // Coordenadas de zarpe y recalada
+  const zarpe = voyageData?.puerto_zarpe?.ubicacion || null;
+  const recalada = portStatus?.recalada?.ubicacion || null;
+
+  // ── R1 — SIEMPRE: aviso por radio a la Capitanía de zarpe ──────────────────
+  const capZarpe = zarpe ? getCapitania(zarpe.lat, zarpe.lng) : null;
   reminders.push({
-    id: 'radio_aviso', nivel: 'obligatorio',
-    texto: `Avisar por radio a ${nearest_capitania?.name || 'la Capitanía más cercana'} al iniciar la navegación.`,
-    canal: nearest_capitania?.vhf_primary ? `Canal VHF ${nearest_capitania.vhf_primary}` : null,
-    telefono: nearest_capitania?.phone || null,
+    id: 'r1_radio_aviso', nivel: 'obligatorio',
+    texto: capZarpe
+      ? `Avisar por radio a la Gobernación Marítima de ${capZarpe.nombre} al iniciar la navegación`
+      : 'Avisar por radio a la Capitanía más cercana al iniciar la navegación',
+    canal: voyageData?.nearest_capitania?.vhf_primary ? `VHF Ch ${voyageData.nearest_capitania.vhf_primary}` : null,
+    telefono: capZarpe?.telefono || null,
     norma: 'TM-006 Art. 3',
   });
 
+  // ── R2 — SIEMPRE: reporte de posición ──────────────────────────────────────
   reminders.push({
-    id: 'reporte_posicion', nivel: 'obligatorio',
-    texto: 'Reportar posición en navegación según TM-011.',
+    id: 'r2_reporte_posicion', nivel: 'obligatorio',
+    texto: 'Reportar posición en navegación según TM-011',
     norma: 'TM-011',
   });
 
-  if (voyageData.es_corredor_austral) {
+  // ── R3 — ETA > 12 h: reportes cada 4 h ─────────────────────────────────────
+  const etaHoras = navigation?.eta_horas;
+  if (typeof etaHoras === 'number' && etaHoras > 12) {
     reminders.push({
-      id: 'ruta_art45', nivel: 'obligatorio',
-      texto: 'Navegar exclusivamente por rutas reglamentarias del Art. 45 (TM-008).',
-      norma: 'TM-008 Art. 29 y 45',
+      id: 'r3_larga_duracion', nivel: 'obligatorio',
+      texto: `Viaje de larga duración (${Math.round(etaHoras)}h). Reportar posición cada 4 horas por canal VHF 16 a la Capitanía más cercana`,
+      canal: 'VHF Ch 16',
+      norma: 'TM-011',
     });
   }
 
-  if (is_sport_profile) {
-    reminders.push({
-      id: 'zarpe_deportivo', nivel: 'obligatorio',
-      texto: 'Solicitar autorización de zarpe ante la Capitanía antes de partir (Circular A-41/013).',
-      norma: 'Circular A-41/013',
-    });
-    if (licenseType === 'patron_deportivo_bahia') {
+  // ── R4 — Zarpe nocturno (20:00–06:00 hora local) ───────────────────────────
+  // fecha_zarpe puede venir solo como fecha (sin hora) desde P2 — en ese caso
+  // no se puede determinar la hora y la regla no se evalúa (evita falso positivo
+  // por interpretar medianoche UTC como noche local).
+  const fechaZarpe = voyageData?.fecha_zarpe;
+  if (typeof fechaZarpe === 'string' && fechaZarpe.includes('T')) {
+    const h = new Date(fechaZarpe).getHours();
+    if (!isNaN(h) && (h >= 20 || h < 6)) {
       reminders.push({
-        id: 'limite_bahia', nivel: 'limite',
-        texto: 'Tu licencia (PDB) limita la navegación a bahías y canales interiores dentro de 2 mn de costa.',
-        norma: 'DS 87/1997',
-      });
-    }
-    if (licenseType === 'capitan_deportivo_costero') {
-      reminders.push({
-        id: 'limite_costero', nivel: 'limite',
-        texto: 'Tu licencia (CDC) autoriza hasta 12 mn de la costa.',
-        norma: 'DS 87/1997',
+        id: 'r4_nocturna', nivel: 'obligatorio',
+        texto: 'Navegación nocturna. Verificar luces de navegación operativas y llevar equipo de señalización nocturna',
+        norma: 'COLREG Regla 20',
       });
     }
   }
 
-  if (licenseType?.includes('artesanal') || licenseType?.includes('pesca')) {
+  // ── R5 — Corredor austral (lat de zarpe O recalada < -41.75) ───────────────
+  const latZarpe = zarpe?.lat;
+  const latRecalada = recalada?.lat;
+  if ((latZarpe != null && latZarpe < -41.75) || (latRecalada != null && latRecalada < -41.75)) {
     reminders.push({
-      id: 'seguro_tripulacion', nivel: 'bloqueante',
-      texto: 'Verificar que toda la tripulación cuente con seguro vigente antes de zarpar.',
-      norma: 'DS 129/2013',
+      id: 'r5_canales_australes', nivel: 'informativo',
+      texto: 'Navegación en zona de canales australes. Las rutas autorizadas están definidas en el Art. 45 del TM-008',
+      norma: 'TM-008 Art. 45',
     });
+  }
+
+  // ── R6 — Viento del peor tramo sobre el umbral de la licencia ──────────────
+  const vientoPeor = weather?.peor_tramo?.velocidad_viento_kt;
+  if (typeof vientoPeor === 'number') {
+    const { umbral, categoria } = umbralVientoLicencia(vessel, licenseType);
+    if (vientoPeor > umbral) {
+      const nombreTramo = weather?.peor_tramo?.nombre || 'la ruta';
+      reminders.push({
+        id: 'r6_viento_umbral', nivel: 'alerta',
+        texto: `Pronóstico de viento (${Math.round(vientoPeor)} kt en ${nombreTramo}) supera el umbral de tu categoría de licencia (${categoria}, ${umbral} kt)`,
+        norma: 'Circular A-41/013',
+      });
+    }
+  }
+
+  // ── R7 — Licencia/uso artesanal o de pesca ─────────────────────────────────
+  const licLower = licenseType.toLowerCase();
+  if (licLower.includes('artesanal') || licLower.includes('pesca') || vessel?.uso === 'pesca') {
     reminders.push({
-      id: 'sernapesca', nivel: 'obligatorio',
-      texto: 'Declarar zona de pesca y fecha de zarpe/recalada en Sernapesca.',
+      id: 'r7_sernapesca', nivel: 'obligatorio',
+      texto: 'Registrar zarpe y recalada también en plataforma Sernapesca. Verificar seguro de tripulación vigente',
       norma: 'DS 129/2013',
     });
   }
 
-  if (license_validation?.hasViolation) {
+  // ── R8 — Larga distancia (> 100 mn) ────────────────────────────────────────
+  const distancia = navigation?.distancia_total_mn;
+  if (typeof distancia === 'number' && distancia > 100) {
     reminders.push({
-      id: 'licencia_alerta', nivel: 'critico',
-      texto: license_validation.alerts?.[0]?.message || 'Verificar vigencia de licencia antes de zarpar.',
-      norma: 'DL 2.222/1978',
+      id: 'r8_autonomia', nivel: 'recomendado',
+      texto: `Viaje de larga distancia (${Math.round(distancia)} mn). Verificar autonomía de combustible con margen de seguridad del 30%`,
+      norma: 'Buenas prácticas',
+    });
+  }
+
+  // ── R9 — Recalada con restricciones parciales (activas, no bloqueantes) ─────
+  const recaladaStatus = portStatus?.recalada;
+  if (recaladaStatus?.estado !== 'rojo' && (recaladaStatus?.restricciones?.length || 0) > 0) {
+    reminders.push({
+      id: 'r9_recalada_parcial', nivel: 'recomendado',
+      texto: 'Puerto de recalada con restricciones parciales activas. Confirmar condiciones antes de llegar',
+      norma: 'DGTM O-41/001',
     });
   }
 
@@ -539,12 +612,21 @@ export function useVoyageVerification(voyageData) {
       // Paso 4 — Veredicto
       safeSetState((s) => ({ ...s, loadingStep: 3 }));
 
-      const portStatus = { zarpe: zarpeStatus, recalada: recaladaStatus };
+      // Se adjunta la ubicación del puerto al estado — PortStatusBlock la usa
+      // para resolver la Gobernación Marítima jurisdiccional (getCapitania).
+      const portStatus = {
+        zarpe:    { ...zarpeStatus,    ubicacion: puerto_zarpe.ubicacion },
+        recalada: { ...recaladaStatus, ubicacion: recaladaUbicacion },
+      };
       const tide = {
         zarpe: { ...tideZarpe, nombre_puerto: puerto_zarpe.nombre },
         recalada: { ...tideRecalada, nombre_puerto: puerto_recalada?.nombre || puerto_recalada?.nombre_marina || 'Destino' },
       };
-      const normative = buildNormativeReminders(voyageData);
+      const normative = buildNormativeReminders(voyageData, {
+        navigation: navData,
+        weather: weatherData,
+        portStatus,
+      });
       const veredicto = calcularVeredicto({ portStatus, weather: weatherData, navigation: navData });
 
       safeSetState(() => ({
