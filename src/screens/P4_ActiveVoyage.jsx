@@ -203,12 +203,9 @@ useEffect(() => {
   const [gruposVisibles, setGruposVisibles] = useState(['MOLUSCOS', 'SALMONES', 'ALGAS', 'PECES', 'ABALONES o EQUINODERMOS']);
 
   // Motor raster (Fase 3 redefinida, docs/handoff-fase2.md) — P4 consume
-  // /calcular-v2. rutaV2 alimenta el panel de detalles (distancia_mn,
-  // pct_en_resguardo, pct_batimetria). compararMotores es un toggle
-  // TEMPORAL para QA visual contra /calcular (motor viejo) — se saca
-  // cuando la ruta nueva quede verificada en pantalla.
+  // /calcular-v2, motor único. rutaV2 alimenta el panel de detalles
+  // (distancia_mn, pct_en_resguardo, pct_batimetria).
   const [rutaV2, setRutaV2] = useState(null);
-  const [compararMotores, setCompararMotores] = useState(false);
   const [tidePanelOpen, setTidePanelOpen] = useState(false);
 
   // Viento SITPORT por bahía a lo largo de la ruta (P4 §3). Visible por
@@ -413,8 +410,7 @@ useEffect(() => {
 // real a la celda navegable más cercana) se dibujan PUNTEADOS y por
 // separado — no son la ruta trazada, quedan a criterio del patrón.
 ['ruta-verde', 'ruta-amarillo', 'ruta-rojo', 'ruta-halo', 'ruta-calculada',
- 'ruta-v2-halo', 'ruta-v2', 'ruta-v2-aprox',
- 'ruta-v1-compare-halo', 'ruta-v1-compare'].forEach(id => {
+ 'ruta-v2-halo', 'ruta-v2', 'ruta-v2-aprox'].forEach(id => {
   if (map.getLayer(id)) map.removeLayer(id);
   if (map.getSource(id)) map.removeSource(id);
 });
@@ -518,43 +514,6 @@ if (origenDestino) {
       makeMarker(lonDestino, latDestino, 'B', C.coral);
     })
     .catch(err => console.warn('[ruta v2/raster]', err.message));
-
-  // ── Comparación temporal con el motor viejo ───────────────────────────
-  // Toggle de QA (botón "Comparar motores" en el mapa). Se saca junto con
-  // nautical-graph-router.js/coastline-guard.js una vez verificada la ruta
-  // nueva en pantalla — por ahora ninguno de los dos se toca ni se borra.
-  if (compararMotores) {
-    fetch(BACKEND_URL + '/api/rutas/calcular', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lat_origen: latOrigen, lon_origen: lonOrigen,
-        lat_destino: latDestino, lon_destino: lonDestino,
-      }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.ok || !data.tramos) return;
-        const coordsV1 = data.tramos.filter(t => t.coords?.length >= 2).flatMap(t => t.coords);
-        if (coordsV1.length < 2) return;
-
-        map.addSource('ruta-v1-compare', {
-          type: 'geojson',
-          data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coordsV1 } },
-        });
-        map.addLayer({
-          id: 'ruta-v1-compare-halo', type: 'line', source: 'ruta-v1-compare',
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': '#ffffff', 'line-width': 5, 'line-opacity': 0.6 },
-        });
-        map.addLayer({
-          id: 'ruta-v1-compare', type: 'line', source: 'ruta-v1-compare',
-          layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: { 'line-color': C.naranja, 'line-width': 3, 'line-opacity': 0.9 },
-        });
-      })
-      .catch(err => console.warn('[ruta v1/comparación]', err.message));
-  }
 }
 }
 
@@ -563,7 +522,7 @@ if (origenDestino) {
     } else {
       map.once('load', addCapas);
     }
-  }, [capas, voyageData, origenDestino, compararMotores]);
+  }, [capas, voyageData, origenDestino]);
 
   // ── Actualizar posición GPS en el mapa ─────────────────────────────────
   useEffect(() => {
@@ -676,38 +635,16 @@ if (origenDestino) {
       {/* <ConcesionesLayer map={mapRef.current} bbox={bbox} gruposVisibles={gruposVisibles} /> */}
       {/* <ConcesionesControl gruposVisibles={gruposVisibles} onToggle={g => setGruposVisibles(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])} /> */}
 
-      {/* ── Toggle temporal de comparación de motores (QA Fase 3) ──
-          Se saca cuando la ruta nueva quede verificada — ver
-          docs/handoff-fase2.md y la nota junto a compararMotores arriba. */}
-      <div style={styles.compararWrap}>
-        <button
-          style={{ ...styles.compararBtn, ...(compararMotores ? styles.compararBtnActivo : {}) }}
-          onClick={() => setCompararMotores(v => !v)}
-        >
-          🔬 {compararMotores ? 'Comparando motores' : 'Comparar motores'}
-        </button>
-        {compararMotores && (
-          <div style={styles.compararLeyenda}>
-            <span style={styles.compararLeyendaItem}>
-              <span style={{ ...styles.compararSwatch, background: C.electrico }} /> Nuevo (raster)
-            </span>
-            <span style={styles.compararLeyendaItem}>
-              <span style={{ ...styles.compararSwatch, background: C.naranja }} /> Anterior (grafo)
-            </span>
-          </div>
-        )}
-      </div>
-
       {/* ── Toggles de capas: viento (flechas) y marea (curva de recalada) ── */}
       <div style={styles.tideToggleWrap}>
         <button
-          style={{ ...styles.compararBtn, ...(windVisible ? styles.compararBtnActivo : {}) }}
+          style={{ ...styles.toggleBtn, ...(windVisible ? styles.toggleBtnActivo : {}) }}
           onClick={() => setWindVisible((v) => !v)}
         >
           💨 Viento
         </button>
         <button
-          style={{ ...styles.compararBtn, ...(tidePanelOpen ? styles.compararBtnActivo : {}) }}
+          style={{ ...styles.toggleBtn, ...(tidePanelOpen ? styles.toggleBtnActivo : {}) }}
           onClick={() => setTidePanelOpen((v) => !v)}
         >
           🌊 Marea
@@ -990,32 +927,14 @@ const styles = {
   loadingText: {
     color: '#fff', fontSize: 12,
   },
-  compararWrap: {
-    position: 'absolute',
-    top: 62, right: 10,
-    zIndex: 15,
-    display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6,
-  },
-  compararBtn: {
+  toggleBtn: {
     background: 'rgba(10,38,71,0.85)', color: '#fff',
     borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.25)', borderRadius: 20,
     padding: '7px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
     boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
   },
-  compararBtnActivo: {
+  toggleBtnActivo: {
     background: '#F57C00', borderColor: '#F57C00',
-  },
-  compararLeyenda: {
-    background: 'rgba(255,255,255,0.95)', borderRadius: 10,
-    padding: '6px 10px', display: 'flex', flexDirection: 'column', gap: 4,
-    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-  },
-  compararLeyendaItem: {
-    display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 10, color: '#0A2647', fontWeight: 600, whiteSpace: 'nowrap',
-  },
-  compararSwatch: {
-    width: 12, height: 3, borderRadius: 2, display: 'inline-block',
   },
   tideToggleWrap: {
     position: 'absolute',
