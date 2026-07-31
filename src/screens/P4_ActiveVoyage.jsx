@@ -717,8 +717,9 @@ if (origenDestino) {
       <TideCurvePanel
         open={tidePanelOpen}
         onClose={() => setTidePanelOpen(false)}
-        lat={recaladaCoords?.lat}
-        lng={recaladaCoords?.lng}
+        rutaPuntos={rutaPuntos}
+        horaZarpe={inicioRef.current}
+        velocidadNudos={parseFloat(voyageData?.vessel?.velocidad_crucero) || null}
       />
 
       {/* ── Loading capas ── */}
