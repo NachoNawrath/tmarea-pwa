@@ -156,13 +156,12 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
         weather={weather}
         navigation={navigation}
         transitRestrictions={transitRestrictions}
-        vessel={vessel}
       />
 
       {/* ── Bloques de detalle ── */}
       <div style={styles.blocksContainer}>
         <PortStatusBlock portStatus={portStatus} vessel={vessel} />
-        <TransitRestrictionsBlock transitRestrictions={transitRestrictions} vessel={vessel} />
+        <TransitRestrictionsBlock transitRestrictions={transitRestrictions} />
         <WeatherBlock weather={weather} ruta={voyageData} />
         <TideBlock tide={tide} />
         <NavigationBlock navigation={navigation} voyageData={voyageData} />

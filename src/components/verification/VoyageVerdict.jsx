@@ -1,6 +1,5 @@
 // src/components/verification/VoyageVerdict.jsx
 import React from 'react';
-import { evaluarRestriccionAB } from '../../utils/restricciones.js';
 
 const C = {
   marino:    '#0A2647',
@@ -41,18 +40,23 @@ const VEREDICTO_CONFIG = {
   },
 };
 
-export default function VoyageVerdict({ veredicto, portStatus, weather, navigation, transitRestrictions, vessel }) {
+export default function VoyageVerdict({ veredicto, portStatus, weather, navigation, transitRestrictions }) {
   const cfg = VEREDICTO_CONFIG[veredicto] || VEREDICTO_CONFIG.U;
 
-  // Construir lista de razones del veredicto
   const razones = [];
 
-  // Restricciones de tránsito que BLOQUEAN a la nave (cotejo de AB en coral).
-  // Son las que subieron el veredicto en el hook; se listan como motivo.
+  // Restricciones de tránsito que BLOQUEAN — usa la evaluación del backend (BRE)
   const transitBloqueantes = (transitRestrictions?.restricciones_intermedias || [])
-    .filter((r) => evaluarRestriccionAB(r, vessel)?.estado === 'bloquea');
+    .filter((r) => r.evaluacion?.bloquea);
   for (const r of transitBloqueantes) {
     razones.push(`Restricción de tránsito en zona intermedia (${r.nombre_bahia})`);
+  }
+
+  // Restricciones de tránsito con precaución (sin AB cargado o VARIABLE)
+  const transitPrecaucion = (transitRestrictions?.restricciones_intermedias || [])
+    .filter((r) => r.evaluacion?.estado === 'sin_ab');
+  for (const r of transitPrecaucion) {
+    razones.push(`Restricción en ${r.nombre_bahia} — verifica tu AB`);
   }
 
   if (portStatus?.zarpe?.estado === 'rojo') {
@@ -85,6 +89,9 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
     razones.push('Dato SITPORT desactualizado — verificar con Capitanía');
   }
 
+  // Último tramo seguro (del motor de reglas)
+  const ultimoTramo = transitRestrictions?.ultimo_tramo_seguro;
+
   return (
     <div
       style={{
@@ -114,6 +121,15 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
               <span style={styles.razonText}>{r}</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Último tramo seguro */}
+      {ultimoTramo && veredicto === 'UV' && (
+        <div style={styles.tramoSeguro}>
+          <span style={styles.razonText}>
+            Puedes navegar hasta {ultimoTramo.bahia}. A partir de ahí, la zona está restringida.
+          </span>
         </div>
       )}
 
@@ -190,5 +206,11 @@ const styles = {
     fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
     lineHeight: 1.4,
+  },
+  tramoSeguro: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 8,
+    padding: '8px 10px',
+    marginTop: 2,
   },
 };

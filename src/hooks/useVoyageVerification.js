@@ -1,7 +1,6 @@
 // src/hooks/useVoyageVerification.js
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getCapitania } from '../utils/capitanias.js';
-import { evaluarRestriccionAB } from '../utils/restricciones.js';
 import { normalizeLicense } from '../utils/license-rules.js';
 
 const BACKEND_URL = 'http://localhost:3000';
@@ -115,31 +114,30 @@ function anySignal(signals) {
 // ─────────────────────────────────────────────────────────────────────────────
 // LÓGICA DE NEGOCIO — VEREDICTO
 // ─────────────────────────────────────────────────────────────────────────────
-// Una restricción de tránsito es "de cierre/temporal" (la más severa) si su
-// condición o su texto oficial hablan de PUERTO CERRADO o TEMPORAL.
-function esCierreOTemporal(r) {
-  const t = `${r?.condicion || ''} ${r?.observacion || ''}`.toUpperCase();
-  return t.includes('CERRADO') || t.includes('TEMPORAL');
-}
+// Escalamiento del veredicto por restricciones intermedias.
+// Usa el veredicto pre-calculado por el backend (motor de reglas BRE).
+// Fallback: si el backend no envió veredicto, recorre las evaluaciones individuales.
+export function escalarPorTransito(transitRestrictions) {
+  if (!transitRestrictions) return null;
 
-// Escalamiento del veredicto por restricciones intermedias que BLOQUEAN a la
-// nave (cotejo de AB en coral). Devuelve 'UV' | 'U' | null.
-//   - bloquea + cierre/temporal → 'UV' (no navegar)
-//   - bloquea                    → 'U'  (precaución)
-// Las restricciones que no aplican a la nave o son indeterminadas no escalan.
-export function escalarPorTransito(transitRestrictions, vessel) {
-  const lista = transitRestrictions?.restricciones_intermedias || [];
-  let nivel = null; // null < 'U' < 'UV'
+  const veredictoBackend = transitRestrictions.veredicto;
+  if (veredictoBackend === 'UV') return 'UV';
+  if (veredictoBackend === 'U') return 'U';
+  if (veredictoBackend === 'Q') return null;
+
+  // Fallback por evaluación individual (si el backend no envió veredicto global)
+  const lista = transitRestrictions.restricciones_intermedias || [];
+  let nivel = null;
   for (const r of lista) {
-    const ab = evaluarRestriccionAB(r, vessel);
-    if (ab?.estado !== 'bloquea') continue;
-    if (esCierreOTemporal(r)) return 'UV';
-    nivel = 'U';
+    const ev = r.evaluacion;
+    if (!ev) continue;
+    if (ev.nivel === 'UV') return 'UV';
+    if (ev.nivel === 'U') nivel = 'U';
   }
   return nivel;
 }
 
-function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions, vessel }) {
+function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions }) {
   const rank = { Q: 0, U: 1, UV: 2 };
 
   let base = 'Q';
@@ -161,8 +159,7 @@ function calcularVeredicto({ portStatus, weather, navigation, transitRestriction
     base = 'U';
   }
 
-  // Las restricciones de tránsito solo pueden subir el veredicto, nunca bajarlo.
-  const esc = escalarPorTransito(transitRestrictions, vessel);
+  const esc = escalarPorTransito(transitRestrictions);
   return esc && rank[esc] > rank[base] ? esc : base;
 }
 
@@ -297,8 +294,8 @@ async function fetchWeather(ruta_puntos, signal) {
 // de la ruta (jurisdicciones que se cruzan, distintas de zarpe y recalada).
 // Mismo patrón de resiliencia; si falla devuelve null y no bloquea el resto de P3.
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchTransitRestrictions(ruta_puntos, signal) {
-  const cacheKey = `transit:${JSON.stringify(ruta_puntos)}`;
+async function fetchTransitRestrictions(ruta_puntos, nave_ab, signal) {
+  const cacheKey = `transit:${JSON.stringify(ruta_puntos)}:${nave_ab ?? 'null'}`;
   const cached = cacheGet(cacheKey);
   if (cached) return { ...cached, from_cache: true };
 
@@ -307,7 +304,7 @@ async function fetchTransitRestrictions(ruta_puntos, signal) {
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ruta_puntos }),
+      body: JSON.stringify({ ruta_puntos, nave_ab }),
     },
     { signal }
   );
@@ -315,6 +312,10 @@ async function fetchTransitRestrictions(ruta_puntos, signal) {
   if (!ok || !data || !data.success) return null;
 
   const result = {
+    veredicto: data.veredicto || null,
+    motivo_principal: data.motivo_principal || null,
+    ultimo_tramo_seguro: data.ultimo_tramo_seguro || null,
+    fondeadero_sugerido: data.fondeadero_sugerido || null,
     restricciones_intermedias: data.restricciones_intermedias || [],
     total: data.total || 0,
   };
@@ -691,7 +692,7 @@ export function useVoyageVerification(voyageData) {
         navPromise,
         fetchTide(puerto_zarpe.ubicacion?.lat, puerto_zarpe.ubicacion?.lng, fecha_zarpe, signal),
         tideRecaladaPromise,
-        fetchTransitRestrictions(rutaDensa, signal),
+        fetchTransitRestrictions(rutaDensa, voyageData?.vessel?.ab, signal),
       ]);
 
       // Si llegó una ejecución más nueva mientras esperábamos → descartar
@@ -751,7 +752,6 @@ export function useVoyageVerification(voyageData) {
         weather: weatherData,
         navigation: navData,
         transitRestrictions,
-        vessel: voyageData?.vessel,
       });
 
       safeSetState(() => ({
