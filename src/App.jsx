@@ -15,6 +15,7 @@ import P4_ActiveVoyage  from './screens/P4_ActiveVoyage';
 import MiPerfil from './components/screens/MiPerfil';
 import BibliotecaHome from './components/screens/BibliotecaHome';
 import ModuloView from './components/screens/ModuloView';
+import ReportarProblema from './components/screens/ReportarProblema';
 import AppSidebar from './components/AppSidebar';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -158,10 +159,7 @@ function AppFlow() {
       )}
 
       {screen === 'reportar' && (
-        <div style={styles.placeholder}>
-          <h1 style={styles.placeholderTitle}>⚠️ Reportar Problema</h1>
-          <p style={styles.placeholderText}>Próximamente.</p>
-        </div>
+        <ReportarProblema onBack={() => setScreen('p1')} />
       )}
     </>
   );
