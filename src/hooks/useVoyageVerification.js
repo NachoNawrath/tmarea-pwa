@@ -372,7 +372,7 @@ async function fetchRuta(origen, destino, licencia, signal) {
     licencia: licencia || 'PNM',
   };
   const { ok, data, error } = await safeFetch(
-    `${BACKEND_URL}/api/rutas/calcular-v2`,
+    `${BACKEND_URL}/api/rutas/calcular`,
     { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
     { signal, retries: 0 }
   );

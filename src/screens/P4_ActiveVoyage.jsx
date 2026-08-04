@@ -203,7 +203,7 @@ useEffect(() => {
   const [gruposVisibles, setGruposVisibles] = useState(['MOLUSCOS', 'SALMONES', 'ALGAS', 'PECES', 'ABALONES o EQUINODERMOS']);
 
   // Motor raster (Fase 3 redefinida, docs/handoff-fase2.md) — P4 consume
-  // /calcular-v2, motor único. rutaV2 alimenta el panel de detalles
+  // /calcular, motor único. rutaV2 alimenta el panel de detalles
   // (distancia_mn, pct_en_resguardo, pct_batimetria).
   const [rutaV2, setRutaV2] = useState(null);
   const [tidePanelOpen, setTidePanelOpen] = useState(false);
@@ -403,7 +403,7 @@ useEffect(() => {
       }
 
 // ── Ruta del viaje: motor raster (Fase 3 redefinida, docs/handoff-fase2.md) ──
-// P4 consume /calcular-v2. Los tramos NO tipo 'aproximacion_final' se
+// P4 consume /calcular. Los tramos NO tipo 'aproximacion_final' se
 // concatenan en UNA sola polilínea (todavía sin diferenciar
 // confianza_batimetrica por color — queda para un refinamiento posterior,
 // spec §7.5). Los tramos 'aproximacion_final' (spec §7.3: snap del punto
@@ -452,7 +452,7 @@ if (origenDestino) {
     licencia = normalizeLicense(user?.licenseType) || 'PNM';
   } catch { /* idem */ }
 
-  fetch(BACKEND_URL + '/api/rutas/calcular-v2', {
+  fetch(BACKEND_URL + '/api/rutas/calcular', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
