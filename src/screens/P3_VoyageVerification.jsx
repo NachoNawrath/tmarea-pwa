@@ -103,6 +103,66 @@ function ErrorScreen({ message, onRetry }) {
   );
 }
 
+// ── Bloque de error de ruta (snap o sin camino) ───────────────────────────
+function RouteErrorBlock({ ruta, onBack }) {
+  const esSnap = ruta?.error_code === 'SNAP_FAILED';
+  const esNoRoute = ruta?.error_code === 'NO_ROUTE';
+  if (!esSnap && !esNoRoute) return null;
+
+  const mensaje = esSnap
+    ? 'El destino seleccionado está fuera de zona navegable conocida. El punto está a más de 5 km de aguas navegables según la carta del motor de rutas. Intenta seleccionar un punto más cercano a un canal o bahía, o usa Coordenadas GPS para ajustar manualmente.'
+    : 'No se encontró ruta navegable entre los puntos seleccionados. Verifica los puertos de zarpe y recalada.';
+
+  return (
+    <div style={stylesRouteError.container}>
+      <div style={stylesRouteError.icon}>⚠️</div>
+      <div style={stylesRouteError.body}>
+        <p style={stylesRouteError.titulo}>No se pudo trazar la ruta</p>
+        <p style={stylesRouteError.texto}>{mensaje}</p>
+      </div>
+      <button style={stylesRouteError.btn} onClick={onBack}>
+        ← Modificar viaje
+      </button>
+    </div>
+  );
+}
+
+const stylesRouteError = {
+  container: {
+    margin: '12px 16px 0',
+    backgroundColor: 'rgba(232,81,42,0.10)',
+    border: `1.5px solid ${C.coral}`,
+    borderRadius: 14,
+    padding: '16px 18px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  },
+  icon: { fontSize: 28, textAlign: 'center' },
+  body: { display: 'flex', flexDirection: 'column', gap: 6 },
+  titulo: {
+    fontFamily: 'Arial', fontWeight: 700, fontSize: 16,
+    color: C.coral, margin: 0,
+  },
+  texto: {
+    fontFamily: 'Arial', fontSize: 13, color: '#333',
+    margin: 0, lineHeight: 1.5,
+  },
+  btn: {
+    marginTop: 4,
+    backgroundColor: C.marino,
+    color: '#fff',
+    border: 'none',
+    borderRadius: 10,
+    padding: '11px 20px',
+    fontFamily: 'Arial',
+    fontWeight: 700,
+    fontSize: 14,
+    cursor: 'pointer',
+    alignSelf: 'flex-start',
+  },
+};
+
 // ── Componente principal ───────────────────────────────────────────────────
 export default function VoyageVerification({ voyageData, onStartVoyage, onBack }) {
   const {
@@ -116,6 +176,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
     tide,
     normative,
     veredicto,
+    ruta,
     completedAt,
     retry,
   } = useVoyageVerification(voyageData);
@@ -125,6 +186,11 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
 
   const { vessel, puerto_zarpe, destinos } = voyageData;
   const destino = destinos?.[0];
+
+  // Ruta no navegable: SNAP_FAILED o NO_ROUTE. FETCH_FAILED (error de red)
+  // no bloquea — degradación silenciosa igual que el resto de servicios.
+  const rutaFallida = ruta && !ruta.ok &&
+    (ruta.error_code === 'SNAP_FAILED' || ruta.error_code === 'NO_ROUTE');
 
   return (
     <div style={styles.page}>
@@ -149,23 +215,35 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
         </span>
       </div>
 
-      {/* ── Veredicto principal ── */}
-      <VoyageVerdict
-        veredicto={veredicto}
-        portStatus={portStatus}
-        weather={weather}
-        navigation={navigation}
-        transitRestrictions={transitRestrictions}
-      />
+      {/* ── Error de ruta (destino fuera de zona navegable) ── */}
+      {rutaFallida && <RouteErrorBlock ruta={ruta} onBack={onBack} />}
+
+      {/* ── Veredicto principal — solo cuando la ruta es válida ── */}
+      {!rutaFallida && (
+        <VoyageVerdict
+          veredicto={veredicto}
+          portStatus={portStatus}
+          weather={weather}
+          navigation={navigation}
+          transitRestrictions={transitRestrictions}
+        />
+      )}
 
       {/* ── Bloques de detalle ── */}
       <div style={styles.blocksContainer}>
+        {/* Estado de puertos siempre visible (es independiente de la ruta) */}
         <PortStatusBlock portStatus={portStatus} vessel={vessel} />
-        <TransitRestrictionsBlock transitRestrictions={transitRestrictions} />
-        <WeatherBlock weather={weather} ruta={voyageData} />
-        <TideBlock tide={tide} />
-        <NavigationBlock navigation={navigation} voyageData={voyageData} />
-        <NormativeBlock reminders={normative} licenseType={vessel?.licenseType} />
+
+        {/* Resto de secciones solo cuando hay ruta navegable */}
+        {!rutaFallida && (
+          <>
+            <TransitRestrictionsBlock transitRestrictions={transitRestrictions} />
+            <WeatherBlock weather={weather} ruta={voyageData} />
+            <TideBlock tide={tide} />
+            <NavigationBlock navigation={navigation} voyageData={voyageData} />
+            <NormativeBlock reminders={normative} licenseType={vessel?.licenseType} />
+          </>
+        )}
       </div>
 
       {/* ── Timestamp del dato ── */}
@@ -178,23 +256,25 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
         </p>
       )}
 
-      {/* ── CTA zarpe ── */}
-      <div style={styles.ctaContainer}>
-        <p style={styles.disclaimer}>
-          Tmarea informa. El zarpe y la navegación son responsabilidad exclusiva del patrón.
-        </p>
-        <button
-          style={{
-            ...styles.ctaBtn,
-            backgroundColor: veredicto === 'UV' ? '#555' : C.naranja,
-            cursor: veredicto === 'UV' ? 'not-allowed' : 'pointer',
-          }}
-          onClick={veredicto !== 'UV' ? onStartVoyage : undefined}
-          disabled={veredicto === 'UV'}
-        >
-          {veredicto === 'UV' ? 'Navegación no recomendada' : 'Iniciar navegación →'}
-        </button>
-      </div>
+      {/* ── CTA zarpe — oculto cuando la ruta falló ── */}
+      {!rutaFallida && (
+        <div style={styles.ctaContainer}>
+          <p style={styles.disclaimer}>
+            Tmarea informa. El zarpe y la navegación son responsabilidad exclusiva del patrón.
+          </p>
+          <button
+            style={{
+              ...styles.ctaBtn,
+              backgroundColor: veredicto === 'UV' ? '#555' : C.naranja,
+              cursor: veredicto === 'UV' ? 'not-allowed' : 'pointer',
+            }}
+            onClick={veredicto !== 'UV' ? onStartVoyage : undefined}
+            disabled={veredicto === 'UV'}
+          >
+            {veredicto === 'UV' ? 'Navegación no recomendada' : 'Iniciar navegación →'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

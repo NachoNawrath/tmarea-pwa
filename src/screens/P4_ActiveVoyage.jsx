@@ -719,7 +719,13 @@ if (origenDestino) {
             <div style={styles.sectionTitle}>Ruta calculada</div>
             {!rutaV2 && <span style={styles.rutaCalculandoText}>Calculando ruta…</span>}
             {rutaV2 && !rutaV2.ok && (
-              <span style={styles.rutaCalculandoText}>No se pudo calcular la ruta: {rutaV2.error || 'error desconocido'}</span>
+              <span style={styles.rutaCalculandoText}>
+                {rutaV2.error_code === 'SNAP_FAILED'
+                  ? 'Destino fuera de zona navegable. Navega con carta SHOA.'
+                  : rutaV2.error_code === 'NO_ROUTE'
+                  ? 'No hay ruta navegable entre los puntos. Navega con carta SHOA.'
+                  : `Ruta no disponible. Navega con carta SHOA.`}
+              </span>
             )}
             {rutaV2?.ok && (
               <div style={styles.rutaMetrics}>

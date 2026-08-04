@@ -356,6 +356,33 @@ async function fetchTide(lat, lng, datetimeISO, signal) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FETCH RUTA RASTER — verifica si el destino es alcanzable por agua
+// Sin caché: el resultado depende de coordenadas exactas y calado; es rápido
+// cuando el snap falla (no hay A*) y la verificación debe ser fresca.
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchRuta(origen, destino, licencia, signal) {
+  if (!origen?.lat || !origen?.lng || !destino?.lat || !destino?.lng) {
+    return { ok: false, error_code: 'SNAP_FAILED', error: 'Coordenadas de origen o destino no disponibles' };
+  }
+  const body = {
+    lat_origen: origen.lat,
+    lon_origen: origen.lng,
+    lat_destino: destino.lat,
+    lon_destino: destino.lng,
+    licencia: licencia || 'PNM',
+  };
+  const { ok, data, error } = await safeFetch(
+    `${BACKEND_URL}/api/rutas/calcular-v2`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+    { signal, retries: 0 }
+  );
+  if (!ok || !data) {
+    return { ok: false, error_code: 'FETCH_FAILED', error: error || 'No se pudo contactar el servidor de rutas' };
+  }
+  return data;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // FETCH NAVEGACIÓN — con caché y fallback
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchNavigation(voyageData, signal) {
@@ -583,6 +610,7 @@ export function useVoyageVerification(voyageData) {
     tide: null,
     normative: null,
     veredicto: null,
+    ruta: null,
     completedAt: null,
   });
 
@@ -625,6 +653,7 @@ export function useVoyageVerification(voyageData) {
       tide: null,
       normative: null,
       veredicto: null,
+      ruta: null,
       completedAt: null,
     }));
 
@@ -673,6 +702,19 @@ export function useVoyageVerification(voyageData) {
       // las restricciones de tránsito para no interpolar dos veces.
       const rutaDensa = densificarRuta(ruta_puntos);
 
+      // Verificación de navegabilidad raster: origen → primer destino.
+      // Detecta si el destino (centro salmonero, mitílidos, GPS manual, etc.)
+      // está fuera de zona navegable del raster antes de mostrar el veredicto.
+      const rutaPromise = (() => {
+        const rutaOrigen = ruta_puntos[0];
+        const rutaDestino = ruta_puntos[ruta_puntos.length - 1];
+        if (!rutaOrigen || !rutaDestino || ruta_puntos.length < 2) {
+          return Promise.resolve({ ok: false, error_code: 'SNAP_FAILED', error: 'Sin coordenadas de destino' });
+        }
+        const licencia = normalizeLicense(voyageData?.vessel?.licenseType) || 'PNM';
+        return fetchRuta(rutaOrigen, rutaDestino, licencia, signal);
+      })();
+
       // Promise.allSettled → ningún fallo individual rompe todo el proceso
       // (a diferencia de Promise.all que aborta ante el primer rechazo)
       const results = await Promise.allSettled([
@@ -693,13 +735,14 @@ export function useVoyageVerification(voyageData) {
         fetchTide(puerto_zarpe.ubicacion?.lat, puerto_zarpe.ubicacion?.lng, fecha_zarpe, signal),
         tideRecaladaPromise,
         fetchTransitRestrictions(rutaDensa, voyageData?.vessel?.ab, signal),
+        rutaPromise,
       ]);
 
       // Si llegó una ejecución más nueva mientras esperábamos → descartar
       if (runIdRef.current !== currentRunId) return;
 
       // Extraer resultados — si settled con 'rejected' usamos fallback conservador
-      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR, transitR] = results;
+      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR, transitR, rutaR] = results;
 
       const zarpeStatus = zarpeR.status === 'fulfilled'
         ? zarpeR.value
@@ -728,6 +771,12 @@ export function useVoyageVerification(voyageData) {
       // Restricciones de tránsito — null si falló o no hubo ninguna intermedia;
       // el bloque no se muestra y no bloquea el resto de P3.
       const transitRestrictions = transitR.status === 'fulfilled' ? transitR.value : null;
+
+      // Resultado del motor raster: indica si el destino es navegable.
+      // FETCH_FAILED → fallo de red, no bloqueamos el resto de P3.
+      const ruta = rutaR.status === 'fulfilled'
+        ? rutaR.value
+        : { ok: false, error_code: 'FETCH_FAILED', error: rutaR.reason?.message || 'Error al calcular ruta' };
 
       // Paso 4 — Veredicto
       safeSetState((s) => ({ ...s, loadingStep: 3 }));
@@ -765,6 +814,7 @@ export function useVoyageVerification(voyageData) {
         tide,
         normative,
         veredicto,
+        ruta,
         completedAt: new Date().toISOString(),
       }));
 
