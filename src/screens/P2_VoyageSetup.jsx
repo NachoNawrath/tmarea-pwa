@@ -143,7 +143,7 @@ const CONFIG_BUSQUEDA = {
 };
 
 const estilos = {
-  container:    { maxWidth: '620px', margin: '0 auto', padding: '24px 20px', fontFamily: 'system-ui, sans-serif' },
+  container:    { maxWidth: '620px', margin: '0 auto', padding: '70px 20px 24px', fontFamily: 'system-ui, sans-serif' },
   titulo:       { margin: '0 0 4px', fontSize: '24px', fontWeight: '700', color: '#1a1a2e' },
   subtitulo:    { margin: 0, color: '#555', fontSize: '14px' },
   nave:         { display: 'inline-block', marginTop: '8px', padding: '6px 12px', background: '#e8f4fd', borderRadius: '20px', fontSize: '13px', color: '#1565c0', fontWeight: '500' },
@@ -628,7 +628,7 @@ const DESTINO_VACIO = {
   duracion_circular: null,                        // ← NUEVO
 };
 
-export default function P2_VoyageSetup({ onComplete }) {
+export default function P2_VoyageSetup({ onComplete, onEditProfile }) {
   // navigate eliminado
   const [vessel, setVessel]             = useState(null);
   const [puertoZarpe, setPuertoZarpe]   = useState(null);
@@ -921,7 +921,7 @@ export default function P2_VoyageSetup({ onComplete }) {
 
       {/* Acciones */}
       <div style={estilos.acciones}>
-        <button onClick={() => navigate('/vessel-profile')} style={estilos.btnSecundario}>← Volver</button>
+        <button onClick={onEditProfile} style={estilos.btnSecundario}>← Volver</button>
         <button onClick={handleConfirmar} style={{
           ...estilos.btnPrimario,
           // ← NUEVO: bloquear si hay violación ilegal de licencia

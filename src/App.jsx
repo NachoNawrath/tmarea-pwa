@@ -11,10 +11,18 @@ import P2_VoyageSetup   from './screens/P2_VoyageSetup';
 import VoyageVerification from './screens/P3_VoyageVerification';
 import P4_ActiveVoyage  from './screens/P4_ActiveVoyage';
 
+// Nuevas pantallas
+import MiPerfil from './components/screens/MiPerfil';
+import AppSidebar from './components/AppSidebar';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PANTALLAS DEL FLUJO
 // s0_onboarding → s0_registro → p1 → p2 → p3 → p4
+// Nuevas: perfil, biblioteca, reportar
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Screens where the sidebar hamburger is shown
+const SIDEBAR_SCREENS = ['p1', 'p2', 'p3', 'p4', 'perfil', 'biblioteca', 'reportar'];
 
 function AppFlow() {
   const [screen, setScreen]         = useState('loading');
@@ -51,17 +59,22 @@ function AppFlow() {
   // P3 → P2: volver a editar el viaje
   const handleBackToP2 = () => setScreen('p2');
 
+  // P4 → P3: cancelar navegación activa (conserva voyageData para que P3 lo muestre)
+  const handleCancelVoyage = () => setScreen('p3');
+
   // P4 → cierre: viaje terminado, guardar datos para informe
   const handleVoyageComplete = (closingData) => {
-    // Fusionar voyageData (setup) con closingData (datos reales al llegar)
     setReportData({ ...voyageData, ...closingData });
     setScreen('p2'); // volver a inicio para nuevo viaje
   };
 
-  // P4 → P2: cancelar viaje en curso
-  const handleCancelVoyage = () => {
-    setVoyageData(null);
-    setScreen('p2');
+  // ── Sidebar: navegación entre secciones ──────────────────────────────────
+  const handleSidebarNavigate = (targetScreen) => {
+    // No permitir navegar fuera de P4 sin confirmación — la confirmación
+    // ya ocurre dentro de P4 (botón "Cancelar navegación"). El sidebar en P4
+    // solo debería navegar si el usuario lo acepta; por ahora lo permitimos
+    // directamente (el patrón eligió conscientemente la opción del menú).
+    setScreen(targetScreen);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -80,58 +93,69 @@ function AppFlow() {
     );
   }
 
-  if (screen === 's0_onboarding') {
-    return <S0Onboarding onAccept={handleLegalAccept} />;
-  }
+  const showSidebar = SIDEBAR_SCREENS.includes(screen);
 
-  if (screen === 's0_registro') {
-    return <S0_5Registro onComplete={handleRegistroComplete} />;
-  }
-
-  if (screen === 'p1') {
-    return (
-      <P1_VesselProfile
-        onComplete={handleP1Complete}
-      />
-    );
-  }
-
-  if (screen === 'p2') {
-    return (
-      <P2_VoyageSetup
-        onComplete={handleP2Complete}
-        onEditProfile={() => setScreen('p1')}
-      />
-    );
-  }
-
-  if (screen === 'p3') {
-    return (
-      <VoyageVerification
-        voyageData={voyageData}
-        onStartVoyage={handleStartVoyage}
-        onBack={handleBackToP2}
-      />
-    );
-  }
-
-  if (screen === 'p4') {
-    return (
-      <P4_ActiveVoyage
-        voyageData={voyageData}
-        onVoyageComplete={handleVoyageComplete}
-        onCancel={handleCancelVoyage}
-      />
-    );
-  }
-
-  // Fallback
   return (
-    <div style={styles.loading}>
-      <p style={{ color: '#fff', fontFamily: 'Arial' }}>
-        Estado desconocido: {screen}
-      </p>
-    </div>
+    <>
+      {showSidebar && (
+        <AppSidebar currentScreen={screen} onNavigate={handleSidebarNavigate} />
+      )}
+
+      {screen === 's0_onboarding' && (
+        <S0Onboarding onAccept={handleLegalAccept} />
+      )}
+
+      {screen === 's0_registro' && (
+        <S0_5Registro onComplete={handleRegistroComplete} />
+      )}
+
+      {screen === 'p1' && (
+        <P1_VesselProfile onComplete={handleP1Complete} />
+      )}
+
+      {screen === 'p2' && (
+        <P2_VoyageSetup
+          onComplete={handleP2Complete}
+          onEditProfile={() => setScreen('p1')}
+        />
+      )}
+
+      {screen === 'p3' && (
+        <VoyageVerification
+          voyageData={voyageData}
+          onStartVoyage={handleStartVoyage}
+          onBack={handleBackToP2}
+        />
+      )}
+
+      {screen === 'p4' && (
+        <P4_ActiveVoyage
+          voyageData={voyageData}
+          onVoyageComplete={handleVoyageComplete}
+          onCancel={handleCancelVoyage}
+        />
+      )}
+
+      {screen === 'perfil' && (
+        <MiPerfil onBack={() => setScreen('p1')} />
+      )}
+
+      {screen === 'biblioteca' && (
+        <div style={styles.placeholder}>
+          <h1 style={styles.placeholderTitle}>📚 Biblioteca Náutica</h1>
+          <p style={styles.placeholderText}>
+            Próximamente — contenido filtrado según tu tipo de actividad.
+          </p>
+        </div>
+      )}
+
+      {screen === 'reportar' && (
+        <div style={styles.placeholder}>
+          <h1 style={styles.placeholderTitle}>⚠️ Reportar Problema</h1>
+          <p style={styles.placeholderText}>Próximamente.</p>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -183,5 +207,23 @@ const styles = {
     borderRadius: '50%',
     backgroundColor: '#5DCAA5',
     animation: 'pulse 1.2s ease-in-out infinite',
+  },
+  placeholder: {
+    minHeight: '100vh',
+    padding: '80px 20px 40px',
+    maxWidth: 560,
+    margin: '0 auto',
+    fontFamily: 'system-ui, sans-serif',
+  },
+  placeholderTitle: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: '#0A2647',
+    margin: '0 0 12px',
+  },
+  placeholderText: {
+    color: '#666',
+    fontSize: 15,
+    margin: 0,
   },
 };

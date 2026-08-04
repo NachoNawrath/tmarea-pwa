@@ -667,12 +667,26 @@ if (origenDestino) {
       )}
 
       {/* ── Bottom Sheet ── */}
-      <div style={{ ...styles.sheet, height: sheetOpen ? '55%' : '120px' }}>
+      <div style={{ ...styles.sheet, height: sheetOpen ? '55%' : '140px' }}>
 
         {/* Handle */}
         <div style={styles.sheetHandle} onClick={() => setSheetOpen(s => !s)}>
           <div style={styles.sheetBar} />
           <span style={styles.sheetHint}>{sheetOpen ? '▼ Ocultar' : '▲ Detalles'}</span>
+        </div>
+
+        {/* Volver — cancela navegación activa con confirmación */}
+        <div style={styles.volverRow}>
+          <button
+            style={styles.volverBtn}
+            onClick={() => {
+              if (window.confirm('¿Seguro? Se cancelará la navegación activa.')) {
+                onCancel();
+              }
+            }}
+          >
+            ← Cancelar navegación
+          </button>
         </div>
 
         {/* Métricas rápidas — siempre visibles */}
@@ -886,7 +900,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '10px 14px',
+    padding: '10px 14px 10px 60px',
   },
   cancelBtn: {
     background: 'none', border: 'none',
@@ -960,6 +974,21 @@ const styles = {
   },
   sheetBar: {
     width: 40, height: 4, backgroundColor: '#ddd', borderRadius: 2,
+  },
+  volverRow: {
+    display: 'flex',
+    justifyContent: 'center',
+    paddingBottom: 4,
+  },
+  volverBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#E8512A',
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'Arial',
+    padding: '2px 8px',
   },
   sheetHint: {
     fontSize: 10, color: '#aaa', marginTop: 3,

@@ -51,7 +51,7 @@ const EMPTY_FORM = {
 };
 
 const estilos = {
-  container: { maxWidth: '620px', margin: '0 auto', padding: '24px 20px', fontFamily: 'system-ui, sans-serif' },
+  container: { maxWidth: '620px', margin: '0 auto', padding: '70px 20px 24px', fontFamily: 'system-ui, sans-serif' },
   header: { marginBottom: '28px' },
   titulo: { margin: '0 0 4px', fontSize: '24px', fontWeight: '700', color: '#1a1a2e' },
   subtitulo: { margin: 0, color: '#555', fontSize: '14px' },
