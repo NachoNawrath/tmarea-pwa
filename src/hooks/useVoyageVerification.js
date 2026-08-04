@@ -114,9 +114,18 @@ function anySignal(signals) {
 // ─────────────────────────────────────────────────────────────────────────────
 // LÓGICA DE NEGOCIO — VEREDICTO
 // ─────────────────────────────────────────────────────────────────────────────
+const SEVERIDAD = { Q: 0, U: 1, UV: 2 };
+
+function maxVeredicto(...veredictos) {
+  return veredictos.reduce(
+    (max, v) => ((SEVERIDAD[v] ?? -1) > SEVERIDAD[max] ? v : max),
+    'Q'
+  );
+}
+
 // Escalamiento del veredicto por restricciones intermedias.
 // Usa el veredicto pre-calculado por el backend (motor de reglas BRE).
-// Fallback: si el backend no envió veredicto, recorre las evaluaciones individuales.
+// Fallback: si el backend no envió veredicto global, recorre evaluaciones individuales.
 export function escalarPorTransito(transitRestrictions) {
   if (!transitRestrictions) return null;
 
@@ -125,42 +134,34 @@ export function escalarPorTransito(transitRestrictions) {
   if (veredictoBackend === 'U') return 'U';
   if (veredictoBackend === 'Q') return null;
 
-  // Fallback por evaluación individual (si el backend no envió veredicto global)
+  // Fallback por evaluación individual (backend devuelve nivel directamente en cada item)
   const lista = transitRestrictions.restricciones_intermedias || [];
   let nivel = null;
   for (const r of lista) {
-    const ev = r.evaluacion;
-    if (!ev) continue;
-    if (ev.nivel === 'UV') return 'UV';
-    if (ev.nivel === 'U') nivel = 'U';
+    if (r.nivel === 'UV') return 'UV';
+    if (r.nivel === 'U') nivel = 'U';
   }
   return nivel;
 }
 
 function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions }) {
-  const rank = { Q: 0, U: 1, UV: 2 };
+  const veredictoZarpe =
+    portStatus?.zarpe?.estado === 'rojo' ? 'UV' :
+    (portStatus?.zarpe?.estado === 'ambar' || portStatus?.zarpe?.dato_viejo) ? 'U' : 'Q';
 
-  let base = 'Q';
-  if (
-    portStatus?.zarpe?.estado === 'rojo' ||
-    portStatus?.recalada?.estado === 'rojo' ||
-    weather?.condicion_puerto === 'temporal'
-  ) {
-    base = 'UV';
-  } else if (
-    portStatus?.zarpe?.estado === 'ambar' ||
-    portStatus?.recalada?.estado === 'ambar' ||
-    portStatus?.zarpe?.dato_viejo ||
-    portStatus?.recalada?.dato_viejo ||
-    weather?.condicion_puerto === 'mal_tiempo' ||
-    weather?.alerta_nivel === 'alto' ||
-    navigation?.autonomia_ok === false
-  ) {
-    base = 'U';
-  }
+  const veredictoRecalada =
+    portStatus?.recalada?.estado === 'rojo' ? 'UV' :
+    (portStatus?.recalada?.estado === 'ambar' || portStatus?.recalada?.dato_viejo) ? 'U' : 'Q';
 
-  const esc = escalarPorTransito(transitRestrictions);
-  return esc && rank[esc] > rank[base] ? esc : base;
+  const veredictoClima =
+    weather?.condicion_puerto === 'temporal' ? 'UV' :
+    (weather?.condicion_puerto === 'mal_tiempo' ||
+     weather?.alerta_nivel === 'alto' ||
+     navigation?.autonomia_ok === false) ? 'U' : 'Q';
+
+  const veredictoTransito = escalarPorTransito(transitRestrictions) ?? 'Q';
+
+  return maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
