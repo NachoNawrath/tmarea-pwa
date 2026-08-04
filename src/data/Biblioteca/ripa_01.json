@@ -1,0 +1,48 @@
+{
+  "modulo_id": "ripa_01",
+  "titulo": "RIPA (Reglas de Paso)",
+  "icono": "navigation",
+  "version": "1.0",
+  "secciones": [
+    {
+      "seccion_id": "ripa_cruce",
+      "titulo": "Cruce (Dos motores)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "regla_practica": "El que ve la luz ROJA del otro, cede el paso.",
+      "accion": [
+        "Si otra lancha se acerca por tu ESTRIBOR (derecha), TÚ cedes el paso.",
+        "Pasa por su popa, reduciendo velocidad."
+      ]
+    },
+    {
+      "seccion_id": "ripa_canales",
+      "titulo": "Canales Angostos",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "regla_practica": "Navega lo más cerca posible del límite exterior de tu ESTRIBOR.",
+      "conceptos_clave": [
+        {
+          "titulo": "Wellboats y Transbordadores",
+          "explicacion": "En los canales australes, las naves menores NUNCA deben estorbar a naves mayores (wellboats salmoneros, transbordadores) que solo pueden maniobrar dentro del canal."
+        }
+      ]
+    },
+    {
+      "seccion_id": "ripa_jerarquia",
+      "titulo": "Jerarquía de Paso",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "jerarquia": [
+        "1. Sin gobierno",
+        "2. Maniobra restringida",
+        "3. Pesca (trabajando artes)",
+        "4. Vela",
+        "5. Motor"
+      ]
+    }
+  ]
+}

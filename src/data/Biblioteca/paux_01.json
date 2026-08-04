@@ -1,0 +1,39 @@
+{
+  "modulo_id": "paux_01",
+  "titulo": "Primeros Auxilios",
+  "icono": "medical-cross",
+  "version": "1.0",
+  "secciones": [
+    {
+      "seccion_id": "paux_hipotermia",
+      "titulo": "Hipotermia",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "accion_inmediata": [
+        "1. Llevar a lugar seco.",
+        "2. Retirar ropa mojada (CORTARLA si es necesario, sin mover a la víctima).",
+        "3. Envolver en mantas secas, cubriendo la cabeza.",
+        "4. Usar manta aluminizada del botiquín."
+      ],
+      "que_no_hacer": [
+        "⛔ NO frotar brazos o piernas (masajear puede llevar sangre fría al corazón y causar paro).",
+        "⛔ NO dar alcohol."
+      ]
+    },
+    {
+      "seccion_id": "paux_anzuelos",
+      "titulo": "Extracción de Anzuelos",
+      "perfiles_permitidos": [
+        "pesca_artesanal",
+        "nave_menor_comercial"
+      ],
+      "accion_inmediata": [
+        "1. Limpiar con povidona.",
+        "2. Si la rebaba (muerte) está profunda, empujar la punta para que atraviese la piel hacia afuera.",
+        "3. Cortar la punta con alicates.",
+        "4. Retirar hacia atrás."
+      ]
+    }
+  ]
+}

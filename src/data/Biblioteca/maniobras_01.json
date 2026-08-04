@@ -1,0 +1,67 @@
+{
+  "modulo_id": "maniobras_01",
+  "titulo": "Maniobras Náuticas",
+  "icono": "anchor",
+  "version": "1.0",
+  "secciones": [
+    {
+      "seccion_id": "man_fondeo",
+      "titulo": "Maniobra de Fondeo",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "pasos": [
+        "1. Acercarse al punto proa al viento/corriente.",
+        "2. Detener la embarcación (marcha atrás breve).",
+        "3. Filar cadena 3 a 5 veces la profundidad.",
+        "4. Dar marcha atrás suave para que el ancla 'muerda'."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Círculo de Borneo",
+          "explicacion": "Tu nave girará alrededor del ancla según cambie el viento o marea. Asegúrate de tener espacio libre en los 360 grados."
+        }
+      ]
+    },
+    {
+      "seccion_id": "man_redes",
+      "titulo": "Precauciones con Artes de Pesca",
+      "perfiles_permitidos": [
+        "pesca_artesanal",
+        "nave_menor_comercial"
+      ],
+      "pasos": [
+        "1. Mantener el centro de gravedad bajo al izar.",
+        "2. No trincar cabos de tensión a cornamusas si hay riesgo de enganche.",
+        "3. Proa a la ola durante faena."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Riesgo de Zozobra",
+          "explicacion": "Si la red se atora en el fondo y recibes una ola fuerte de costado (través) mientras tiras de ella, la embarcación puede volcar de inmediato."
+        }
+      ]
+    },
+    {
+      "seccion_id": "man_vela",
+      "titulo": "Tomar Rizos (Reducir Vela)",
+      "perfiles_permitidos": [
+        "deportivo_bahia",
+        "capitan_costero",
+        "capitan_altamar"
+      ],
+      "pasos": [
+        "1. Proa al viento para desinflar velas.",
+        "2. Lascar driza de mayor.",
+        "3. Enganchar ollao en proa y cazar amante en popa.",
+        "4. Izar nuevamente."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Anticipación",
+          "explicacion": "La regla de oro a vela: Si piensas que quizás deberías tomar un rizo, ese es el momento exacto para hacerlo."
+        }
+      ]
+    }
+  ]
+}

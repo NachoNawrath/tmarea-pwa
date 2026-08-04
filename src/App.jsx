@@ -13,6 +13,8 @@ import P4_ActiveVoyage  from './screens/P4_ActiveVoyage';
 
 // Nuevas pantallas
 import MiPerfil from './components/screens/MiPerfil';
+import BibliotecaHome from './components/screens/BibliotecaHome';
+import ModuloView from './components/screens/ModuloView';
 import AppSidebar from './components/AppSidebar';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,12 +24,13 @@ import AppSidebar from './components/AppSidebar';
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Screens where the sidebar hamburger is shown
-const SIDEBAR_SCREENS = ['p1', 'p2', 'p3', 'p4', 'perfil', 'biblioteca', 'reportar'];
+const SIDEBAR_SCREENS = ['p1', 'p2', 'p3', 'p4', 'perfil', 'biblioteca', 'biblioteca_modulo', 'reportar'];
 
 function AppFlow() {
   const [screen, setScreen]         = useState('loading');
   const [voyageData, setVoyageData] = useState(null);  // P2 → P3 → P4
   const [reportData, setReportData] = useState(null);  // P4 → informe
+  const [moduloId, setModuloId]     = useState(null);  // Biblioteca → módulo
 
   // ── Inicialización: detectar estado guardado ──────────────────────────────
   useEffect(() => {
@@ -141,12 +144,17 @@ function AppFlow() {
       )}
 
       {screen === 'biblioteca' && (
-        <div style={styles.placeholder}>
-          <h1 style={styles.placeholderTitle}>📚 Biblioteca Náutica</h1>
-          <p style={styles.placeholderText}>
-            Próximamente — contenido filtrado según tu tipo de actividad.
-          </p>
-        </div>
+        <BibliotecaHome
+          onSelectModulo={(id) => { setModuloId(id); setScreen('biblioteca_modulo'); }}
+          onBack={() => setScreen('p1')}
+        />
+      )}
+
+      {screen === 'biblioteca_modulo' && (
+        <ModuloView
+          moduloId={moduloId}
+          onBack={() => setScreen('biblioteca')}
+        />
       )}
 
       {screen === 'reportar' && (

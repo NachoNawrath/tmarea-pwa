@@ -1,0 +1,63 @@
+{
+  "modulo_id": "equipamiento_01",
+  "titulo": "Equipamiento Obligatorio",
+  "icono": "check-square",
+  "version": "1.0",
+  "items_checklist": [
+    {
+      "item_id": "eq_chalecos",
+      "categoria": "Salvamento",
+      "nombre": "Chalecos salvavidas certificados (1 por tripulante)",
+      "perfiles_permitidos": [
+        "ALL"
+      ]
+    },
+    {
+      "item_id": "eq_aro",
+      "categoria": "Salvamento",
+      "nombre": "Aro salvavidas con rabiza luminosa",
+      "perfiles_permitidos": [
+        "capitan_costero",
+        "capitan_altamar",
+        "nave_menor_comercial",
+        "pesca_artesanal"
+      ]
+    },
+    {
+      "item_id": "eq_epirb",
+      "categoria": "Señalización",
+      "nombre": "Radiobaliza EPIRB 406 MHz",
+      "perfiles_permitidos": [
+        "capitan_altamar",
+        "pesca_artesanal",
+        "nave_menor_comercial"
+      ]
+    },
+    {
+      "item_id": "eq_bengalas_mano",
+      "categoria": "Señalización",
+      "nombre": "Bengalas de mano rojas (x3)",
+      "perfiles_permitidos": [
+        "ALL"
+      ]
+    },
+    {
+      "item_id": "eq_extintor",
+      "categoria": "Contra-incendios",
+      "nombre": "Extintor PQS adecuado a eslora",
+      "perfiles_permitidos": [
+        "ALL"
+      ]
+    },
+    {
+      "item_id": "eq_arnes",
+      "categoria": "Navegación",
+      "nombre": "Arnés de seguridad y línea de vida",
+      "perfiles_permitidos": [
+        "deportivo_bahia",
+        "capitan_costero",
+        "capitan_altamar"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "modulo_id": "radio_vhf_01",
+  "titulo": "Radio VHF",
+  "icono": "radio",
+  "version": "1.0",
+  "secciones": [
+    {
+      "seccion_id": "vhf_mayday",
+      "titulo": "MAYDAY (Peligro Inminente)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "uso": "Solo cuando hay peligro grave e inminente para la vida o la nave.",
+      "protocolo": [
+        "1. Seleccionar Canal 16. Potencia máxima (25W).",
+        "2. MAYDAY, MAYDAY, MAYDAY",
+        "3. Aquí [Nombre Nave] x3",
+        "4. MAYDAY [Nombre Nave]",
+        "5. Posición: [Coordenadas o Referencia]",
+        "6. Emergencia: [Tipo, ej: hundiéndonos]",
+        "7. Personas a bordo: [Número]"
+      ]
+    },
+    {
+      "seccion_id": "vhf_securite",
+      "titulo": "SÉCURITÉ (Avisos de Seguridad)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "uso": "Alertas meteorológicas o peligros a la navegación (ej. troncos, cetáceos).",
+      "ejemplo": "SÉCURITÉ SÉCURITÉ SÉCURITÉ. Aquí [Nombre]. Avistamiento de ballenas en [Ubicación]. Solicitamos precaución.",
+      "conceptos_clave": [
+        {
+          "titulo": "Protección de Fauna y Navegación",
+          "explicacion": "En zonas de fiordos y acuicultura, avisar sobre cetáceos o redes a la deriva previene colisiones que pueden destruir tu hélice o dañar a la fauna."
+        }
+      ]
+    }
+  ]
+}

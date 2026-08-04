@@ -1,0 +1,77 @@
+{
+  "modulo_id": "reglamentos_01",
+  "titulo": "Reglamentos y Normativa",
+  "icono": "scale",
+  "version": "3.0",
+  "secciones": [
+    {
+      "seccion_id": "reg_deportivo_ds87",
+      "titulo": "Reglamento de Deportes Náuticos (D.S. 87)",
+      "perfiles_permitidos": [
+        "deportivo_bahia",
+        "capitan_costero",
+        "capitan_altamar"
+      ],
+      "puntos_clave": [
+        "Clasificación (Art. 6-10): Patrón de Bahía (aguas abrigadas), Capitán Costero (hasta 12 mn), Capitán de Alta Mar (sin límite).",
+        "Prohibición Comercial (Art. 3): Estrictamente prohibido lucrar con naves deportivas (fletes, pesca comercial). Anula la licencia.",
+        "Velocidades y Bañistas (Art. 27): 100m paralelos a la costa exclusivos para bañistas. Aproximación perpendicular a menos de 5 nudos.",
+        "Proximidad: Mantener 50m mínimo de buzos (bandera Alfa) y otras embarcaciones fondeadas.",
+        "Obligaciones (Art. 32-33): Acatar cierres de puerto, portar licencia original y mantener escucha en Canal 16."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Zonas de Bañistas",
+          "explicacion": "Navegar paralelo a la playa dentro de los 100 metros exclusivos para bañistas es una de las causales más comunes de accidentes graves y cancelación de licencias deportivas."
+        }
+      ]
+    },
+    {
+      "seccion_id": "reg_pesca_lgpa",
+      "titulo": "Pesca y Habitabilidad (LGPA / D.S. 270)",
+      "perfiles_permitidos": [
+        "pesca_artesanal",
+        "nave_menor_comercial"
+      ],
+      "puntos_clave": [
+        "Definición (Art. 2 LGPA): Nave artesanal es de máximo 18m de eslora y 80m³ de bodega. Exceder esto suspende el registro.",
+        "Zona Exclusiva (Art. 47 LGPA): 5 millas náuticas exclusivas para pesca artesanal; prohibición total de arrastre.",
+        "Vedas (Art. 3 LGPA): Prohibida la extracción, transporte y apozamiento de especies en veda biológica.",
+        "Habitabilidad (D.S. 270): Obligación de aislamiento térmico, ventilación y botiquín categorizado según el alejamiento.",
+        "Seguridad Acuícola (D.S. 270): Exigencia de protecciones en winches y barandillas para apoyo a centros salmoneros."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Exceder Bodega",
+          "explicacion": "Llevar más carga de la declarada no solo es una falta a la LGPA (suspensión de 3 meses), sino que altera la estabilidad de la nave, poniéndola en riesgo inminente de hundimiento."
+        }
+      ]
+    },
+    {
+      "seccion_id": "reg_naves_menores_ds388",
+      "titulo": "Naves Menores (D.S. 388 / D.L. 2222)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "puntos_clave": [
+        "Identificación (D.S. 388, Art. 12-13): Nombre, puerto y N° de registro pintados de forma visible y alto contraste en el casco.",
+        "Navegabilidad (D.S. 388, Art. 24-28): Obligación de inspecciones a flote y carena. Operar con certificado vencido prohíbe el zarpe.",
+        "Estabilidad y Carga (D.S. 388, Art. 38): Obligatorio respetar la línea de carga (francobordo). Prohibido concentrar peso en altura.",
+        "Equipamiento (D.S. 388, Art. 40): Medios de salvamento (chalecos para el 100%), contraincendios y pirotecnia al día.",
+        "Responsabilidad (D.L. 2222, Art. 87): El Patrón es la autoridad pública a bordo. Responsable civil y penal de la seguridad.",
+        "Alcohol (D.L. 2222): Tolerancia cero a drogas y alcohol durante guardias y maniobras.",
+        "Siniestros: Informar por VHF 16 todo accidente y presentar 'Protesta de Mar' en la Capitanía en un máximo de 24 horas hábiles."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Centro de Gravedad",
+          "explicacion": "Estibar carga pesada sobre cubierta o en el techo de la caseta eleva el centro de gravedad. Con el oleaje o corrientes fuertes, la nave pierde su capacidad de adrizarse (enderezarse) y volcará."
+        },
+        {
+          "titulo": "Protesta de Mar",
+          "explicacion": "Es tu única defensa legal. Si chocas, varas o sufres daños, esta declaración escrita ante la Armada es requisito indispensable para cobrar seguros marítimos o defenderte ante tribunales."
+        }
+      ]
+    }
+  ]
+}

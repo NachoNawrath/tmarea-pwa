@@ -1,0 +1,40 @@
+{
+  "modulo_id": "balizamiento_01",
+  "titulo": "Balizamiento IALA B",
+  "icono": "map-pin",
+  "version": "1.0",
+  "secciones": [
+    {
+      "seccion_id": "bal_laterales",
+      "titulo": "Marcas Laterales (Entrando a puerto)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "detalles": [
+        "ESTRIBOR (Derecha): Marca ROJA. Luz Roja.",
+        "BABOR (Izquierda): Marca VERDE. Luz Verde."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Región B - La Regla",
+          "explicacion": "En Chile, al entrar a puerto o canal desde el mar, deja la boya ROJA a tu derecha (Estribor). Si sales, es al revés."
+        }
+      ]
+    },
+    {
+      "seccion_id": "bal_especial",
+      "titulo": "Marcas Especiales (Acuicultura)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "caracteristicas": "Color Amarillo. Marca de tope: X amarilla. Luz amarilla intermitente.",
+      "significado": "Señalan centros de cultivo, áreas de investigación o tuberías.",
+      "conceptos_clave": [
+        {
+          "titulo": "Peligro en Centros Salmoneros",
+          "explicacion": "No navegues entre estas boyas. Demarcan 'balsas jaula' y sus sistemas de fondeo, que tienen extensos cabos submarinos donde puedes enredar tu hélice."
+        }
+      ]
+    }
+  ]
+}

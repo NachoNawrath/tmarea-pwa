@@ -1,0 +1,80 @@
+{
+  "modulo_id": "emergencias_01",
+  "titulo": "Emergencias a Bordo",
+  "icono": "lifebuoy",
+  "version": "1.0",
+  "secciones": [
+    {
+      "seccion_id": "em_hombre_agua",
+      "titulo": "Hombre al Agua (MOB)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "accion_inmediata": [
+        "1. Gritar '¡HOMBRE AL AGUA POR [BABOR/ESTRIBOR]!'",
+        "2. Lanzar un aro salvavidas con luz o cualquier objeto flotante inmediatamente para marcar la posición.",
+        "3. Desembragar el motor (poner en neutro) si la persona cayó cerca de la hélice.",
+        "4. Asignar a un tripulante para que NO quite los ojos de la persona en el agua y apunte con el brazo continuamente.",
+        "5. Presionar el botón MOB en el GPS si está disponible."
+      ],
+      "maniobra_rescate": [
+        "Aproximarse a la persona siempre por SOTAVENTO.",
+        "Apagar el motor completamente antes de subir a la persona a bordo."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Aproximación por Sotavento",
+          "explicacion": "Significa acercarse de modo que el viento golpee primero a la persona y luego a tu embarcación. Si lo haces al revés, el viento empujará tu lancha sobre la persona."
+        },
+        {
+          "titulo": "El vigía es sagrado",
+          "explicacion": "En el oleaje, una cabeza desaparece a los 10 metros. La persona que apunta no debe mirar el celular ni los controles, solo al náufrago."
+        }
+      ],
+      "radio_vhf": "MAYDAY MAYDAY MAYDAY. Transmitir por Canal 16."
+    },
+    {
+      "seccion_id": "em_incendio",
+      "titulo": "Incendio a Bordo",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "accion_inmediata": [
+        "1. Dar la voz de alarma a toda la tripulación.",
+        "2. Detener el motor y cortar el suministro de combustible/gas.",
+        "3. Maniobrar para que el fuego quede a SOTAVENTO (que el viento se lleve las llamas lejos de la nave).",
+        "4. Usar el extintor apuntando a la base del fuego."
+      ],
+      "que_no_hacer": [
+        "⛔ NO usar agua en incendios eléctricos o de combustible."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Fuego a Sotavento",
+          "explicacion": "Si el fuego está en la popa, navega de cara al viento. Si el viento sopla desde la popa hacia la proa, avivará las llamas hacia la cabina."
+        }
+      ]
+    },
+    {
+      "seccion_id": "em_varadura",
+      "titulo": "Varadura (Embarcación encallada)",
+      "perfiles_permitidos": [
+        "ALL"
+      ],
+      "accion_inmediata": [
+        "1. Reducir las RPM a ralentí o desembragar inmediatamente.",
+        "2. Verificar si hay vías de agua (revisar sentinas).",
+        "3. Comprobar el estado de la marea (subiendo o bajando)."
+      ],
+      "que_no_hacer": [
+        "⛔ NO dar marcha atrás a máxima potencia. Si el casco está roto, salir de la roca puede provocar el hundimiento inmediato."
+      ],
+      "conceptos_clave": [
+        {
+          "titulo": "Factor Marea en Patagonia",
+          "explicacion": "Las mareas tienen gran amplitud. Si la marea baja y no hay riesgo de hundimiento, la opción más segura suele ser esperar la pleamar."
+        }
+      ]
+    }
+  ]
+}
