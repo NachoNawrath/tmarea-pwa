@@ -1,6 +1,5 @@
 // src/components/verification/WeatherBlock.jsx
 import React from 'react';
-import { getCapitania } from '../../utils/capitanias.js';
 
 const C = {
   marino:    '#0A2647',
@@ -176,21 +175,13 @@ export default function WeatherBlock({ weather }) {
             {tramosViento.map((b, i) => {
               const kt = Math.round(b.velocidad_viento_kt);
               const ind = indicadorViento(b.velocidad_viento_kt);
-              // Gobernación Marítima jurisdiccional de la bahía (por lat/lng),
-              // siempre visible para que el patrón tenga el teléfono a mano.
-              const cap = (b.lat != null && b.lng != null)
-                ? getCapitania(b.lat, b.lng)
-                : null;
-              // Cada bahía sigue informando su Gobernación, pero el teléfono se
-              // muestra una sola vez por jurisdicción: como los tramos van
-              // ordenados norte→sur, las bahías de una misma Gobernación quedan
-              // consecutivas, así que el número aparece solo en la primera del
-              // grupo y las siguientes solo repiten el nombre.
-              const prev = i > 0 ? tramosViento[i - 1] : null;
-              const prevCap = (prev && prev.lat != null && prev.lng != null)
-                ? getCapitania(prev.lat, prev.lng)
-                : null;
-              const mostrarTel = cap && cap.nombre !== prevCap?.nombre;
+              // Gobernación Marítima: leer directamente del backend (lookup exacto
+              // por bahia_id). Muestra el teléfono solo en la primera bahía de
+              // cada jurisdicción (tramos van norte→sur, misma gob. queda consecutiva).
+              const capNombre = b.gobernacion || null;
+              const capTel    = b.telefono    || null;
+              const prevNombre = i > 0 ? (tramosViento[i - 1].gobernacion || null) : null;
+              const mostrarTel = capNombre && capNombre !== prevNombre;
               return (
                 <div key={b.id_bahia ?? i} style={styles.tramoRow}>
                   <div style={styles.tramoTop}>
@@ -199,17 +190,17 @@ export default function WeatherBlock({ weather }) {
                     <span style={styles.tramoDir}>{b.direccion_viento || '—'}</span>
                     <span style={styles.tramoDot}>{ind.dot}</span>
                   </div>
-                  {cap && (
+                  {capNombre && (
                     <div style={styles.tramoCap}>
-                      {mostrarTel ? '📞' : ''} Gob. Marítima de {cap.nombre}
-                      {mostrarTel && (
+                      {mostrarTel ? '📞' : ''} Gob. Marítima de {capNombre}
+                      {mostrarTel && capTel && (
                         <>
                           {' — '}
                           <a
-                            href={`tel:${cap.telefono.replace(/\s+/g, '')}`}
+                            href={`tel:${capTel.replace(/\s+/g, '')}`}
                             style={styles.tramoCapTel}
                           >
-                            {cap.telefono}
+                            {capTel}
                           </a>
                         </>
                       )}
