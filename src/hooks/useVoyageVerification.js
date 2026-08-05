@@ -134,12 +134,12 @@ export function escalarPorTransito(transitRestrictions) {
   if (veredictoBackend === 'U') return 'U';
   if (veredictoBackend === 'Q') return null;
 
-  // Fallback por evaluación individual (backend devuelve nivel directamente en cada item)
+  // Fallback por evaluación individual (nivel anidado bajo evaluacion por el endpoint)
   const lista = transitRestrictions.restricciones_intermedias || [];
   let nivel = null;
   for (const r of lista) {
-    if (r.nivel === 'UV') return 'UV';
-    if (r.nivel === 'U') nivel = 'U';
+    if (r.evaluacion?.nivel === 'UV') return 'UV';
+    if (r.evaluacion?.nivel === 'U') nivel = 'U';
   }
   return nivel;
 }
