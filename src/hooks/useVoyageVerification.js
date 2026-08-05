@@ -718,6 +718,8 @@ export function useVoyageVerification(voyageData) {
 
       // Promise.allSettled → ningún fallo individual rompe todo el proceso
       // (a diferencia de Promise.all que aborta ante el primer rechazo)
+      // restricciones-ruta se encadena DESPUÉS porque necesita los waypoints
+      // reales del motor raster, no una interpolación en línea recta.
       const results = await Promise.allSettled([
         fetchPortStatus(
           puerto_zarpe.nombre,
@@ -735,7 +737,6 @@ export function useVoyageVerification(voyageData) {
         navPromise,
         fetchTide(puerto_zarpe.ubicacion?.lat, puerto_zarpe.ubicacion?.lng, fecha_zarpe, signal),
         tideRecaladaPromise,
-        fetchTransitRestrictions(rutaDensa, voyageData?.vessel?.ab, signal),
         rutaPromise,
       ]);
 
@@ -743,7 +744,7 @@ export function useVoyageVerification(voyageData) {
       if (runIdRef.current !== currentRunId) return;
 
       // Extraer resultados — si settled con 'rejected' usamos fallback conservador
-      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR, transitR, rutaR] = results;
+      const [zarpeR, recaladaR, weatherR, navR, tideZarpeR, tideRecaladaR, rutaR] = results;
 
       const zarpeStatus = zarpeR.status === 'fulfilled'
         ? zarpeR.value
@@ -769,15 +770,35 @@ export function useVoyageVerification(voyageData) {
         ? tideRecaladaR.value
         : { error: tideRecaladaR.reason?.message || 'Sin datos de marea', height_m: null, trend: null, next_high: null, next_low: null, station_used: null, distance_mn: null };
 
-      // Restricciones de tránsito — null si falló o no hubo ninguna intermedia;
-      // el bloque no se muestra y no bloquea el resto de P3.
-      const transitRestrictions = transitR.status === 'fulfilled' ? transitR.value : null;
-
       // Resultado del motor raster: indica si el destino es navegable.
       // FETCH_FAILED → fallo de red, no bloqueamos el resto de P3.
       const ruta = rutaR.status === 'fulfilled'
         ? rutaR.value
         : { ok: false, error_code: 'FETCH_FAILED', error: rutaR.reason?.message || 'Error al calcular ruta' };
+
+      // Restricciones de tránsito — se llama de forma secuencial usando los
+      // waypoints reales del motor raster (tramos sin aproximacion_final).
+      // Si la ruta falló (SNAP_FAILED, NO_ROUTE, FETCH_FAILED) no se llama:
+      // no tiene sentido evaluar restricciones sobre una ruta inexistente.
+      let transitRestrictions = null;
+      if (ruta?.ok && Array.isArray(ruta.tramos)) {
+        const tramosRuta = ruta.tramos.filter(
+          (t) => t.tipo !== 'aproximacion_final' && t.coords?.length >= 2
+        );
+        if (tramosRuta.length > 0 && !signal.aborted && runIdRef.current === currentRunId) {
+          // coords en formato GeoJSON [lng, lat] → convertir a {lat, lng}
+          const rutaWaypoints = tramosRuta
+            .flatMap((t) => t.coords)
+            .map(([lng, lat]) => ({ lat, lng }));
+          transitRestrictions = await fetchTransitRestrictions(
+            rutaWaypoints,
+            voyageData?.vessel?.ab,
+            signal
+          );
+        }
+      }
+
+      if (runIdRef.current !== currentRunId) return;
 
       // Paso 4 — Veredicto
       safeSetState((s) => ({ ...s, loadingStep: 3 }));
