@@ -70,11 +70,12 @@ function PuertoCard({ data, tipo, vessel }) {
   const restricciones = data?.restricciones || [];
   const tieneRestricciones = restricciones.length > 0;
 
-  // Gobernación Marítima jurisdiccional del puerto (por latitud). data.ubicacion
-  // viene inyectada por useVoyageVerification a partir de las coords del puerto.
-  const capitania = data?.ubicacion
-    ? getCapitania(data.ubicacion.lat, data.ubicacion.lng)
-    : null;
+  // Gobernación Marítima: preferir los datos del backend (getCapitaniaByBahiaId,
+  // lookup exacto por bahia_id). Caer a getCapitania(lat,lng) solo si el backend
+  // no pudo resolver la bahía (data.gobernacion es null).
+  const capNombre = data?.gobernacion || (data?.ubicacion ? getCapitania(data.ubicacion.lat, data.ubicacion.lng)?.nombre : null);
+  const capTel    = data?.telefono    || (data?.ubicacion ? getCapitania(data.ubicacion.lat, data.ubicacion.lng)?.telefono : null);
+  const capitania = capNombre ? { nombre: capNombre, telefono: capTel } : null;
 
   return (
     <div style={{ ...styles.puertoCard, backgroundColor: cfg.bg, borderLeft: `3px solid ${cfg.color}` }}>

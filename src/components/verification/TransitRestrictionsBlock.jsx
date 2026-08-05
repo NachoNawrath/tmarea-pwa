@@ -5,7 +5,6 @@
 // de parsear el texto de la restricción en el frontend.
 
 import React from 'react';
-import { getCapitania } from '../../utils/capitanias.js';
 
 const C = {
   marino:    '#0A2647',
@@ -24,88 +23,79 @@ const ESTADO_STYLE = {
   indeterminado: { border: C.ambar,    bg: 'rgba(255,193,7,0.10)' },
 };
 
-function TelefonoLinea({ lat, lng, gobernacion, telefono }) {
-  const cap = getCapitania(lat, lng);
-  const nombre = cap?.nombre || gobernacion;
-  const tel = cap?.telefono || telefono;
-  if (!tel) return null;
-
-  return (
-    <div style={styles.telRow}>
-      📞 Gob. Marítima de {nombre} —{' '}
-      <a href={`tel:${tel.replace(/\s+/g, '')}`} style={styles.telLink}>
-        {tel}
-      </a>
-    </div>
-  );
-}
-
 function RestriccionCard({ r }) {
   const ev = r.evaluacion || {};
   const estado = ev.estado || 'indeterminado';
   const style = ESTADO_STYLE[estado] || ESTADO_STYLE.indeterminado;
 
-  let header;
+  // Línea 3: mensaje de restricción según estado
+  let mensajeColor, mensajeTexto;
   if (estado === 'bloquea') {
-    header = (
-      <div style={styles.headerWrap}>
-        <span style={{ ...styles.headerTitulo, color: C.coral }}>
-          ⛔ Tu embarcación NO puede transitar por {r.nombre_bahia}
-        </span>
-        {r.gobernacion && (
-          <span style={styles.headerSub}>Gob. Marítima de {r.gobernacion}</span>
-        )}
-      </div>
-    );
+    mensajeColor = C.coral;
+    mensajeTexto = '⛔ Tu embarcación NO puede transitar';
   } else if (estado === 'no_afecta') {
-    header = (
-      <span style={{ ...styles.headerTitulo, color: C.marino }}>
-        ✅ Tu embarcación no está afectada{r.gobernacion ? ` — Gob. de ${r.gobernacion}` : ''}
-      </span>
-    );
+    mensajeColor = C.turquesa;
+    mensajeTexto = '✅ No afecta a tu embarcación';
   } else {
-    header = (
-      <span style={{ ...styles.headerTitulo, color: C.marino }}>
-        ⚠️ Restricción en tránsito{r.gobernacion ? ` — Gob. de ${r.gobernacion}` : ''}
-      </span>
-    );
+    mensajeColor = C.marino;
+    mensajeTexto = '⚠️ Restricción activa en tránsito';
   }
 
-  let estadoLinea = null;
+  // Línea 4: motivo del BRE o texto de estado fallback
+  let motivoTexto = null;
+  let motivoColor = '#8a6d00';
   if (ev.motivo) {
-    const color =
+    motivoTexto = ev.motivo;
+    motivoColor =
       estado === 'no_afecta' ? C.turquesa :
-      estado === 'bloquea' ? C.coral : '#8a6d00';
-    estadoLinea = (
-      <p style={{ ...styles.estadoLinea, color }}>
-        {ev.motivo}
-      </p>
-    );
+      estado === 'bloquea'   ? C.coral    : '#8a6d00';
   } else if (estado === 'sin_ab') {
-    estadoLinea = (
-      <p style={{ ...styles.estadoLinea, color: '#8a6d00' }}>
-        ⚠️ Carga tu AB en el perfil para verificar si esta restricción te aplica
-      </p>
-    );
+    motivoTexto = '⚠️ Carga tu AB en el perfil para verificar si esta restricción te aplica';
   } else if (estado === 'indeterminado') {
-    estadoLinea = (
-      <p style={{ ...styles.estadoLinea, color: '#8a6d00' }}>
-        ⚠️ Confirma con la Capitanía si esta restricción afecta tu tránsito
-      </p>
-    );
+    motivoTexto = '⚠️ Confirma con la Capitanía si esta restricción afecta tu tránsito';
   }
+
+  // Teléfono: usar datos del backend directamente
+  const nombreCap = r.capitania || r.gobernacion;
+  const tel = r.telefono;
 
   return (
     <div style={{ ...styles.card, backgroundColor: style.bg, borderLeft: `3px solid ${style.border}` }}>
-      {header}
 
+      {/* Línea 1 — nombre de la bahía (prominente) */}
+      <span style={styles.nombreBahia}>{r.nombre_bahia || 'Bahía'}</span>
+
+      {/* Línea 2 — capitanía + teléfono clickable */}
+      {nombreCap && (
+        <div style={styles.telRow}>
+          📞 {nombreCap}
+          {tel && (
+            <>
+              {' — '}
+              <a href={`tel:${tel.replace(/\s+/g, '')}`} style={styles.telLink}>
+                {tel}
+              </a>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Línea 3 — mensaje de restricción */}
+      <span style={{ ...styles.mensajeRestriccion, color: mensajeColor }}>
+        {mensajeTexto}
+      </span>
+
+      {/* Línea 4 — condición y motivo */}
       {r.condicion_legible && (
-        <span style={styles.condicion}>Condición de Puerto: {r.condicion_legible}</span>
+        <span style={styles.condicion}>Condición: {r.condicion_legible}</span>
+      )}
+      {motivoTexto && (
+        <p style={{ ...styles.estadoLinea, color: motivoColor }}>
+          {motivoTexto}
+        </p>
       )}
 
       {r.observacion && <p style={styles.observacion}>"{r.observacion}"</p>}
-
-      {estadoLinea}
 
       {estado === 'bloquea' && r.fondeadero_previo && (
         <div style={styles.fondeadero}>
@@ -114,13 +104,6 @@ function RestriccionCard({ r }) {
           <span style={styles.fondeaderoSub}>Esperar condiciones favorables</span>
         </div>
       )}
-
-      <TelefonoLinea
-        lat={r.lat}
-        lng={r.lng}
-        gobernacion={r.gobernacion}
-        telefono={r.telefono}
-      />
     </div>
   );
 }
@@ -210,22 +193,18 @@ const styles = {
     flexDirection: 'column',
     gap: 6,
   },
-  headerWrap: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 2,
+  nombreBahia: {
+    fontFamily: 'Arial',
+    fontWeight: 700,
+    fontSize: 17,
+    color: C.marino,
+    lineHeight: 1.2,
   },
-  headerTitulo: {
+  mensajeRestriccion: {
     fontFamily: 'Arial',
     fontWeight: 700,
     fontSize: 14,
     lineHeight: 1.3,
-  },
-  headerSub: {
-    fontFamily: 'Arial',
-    fontWeight: 600,
-    fontSize: 12,
-    color: C.marino,
   },
   condicion: {
     fontFamily: 'Arial',

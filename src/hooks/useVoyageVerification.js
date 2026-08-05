@@ -506,14 +506,19 @@ function buildNormativeReminders(voyageData, context = {}) {
   const recalada = portStatus?.recalada?.ubicacion || null;
 
   // ── R1 — SIEMPRE: aviso por radio a la Capitanía de zarpe ──────────────────
-  const capZarpe = zarpe ? getCapitania(zarpe.lat, zarpe.lng) : null;
+  // Preferir los datos ya resueltos por el backend (getCapitaniaByBahiaId).
+  // Caer a getCapitania(lat,lng) solo si el backend no pudo resolverlos.
+  const capZarpeNombre = portStatus?.zarpe?.gobernacion
+    || (zarpe ? getCapitania(zarpe.lat, zarpe.lng)?.nombre : null);
+  const capZarpeTel = portStatus?.zarpe?.telefono
+    || (zarpe ? getCapitania(zarpe.lat, zarpe.lng)?.telefono : null);
   reminders.push({
     id: 'r1_radio_aviso', nivel: 'obligatorio',
-    texto: capZarpe
-      ? `Avisar por radio a la Gobernación Marítima de ${capZarpe.nombre} al iniciar la navegación`
+    texto: capZarpeNombre
+      ? `Avisar por radio a la Gobernación Marítima de ${capZarpeNombre} al iniciar la navegación`
       : 'Avisar por radio a la Capitanía más cercana al iniciar la navegación',
     canal: voyageData?.nearest_capitania?.vhf_primary ? `VHF Ch ${voyageData.nearest_capitania.vhf_primary}` : null,
-    telefono: capZarpe?.telefono || null,
+    telefono: capZarpeTel || null,
     norma: 'TM-006 Art. 3',
   });
 
