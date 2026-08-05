@@ -176,6 +176,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
     tide,
     normative,
     veredicto,
+    arribadaForzosa,
     ruta,
     completedAt,
     retry,
@@ -228,6 +229,38 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
           transitRestrictions={transitRestrictions}
         />
       )}
+
+      {/* ── Aviso de arribada forzosa — recalada cerrada, zarpe posible ── */}
+      {!rutaFallida && arribadaForzosa && (() => {
+        const rec = portStatus?.recalada;
+        const nombre = rec?.capitania || rec?.gobernacion || rec?.nombre || 'destino';
+        const tel = rec?.telefono || null;
+        return (
+          <div style={styles.arribadaAviso}>
+            <div style={styles.arribadaIcono}>⚠️</div>
+            <div>
+              <div style={styles.arribadaTitulo}>Puerto de recalada con restricciones</div>
+              <div style={styles.arribadaCuerpo}>
+                Tu puerto de destino tiene restricciones activas. Podés zarpar, pero podrías
+                necesitar declarar un puerto alternativo o solicitar arribada forzosa.
+              </div>
+              <div style={styles.arribadaCuerpo}>
+                Contactá a la{' '}
+                <strong>Capitanía de Puerto de {nombre}</strong>{' '}
+                por VHF Canal 16 antes de recalar.
+                {tel && (
+                  <>
+                    {' '}Teléfono:{' '}
+                    <a href={`tel:${tel.replace(/\s+/g, '')}`} style={styles.arribadaTel}>
+                      {tel}
+                    </a>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Bloques de detalle ── */}
       <div style={styles.blocksContainer}>
@@ -482,6 +515,37 @@ const styles = {
     fontSize: 17,
     color: '#fff',
     letterSpacing: 0.3,
+  },
+  arribadaAviso: {
+    display: 'flex',
+    gap: 12,
+    margin: '0 16px 16px',
+    padding: '14px 16px',
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,193,7,0.12)',
+    border: '1.5px solid #FFC107',
+  },
+  arribadaIcono: {
+    fontSize: 22,
+    flexShrink: 0,
+    paddingTop: 1,
+  },
+  arribadaTitulo: {
+    fontWeight: 700,
+    fontSize: 14,
+    color: '#FFC107',
+    marginBottom: 6,
+  },
+  arribadaCuerpo: {
+    fontSize: 13,
+    color: '#ddd',
+    lineHeight: 1.5,
+    marginBottom: 4,
+  },
+  arribadaTel: {
+    color: '#5DCAA5',
+    fontWeight: 600,
+    textDecoration: 'none',
   },
 };
 

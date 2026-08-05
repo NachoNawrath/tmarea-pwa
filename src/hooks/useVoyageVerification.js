@@ -149,9 +149,18 @@ function calcularVeredicto({ portStatus, weather, navigation, transitRestriction
     portStatus?.zarpe?.estado === 'rojo' ? 'UV' :
     (portStatus?.zarpe?.estado === 'ambar' || portStatus?.zarpe?.dato_viejo) ? 'U' : 'Q';
 
-  const veredictoRecalada =
+  // Recalada: máximo U — UV se baja a U con flag (Art. 24 Regl. Despacho:
+  // solo el zarpe es UV absoluto; recalada cerrada permite zarpe con declaración de alternativa)
+  const recaladaRaw =
     portStatus?.recalada?.estado === 'rojo' ? 'UV' :
     (portStatus?.recalada?.estado === 'ambar' || portStatus?.recalada?.dato_viejo) ? 'U' : 'Q';
+
+  let veredictoRecalada = recaladaRaw;
+  let arribadaForzosa = false;
+  if (recaladaRaw === 'UV') {
+    veredictoRecalada = 'U';
+    arribadaForzosa = true;
+  }
 
   const veredictoClima =
     weather?.condicion_puerto === 'temporal' ? 'UV' :
@@ -161,7 +170,17 @@ function calcularVeredicto({ portStatus, weather, navigation, transitRestriction
 
   const veredictoTransito = escalarPorTransito(transitRestrictions) ?? 'Q';
 
-  return maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito);
+  return {
+    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito),
+    arribadaForzosa,
+    detalles: {
+      zarpe: veredictoZarpe,
+      recalada: recaladaRaw,
+      recalada_ajustada: veredictoRecalada,
+      clima: veredictoClima,
+      transito: veredictoTransito,
+    },
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -210,6 +229,9 @@ async function fetchPortStatus(nombrePuerto, ubicacion, signal) {
     timestamp: data?.timestamp || new Date().toISOString(),
     dato_viejo,
     edad_minutos: Math.round(edadMinutos),
+    capitania: data?.capitania || null,
+    gobernacion: data?.gobernacion || null,
+    telefono: data?.telefono || null,
     error: null,
   };
 
@@ -611,6 +633,7 @@ export function useVoyageVerification(voyageData) {
     tide: null,
     normative: null,
     veredicto: null,
+    arribadaForzosa: false,
     ruta: null,
     completedAt: null,
   });
@@ -654,6 +677,7 @@ export function useVoyageVerification(voyageData) {
       tide: null,
       normative: null,
       veredicto: null,
+      arribadaForzosa: false,
       ruta: null,
       completedAt: null,
     }));
@@ -818,7 +842,7 @@ export function useVoyageVerification(voyageData) {
         weather: weatherData,
         portStatus,
       });
-      const veredicto = calcularVeredicto({
+      const { veredicto, arribadaForzosa, detalles: _det } = calcularVeredicto({
         portStatus,
         weather: weatherData,
         navigation: navData,
@@ -836,6 +860,7 @@ export function useVoyageVerification(voyageData) {
         tide,
         normative,
         veredicto,
+        arribadaForzosa,
         ruta,
         completedAt: new Date().toISOString(),
       }));
