@@ -16,11 +16,11 @@ const C = {
 };
 
 const ESTADO_STYLE = {
-  no_afecta:     { border: C.turquesa, bg: 'rgba(93,202,165,0.10)' },
-  bloquea:       { border: C.coral,    bg: 'rgba(232,81,42,0.10)' },
-  sin_ab:        { border: C.ambar,    bg: 'rgba(255,193,7,0.10)' },
-  precaucion:    { border: C.ambar,    bg: 'rgba(255,193,7,0.10)' },
-  indeterminado: { border: C.ambar,    bg: 'rgba(255,193,7,0.10)' },
+  no_afecta:     { border: '#90a4ae', bg: 'rgba(144,164,174,0.08)' },
+  bloquea:       { border: C.coral,   bg: 'rgba(232,81,42,0.10)' },
+  sin_ab:        { border: C.ambar,   bg: 'rgba(255,193,7,0.10)' },
+  precaucion:    { border: C.ambar,   bg: 'rgba(255,193,7,0.10)' },
+  indeterminado: { border: C.ambar,   bg: 'rgba(255,193,7,0.10)' },
 };
 
 function RestriccionCard({ r }) {
@@ -28,14 +28,16 @@ function RestriccionCard({ r }) {
   const estado = ev.estado || 'indeterminado';
   const style = ESTADO_STYLE[estado] || ESTADO_STYLE.indeterminado;
 
+  const esInformativa = r.aplica_a_mi_embarcacion === false || estado === 'no_afecta';
+
   // Línea 3: mensaje de restricción según estado
   let mensajeColor, mensajeTexto;
   if (estado === 'bloquea') {
     mensajeColor = C.coral;
     mensajeTexto = '⛔ Tu embarcación NO puede transitar';
-  } else if (estado === 'no_afecta') {
-    mensajeColor = C.turquesa;
-    mensajeTexto = '✅ No afecta a tu embarcación';
+  } else if (esInformativa) {
+    mensajeColor = '#546e7a';
+    mensajeTexto = '⚠ Restricción activa en zona de tránsito';
   } else {
     mensajeColor = C.marino;
     mensajeTexto = '⚠️ Restricción activa en tránsito';
@@ -44,11 +46,12 @@ function RestriccionCard({ r }) {
   // Línea 4: motivo del BRE o texto de estado fallback
   let motivoTexto = null;
   let motivoColor = '#8a6d00';
-  if (ev.motivo) {
+  if (esInformativa) {
+    motivoTexto = ev.motivo || 'No afecta a tu embarcación, pero se recomienda precaución al transitar.';
+    motivoColor = '#546e7a';
+  } else if (ev.motivo) {
     motivoTexto = ev.motivo;
-    motivoColor =
-      estado === 'no_afecta' ? C.turquesa :
-      estado === 'bloquea'   ? C.coral    : '#8a6d00';
+    motivoColor = estado === 'bloquea' ? C.coral : '#8a6d00';
   } else if (estado === 'sin_ab') {
     motivoTexto = '⚠️ Carga tu AB en el perfil para verificar si esta restricción te aplica';
   } else if (estado === 'indeterminado') {
@@ -113,6 +116,17 @@ export default function TransitRestrictionsBlock({ transitRestrictions }) {
   if (lista.length === 0) return null;
 
   const ultimoTramo = transitRestrictions?.ultimo_tramo_seguro;
+  const nAplican = lista.filter(r => r.aplica_a_mi_embarcacion !== false && (r.evaluacion?.estado || '') !== 'no_afecta').length;
+  const nInfo    = lista.length - nAplican;
+
+  let introTexto;
+  if (nAplican > 0 && nInfo > 0) {
+    introTexto = `La ruta cruza ${nAplican} zona(s) con restricciones que afectan tu embarcación y ${nInfo} informativa(s).`;
+  } else if (nAplican > 0) {
+    introTexto = `La ruta cruza ${nAplican} jurisdicción(es) con Condición de Puerto activa que afecta tu embarcación.`;
+  } else {
+    introTexto = `La ruta pasa por ${nInfo} zona(s) con restricciones activas. Ninguna afecta tu embarcación, pero se recomienda precaución.`;
+  }
 
   return (
     <div style={styles.block}>
@@ -121,10 +135,7 @@ export default function TransitRestrictionsBlock({ transitRestrictions }) {
         <span style={styles.blockTitle}>Restricciones en tránsito</span>
       </div>
 
-      <p style={styles.intro}>
-        La ruta cruza {lista.length} jurisdicción(es) con Condición de Puerto activa.
-        Aplica al tránsito, no solo a la recalada.
-      </p>
+      <p style={styles.intro}>{introTexto}</p>
 
       {ultimoTramo && (
         <div style={styles.tramoSeguro}>

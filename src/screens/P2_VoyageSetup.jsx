@@ -69,11 +69,14 @@ const CONFIG_BUSQUEDA = {
     helper: 'Busca por nombre del puerto o caleta',
     endpoint: (q) => `${API_BASE}/api/puertos?search=${encodeURIComponent(q)}&limit=8`,
     parseResponse: (data) => data.data || [],
-    renderItem: (p) => ({
-      linea1: p.nombre,
-      linea2: `${p.provincia} · ${p.ubicacion?.lat?.toFixed(4)}°S, ${Math.abs(p.ubicacion?.lng ?? 0).toFixed(4)}°O`,
-    }),
-    labelSeleccionado: (p) => `${p.nombre} — ${p.provincia}`,
+    renderItem: (p) => {
+      const lugar = p.provincia || p.autoridad_maritima || '';
+      return {
+        linea1: p.nombre,
+        linea2: `${lugar ? lugar + ' · ' : ''}${p.ubicacion?.lat?.toFixed(4)}°S, ${Math.abs(p.ubicacion?.lng ?? 0).toFixed(4)}°O`,
+      };
+    },
+    labelSeleccionado: (p) => p.provincia ? `${p.nombre} — ${p.provincia}` : p.nombre,
     queryInicial: (v) => v?.nombre || '',
   },
   salmon: {
