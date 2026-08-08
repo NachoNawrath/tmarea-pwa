@@ -418,6 +418,7 @@ export function LicenseAlert({ alerts, licenseCode }) {
   const color = hasIllegal ? '#FCA5A5' : '#FCD34D';
 
   const licenseLabels = {
+    PLDB: 'Patrón de Lancha Deportiva de Bahía',
     PDB: 'Patrón Deportivo de Bahía',
     CDC: 'Capitán Deportivo Costero',
     CDAM: 'Capitán Deportivo de Alta Mar',

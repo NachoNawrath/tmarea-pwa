@@ -129,7 +129,7 @@ function maxVeredicto(...veredictos) {
 export function escalarPorTransito(transitRestrictions) {
   if (!transitRestrictions) return null;
 
-  const veredictoBackend = transitRestrictions.veredicto;
+  const veredictoBackend = transitRestrictions.bandera_final || transitRestrictions.veredicto;
   if (veredictoBackend === 'UV') return 'UV';
   if (veredictoBackend === 'U') return 'U';
   if (veredictoBackend === 'Q') return null;
@@ -317,17 +317,22 @@ async function fetchWeather(ruta_puntos, signal) {
 // de la ruta (jurisdicciones que se cruzan, distintas de zarpe y recalada).
 // Mismo patrón de resiliencia; si falla devuelve null y no bloquea el resto de P3.
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchTransitRestrictions(ruta_puntos, nave_ab, signal) {
-  const cacheKey = `transit:${JSON.stringify(ruta_puntos)}:${nave_ab ?? 'null'}`;
+async function fetchTransitRestrictions(ruta_puntos, nave_ab, signal, { perfil_deportivo, navegacion_deportiva } = {}) {
+  const depKey = perfil_deportivo ? `:${perfil_deportivo.licencia}:${perfil_deportivo.clasificacion_nave}` : '';
+  const cacheKey = `transit:${JSON.stringify(ruta_puntos)}:${nave_ab ?? 'null'}${depKey}`;
   const cached = cacheGet(cacheKey);
   if (cached) return { ...cached, from_cache: true };
+
+  const body = { ruta_puntos, nave_ab };
+  if (perfil_deportivo) body.perfil_deportivo = perfil_deportivo;
+  if (navegacion_deportiva) body.navegacion_deportiva = navegacion_deportiva;
 
   const { ok, data } = await safeFetch(
     `${BACKEND_URL}/api/sitport/restricciones-ruta`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ruta_puntos, nave_ab }),
+      body: JSON.stringify(body),
     },
     { signal }
   );
@@ -336,6 +341,8 @@ async function fetchTransitRestrictions(ruta_puntos, nave_ab, signal) {
 
   const result = {
     veredicto: data.veredicto || null,
+    bandera_final: data.bandera_final || data.veredicto || null,
+    veredicto_deportivo: data.veredicto_deportivo || null,
     motivo_principal: data.motivo_principal || null,
     ultimo_tramo_seguro: data.ultimo_tramo_seguro || null,
     fondeadero_sugerido: data.fondeadero_sugerido || null,
@@ -809,20 +816,47 @@ export function useVoyageVerification(voyageData) {
       // waypoints reales del motor raster (tramos sin aproximacion_final).
       // Si la ruta falló (SNAP_FAILED, NO_ROUTE, FETCH_FAILED) no se llama:
       // no tiene sentido evaluar restricciones sobre una ruta inexistente.
+      const vessel = voyageData?.vessel;
+      const isRecreativo = vessel?.uso === 'recreativo';
+      let perfilDeportivo = null;
+      let navegacionDeportiva = null;
+
+      if (isRecreativo && vessel?.licencia && vessel?.clasificacion && vessel?.propulsion) {
+        perfilDeportivo = {
+          licencia: vessel.licencia,
+          clasificacion_nave: vessel.clasificacion,
+          propulsion: vessel.propulsion,
+          motor_operativo: vessel.propulsion === 'vela' ? (vessel.motor_operativo === true) : undefined,
+          eslora: parseFloat(vessel.eslora) || undefined,
+          motor_hp: vessel.motor_hp ? parseFloat(vessel.motor_hp) : undefined,
+          arqueo_bruto: vessel.ab ? parseFloat(vessel.ab) : undefined,
+        };
+
+        const maxDistCosta = ruta?.ok ? ruta.max_dist_costa_mn : null;
+        const esBahia = vessel.clasificacion === 'BAHIA_VELA' || vessel.clasificacion === 'BAHIA_MOTOR';
+        let ambitoMillas;
+        if (esBahia) {
+          ambitoMillas = 'bahia';
+        } else if (maxDistCosta != null) {
+          ambitoMillas = maxDistCosta;
+        }
+        navegacionDeportiva = ambitoMillas !== undefined ? { ambito_millas: ambitoMillas } : {};
+      }
+
       let transitRestrictions = null;
       if (ruta?.ok && Array.isArray(ruta.tramos)) {
         const tramosRuta = ruta.tramos.filter(
           (t) => t.tipo !== 'aproximacion_final' && t.coords?.length >= 2
         );
         if (tramosRuta.length > 0 && !signal.aborted && runIdRef.current === currentRunId) {
-          // coords en formato GeoJSON [lng, lat] → convertir a {lat, lng}
           const rutaWaypoints = tramosRuta
             .flatMap((t) => t.coords)
             .map(([lng, lat]) => ({ lat, lng }));
           transitRestrictions = await fetchTransitRestrictions(
             rutaWaypoints,
             voyageData?.vessel?.ab,
-            signal
+            signal,
+            { perfil_deportivo: perfilDeportivo, navegacion_deportiva: navegacionDeportiva }
           );
         }
       }

@@ -1,5 +1,6 @@
 // src/components/verification/VoyageVerdict.jsx
 import React from 'react';
+import { LicenseAlert } from '../DeportiveAlerts.jsx';
 
 const C = {
   marino:    '#0A2647',
@@ -89,6 +90,18 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
     razones.push('Dato SITPORT desactualizado — verificar con Capitanía');
   }
 
+  const depVeredicto = transitRestrictions?.veredicto_deportivo;
+  const depMotivos = depVeredicto?.motivos || [];
+  for (const m of depMotivos) {
+    razones.push(m.capa1);
+  }
+  const depAlertas = depMotivos.map(m => ({
+    code: m.regla,
+    severity: 'illegal',
+    message: m.capa1,
+    detail: m.capa2,
+  }));
+
   // Último tramo seguro (del motor de reglas)
   const ultimoTramo = transitRestrictions?.ultimo_tramo_seguro;
 
@@ -138,6 +151,12 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
         <p style={{ ...styles.razonText, color: C.turquesa, marginTop: 8 }}>
           ✓ Puertos despejados · Clima dentro de límites · Autonomía suficiente
         </p>
+      )}
+
+      {depAlertas.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <LicenseAlert alerts={depAlertas} licenseCode={depVeredicto?.licencia} />
+        </div>
       )}
     </div>
   );

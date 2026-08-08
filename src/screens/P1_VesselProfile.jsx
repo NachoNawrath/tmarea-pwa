@@ -8,6 +8,7 @@ const VESSEL_TYPES = [
   { value: 'remolcador', label: 'Remolcador' },
   { value: 'pesquero', label: 'Pesquero' },
   { value: 'workboat', label: 'Workboat / Nave de apoyo' },
+  { value: 'moto_de_agua', label: 'Moto de agua / Jet ski' },
   { value: 'otro', label: 'Otro' },
 ];
 
@@ -22,6 +23,7 @@ const PROPULSIONES = [
   { value: 'motor', label: 'Motor' },
   { value: 'vela', label: 'Vela' },
   { value: 'mixto', label: 'Mixto (vela y motor)' },
+  { value: 'manual', label: 'Manual (remo, pedal)' },
 ];
 
 const CLASIFICACIONES = [
@@ -30,6 +32,13 @@ const CLASIFICACIONES = [
   { value: 'COSTERA_12', label: 'Costera 12 MN' },
   { value: 'BAHIA_VELA', label: 'Bahía Vela' },
   { value: 'BAHIA_MOTOR', label: 'Bahía Motor' },
+];
+
+const LICENCIAS = [
+  { value: 'PLDB', label: 'PLDB — Patrón de Lancha Deportiva de Bahía' },
+  { value: 'PDB', label: 'PDB — Patrón Deportivo de Bahía' },
+  { value: 'CDC', label: 'CDC — Capitán Deportivo Costero' },
+  { value: 'CDAM', label: 'CDAM — Capitán Deportivo de Alta Mar' },
 ];
 
 const EMPTY_FORM = {
@@ -43,6 +52,8 @@ const EMPTY_FORM = {
   calado_m: '',
   uso: '',
   propulsion: '',
+  licencia: '',
+  motor_hp: '',
   tiene_motor_auxiliar: false,
   motor_operativo: false,
   clasificacion: '',
@@ -108,6 +119,12 @@ export default function P1_VesselProfile({ onComplete }) {
   // Ámbito se deriva del uso, no de la licencia (spec §15.3)
   const ambitoDeportivo = form.uso === 'recreativo';
 
+  const esloraNum = parseFloat(form.eslora);
+  const motorHpNum = parseFloat(form.motor_hp);
+  const isEximida = ambitoDeportivo && esloraNum > 0 && esloraNum < 5 && !!form.propulsion && (
+    form.propulsion !== 'motor' || (!isNaN(motorHpNum) && motorHpNum < 10)
+  );
+
   // AB se autocompleta desde la eslora para embarcaciones deportivas
   // (TM-002 Art. 28), pero queda editable — se deja de autocompletar en
   // cuanto el usuario lo edita a mano.
@@ -119,14 +136,34 @@ export default function P1_VesselProfile({ onComplete }) {
     }
   }, [ambitoDeportivo, form.eslora, abManual]);
 
+  useEffect(() => {
+    if (!ambitoDeportivo || !isEximida) return;
+    const clasifAuto = (form.propulsion === 'vela' || form.propulsion === 'manual')
+      ? 'BAHIA_VELA' : 'BAHIA_MOTOR';
+    setForm(prev => {
+      if (prev.clasificacion === clasifAuto) return prev;
+      return { ...prev, clasificacion: clasifAuto };
+    });
+  }, [isEximida, form.propulsion, ambitoDeportivo]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const nuevoValor = type === 'checkbox' ? checked : value;
     setForm(prev => {
       const next = { ...prev, [name]: nuevoValor };
-      if (name === 'propulsion' && nuevoValor !== 'vela') {
-        next.tiene_motor_auxiliar = false;
-        next.motor_operativo = false;
+      if (name === 'propulsion') {
+        if (nuevoValor !== 'vela') {
+          next.tiene_motor_auxiliar = false;
+          next.motor_operativo = false;
+        }
+        if (nuevoValor !== 'motor' && nuevoValor !== 'mixto') {
+          next.motor_hp = '';
+        }
+      }
+      if (name === 'uso' && nuevoValor !== 'recreativo') {
+        next.licencia = '';
+        next.clasificacion = '';
+        next.motor_hp = '';
       }
       if (name === 'tiene_motor_auxiliar' && !nuevoValor) {
         next.motor_operativo = false;
@@ -161,7 +198,15 @@ export default function P1_VesselProfile({ onComplete }) {
     if (calado) errs.calado_m = calado;
     if (!form.uso) errs.uso = 'Selecciona el uso de la embarcación';
     if (!form.propulsion) errs.propulsion = 'Selecciona el tipo de propulsión';
-    if (ambitoDeportivo && !form.clasificacion) errs.clasificacion = 'Selecciona la clasificación de la nave';
+    if (ambitoDeportivo && !form.licencia) errs.licencia = 'Selecciona tu licencia deportiva';
+    if (ambitoDeportivo && !isEximida && !form.clasificacion) errs.clasificacion = 'Selecciona la clasificación de la nave';
+    if (ambitoDeportivo && (form.propulsion === 'motor' || form.propulsion === 'mixto')) {
+      if (form.motor_hp === '' || form.motor_hp == null) {
+        errs.motor_hp = 'Ingresa la potencia del motor (HP)';
+      } else if (isNaN(form.motor_hp) || Number(form.motor_hp) < 0) {
+        errs.motor_hp = 'La potencia debe ser un número ≥ 0';
+      }
+    }
     const vel = campoNumerico(form.velocidad_crucero, 1, 80, 'Velocidad crucero');
     if (vel) errs.velocidad_crucero = vel;
     const cons = campoNumerico(form.consumo_nominal, 0.1, 10000, 'Consumo nominal');
@@ -350,8 +395,33 @@ export default function P1_VesselProfile({ onComplete }) {
         </div>
       )}
 
-      {/* Clasificación — solo ámbito deportivo */}
+      {/* Licencia deportiva — solo ámbito deportivo */}
       {ambitoDeportivo && (
+        <div style={estilos.seccion}>
+          <label style={estilos.label}>Licencia deportiva *</label>
+          <select name="licencia" value={form.licencia} onChange={handleChange}
+            style={{ ...estilos.select, borderColor: errores.licencia ? '#f44336' : '#d0d0d0' }}>
+            <option value="">Seleccionar...</option>
+            {LICENCIAS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+          </select>
+          {errores.licencia && <div style={estilos.errorField}>⚠ {errores.licencia}</div>}
+          <div style={estilos.hint}>Tu licencia determina el ámbito de navegación habilitado (RGDN Art. 12).</div>
+        </div>
+      )}
+
+      {/* Potencia del motor — solo recreativo con motor o mixto */}
+      {ambitoDeportivo && (form.propulsion === 'motor' || form.propulsion === 'mixto') && (
+        <div style={estilos.seccion}>
+          <label style={estilos.label}>Potencia del motor (HP) *</label>
+          <input name="motor_hp" type="number" value={form.motor_hp} onChange={handleChange}
+            placeholder="Ej: 40" min="0" step="0.1"
+            style={{ ...estilos.input, borderColor: errores.motor_hp ? '#f44336' : '#d0d0d0' }} />
+          {errores.motor_hp && <div style={estilos.errorField}>⚠ {errores.motor_hp}</div>}
+        </div>
+      )}
+
+      {/* Clasificación — solo ámbito deportivo, oculta si eximida */}
+      {ambitoDeportivo && !isEximida && (
         <div style={estilos.seccion}>
           <label style={estilos.label}>Clasificación de la nave *</label>
           <select name="clasificacion" value={form.clasificacion} onChange={handleChange}
@@ -361,6 +431,13 @@ export default function P1_VesselProfile({ onComplete }) {
           </select>
           {errores.clasificacion && <div style={estilos.errorField}>⚠ {errores.clasificacion}</div>}
           <div style={estilos.hint}>Está en tu certificado de matrícula y de navegabilidad. No se infiere de la eslora.</div>
+        </div>
+      )}
+
+      {/* INV-4.7 — Eximición de matrícula */}
+      {isEximida && (
+        <div style={{ ...estilos.successBanner, background: '#e3f2fd', borderColor: '#42a5f5', color: '#1565c0' }}>
+          Tu embarcación está eximida de matrícula (CIRC A-41/014 C.2); la evaluamos como navegación de bahía.
         </div>
       )}
 
