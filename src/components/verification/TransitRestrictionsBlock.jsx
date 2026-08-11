@@ -28,7 +28,7 @@ function RestriccionCard({ r }) {
   const estado = ev.estado || 'indeterminado';
   const style = ESTADO_STYLE[estado] || ESTADO_STYLE.indeterminado;
 
-  const esInformativa = r.aplica_a_mi_embarcacion === false || estado === 'no_afecta';
+  const esInformativa = r.aplica === false || estado === 'no_afecta';
 
   // Línea 3: mensaje de restricción según estado
   let mensajeColor, mensajeTexto;
@@ -116,12 +116,17 @@ export default function TransitRestrictionsBlock({ transitRestrictions }) {
   if (lista.length === 0) return null;
 
   const ultimoTramo = transitRestrictions?.ultimo_tramo_seguro;
-  const nAplican = lista.filter(r => r.aplica_a_mi_embarcacion !== false && (r.evaluacion?.estado || '') !== 'no_afecta').length;
-  const nInfo    = lista.length - nAplican;
+
+  // Separar: bloqueantes/precaución primero, informativas después
+  const aplican    = lista.filter(r => r.aplica !== false && (r.evaluacion?.estado || '') !== 'no_afecta');
+  const informativas = lista.filter(r => r.aplica === false || (r.evaluacion?.estado || '') === 'no_afecta');
+  const listaOrdenada = [...aplican, ...informativas];
+  const nAplican = aplican.length;
+  const nInfo    = informativas.length;
 
   let introTexto;
   if (nAplican > 0 && nInfo > 0) {
-    introTexto = `La ruta cruza ${nAplican} zona(s) con restricciones que afectan tu embarcación y ${nInfo} informativa(s).`;
+    introTexto = `La ruta cruza ${nAplican} zona(s) con restricciones que afectan tu embarcación y ${nInfo} zona(s) con restricciones activas que no te afectan.`;
   } else if (nAplican > 0) {
     introTexto = `La ruta cruza ${nAplican} jurisdicción(es) con Condición de Puerto activa que afecta tu embarcación.`;
   } else {
@@ -144,9 +149,18 @@ export default function TransitRestrictionsBlock({ transitRestrictions }) {
       )}
 
       <div style={styles.cardsContainer}>
-        {lista.map((r, i) => (
-          <RestriccionCard key={`${r.id_bahia}-${i}`} r={r} />
+        {aplican.map((r, i) => (
+          <RestriccionCard key={`apl-${r.id_bahia}-${i}`} r={r} />
         ))}
+
+        {nInfo > 0 && (
+          <>
+            {nAplican > 0 && <div style={styles.separadorInfo}>Restricciones activas — no afectan tu embarcación</div>}
+            {informativas.map((r, i) => (
+              <RestriccionCard key={`inf-${r.id_bahia}-${i}`} r={r} />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
@@ -257,6 +271,17 @@ const styles = {
     fontSize: 12,
     fontWeight: 400,
     color: '#777',
+  },
+  separadorInfo: {
+    fontFamily: 'Arial',
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#90a4ae',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    paddingTop: 4,
+    borderTop: '1px solid rgba(144,164,174,0.3)',
+    marginTop: 2,
   },
   telRow: {
     fontFamily: 'Arial',
