@@ -3,6 +3,7 @@ import React from 'react';
 import { useVoyageVerification } from '../hooks/useVoyageVerification';
 import PortStatusBlock from '../components/verification/PortStatusBlock';
 import TransitRestrictionsBlock from '../components/verification/TransitRestrictionsBlock';
+import DriftCatalogoBlock from '../components/verification/DriftCatalogoBlock';
 import WeatherBlock from '../components/verification/WeatherBlock';
 import TideBlock from '../components/verification/TideBlock';
 import NavigationBlock from '../components/verification/NavigationBlock';
@@ -271,6 +272,11 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
         {!rutaFallida && (
           <>
             <TransitRestrictionsBlock transitRestrictions={transitRestrictions} />
+            {/* A3: va DESPUÉS de las restricciones y en su propio bloque —
+                un "no sabemos" no se mezcla con las restricciones reales. */}
+            <DriftCatalogoBlock
+              drifts={[transitRestrictions?.drift_catalogo, weather?.drift_catalogo]}
+            />
             <WeatherBlock weather={weather} ruta={voyageData} />
             <TideBlock tide={tide} />
             <NavigationBlock navigation={navigation} voyageData={voyageData} />

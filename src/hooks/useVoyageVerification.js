@@ -169,9 +169,10 @@ function calcularVeredicto({ portStatus, weather, navigation, transitRestriction
      navigation?.autonomia_ok === false) ? 'U' : 'Q';
 
   const veredictoTransito = escalarPorTransito(transitRestrictions) ?? 'Q';
+  const veredictoDrift = escalarPorDrift(transitRestrictions, weather);
 
   return {
-    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito),
+    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito, veredictoDrift),
     arribadaForzosa,
     detalles: {
       zarpe: veredictoZarpe,
@@ -179,8 +180,21 @@ function calcularVeredicto({ portStatus, weather, navigation, transitRestriction
       recalada_ajustada: veredictoRecalada,
       clima: veredictoClima,
       transito: veredictoTransito,
+      drift_catalogo: veredictoDrift,
     },
   };
+}
+
+// A3 (decisión del owner, 2026-08-11). SITPORT publicó un dato bajo una bahía que
+// nuestro catálogo no conoce y no se pudo descartar que sea de la ruta. Escala a
+// **U y nunca a UV**: la ausencia de dato no es una prohibición. El backend ya
+// topa su bandera; acá se vuelve a topar para que el tope no dependa de que la
+// respuesta venga bien formada.
+export function escalarPorDrift(transitRestrictions, weather) {
+  const banderas = [transitRestrictions?.drift_catalogo, weather?.drift_catalogo]
+    .filter(Boolean)
+    .map(d => (d.estado === 'no_evaluado' ? 'U' : d.bandera));
+  return banderas.some(b => b === 'U' || b === 'UV') ? 'U' : 'Q';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -348,6 +362,9 @@ async function fetchTransitRestrictions(ruta_puntos, nave_ab, signal, { perfil_d
     fondeadero_sugerido: data.fondeadero_sugerido || null,
     restricciones_intermedias: data.restricciones_intermedias || [],
     total: data.total || 0,
+    // A3. Se pasa tal cual viene: el campo trae su propio `estado`, y perderlo
+    // haría que un fallo de evaluación se leyera como "no hay nada que avisar".
+    drift_catalogo: data.drift_catalogo || null,
   };
   cacheSet(cacheKey, result);
   return result;
