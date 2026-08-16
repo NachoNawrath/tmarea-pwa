@@ -72,15 +72,16 @@ function ReminderCard({ reminder }) {
           </div>
           <p style={styles.cardTexto}>{reminder.texto}</p>
 
-          {/* Canal VHF o teléfono si existe */}
-          {(reminder.canal || reminder.telefono) && (
+          {/* Canal VHF si existe. EL TELÉFONO NO VA ACÁ: la primera frase de
+              INV-10.1 dice que el contacto se muestra sólo en el punto de zarpe
+              y en el de recalada, "nunca dentro de un mensaje normativo", y §10
+              lo repite para el catálogo. La rama se retira DEL RENDER y no sólo
+              del emisor, para que ningún recordatorio futuro pueda volver a
+              colar un teléfono por acá. Las menciones a VHF Canal 16 se
+              conservan: las manda la norma citada, no somos nosotros. */}
+          {reminder.canal && (
             <div style={styles.contactoRow}>
-              {reminder.canal && (
-                <span style={styles.contactoPill}>📻 {reminder.canal}</span>
-              )}
-              {reminder.telefono && (
-                <span style={styles.contactoPill}>📞 {reminder.telefono}</span>
-              )}
+              <span style={styles.contactoPill}>📻 {reminder.canal}</span>
             </div>
           )}
         </div>

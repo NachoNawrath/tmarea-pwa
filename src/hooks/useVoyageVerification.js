@@ -246,6 +246,14 @@ async function fetchPortStatus(nombrePuerto, ubicacion, signal) {
     capitania: data?.capitania || null,
     gobernacion: data?.gobernacion || null,
     telefono: data?.telefono || null,
+    // INV-10.1 ya resuelto por el motor (CONTRATO_MOTOR.md §5.1). Este pasamanos
+    // COPIA CAMPO POR CAMPO: un campo que no se nombre acá no llega al
+    // componente. Los tres de arriba se conservan porque P1 y P2 los leen.
+    // El consumidor distingue DOS ausencias que no son la misma: `contacto`
+    // en null es que el backend no lo mandó —anterior a dc7d63e, o error— y
+    // habilita el fallback; `contacto.nivel` en null es el ESCALÓN 3, y ahí el
+    // campo no se muestra y no se sustituye por nada.
+    contacto: data?.contacto || null,
     error: null,
   };
 
@@ -519,6 +527,34 @@ function umbralVientoLicencia(vessel, licenseType) {
   return porLicencia[codigo] || { umbral: 26, categoria: 'Costera' };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// EL RÓTULO DEL CONTACTO — INV-10.1
+//
+// EL ESCALÓN NO SE DECIDE ACÁ. Lo decide el motor y viaja resuelto en
+// `contacto.nivel` (CONTRATO_MOTOR.md §5.1, `src/services/contacto-por-escalon.js`).
+// Lo único que vive de este lado es CÓMO SE ESCRIBE cada nivel, y está en UNA
+// sola función para que los dos consumidores —la tarjeta de zarpe y recalada y
+// el recordatorio r1— no puedan divergir en el literal.
+// ─────────────────────────────────────────────────────────────────────────────
+export function etiquetaDeNivel(nivel) {
+  if (nivel === 'capitania') return 'Capitanía de Puerto de';
+  if (nivel === 'gobernacion') return 'Gobernación Marítima de';
+  return null; // escalón 3 — el campo NO se muestra, y no se sustituye por nada
+}
+
+// Frase ya rotulada para un mensaje, o null si no hay a quién nombrar.
+// `fallbackNombre` es la tabla de `utils/capitanias.js`, que §5.1 declara que
+// NO ES FUENTE: sólo se consulta cuando el backend no mandó `contacto`, y
+// resuelve a nivel Gobernación, así que se rotula como Gobernación.
+function rotularContacto(contacto, fallbackNombre) {
+  if (contacto) {
+    const etq = etiquetaDeNivel(contacto.nivel);
+    return etq && contacto.nombre ? `la ${etq} ${contacto.nombre}` : null;
+  }
+  const n = fallbackNombre();
+  return n ? `la ${etiquetaDeNivel('gobernacion')} ${n}` : null;
+}
+
 function buildNormativeReminders(voyageData, context = {}) {
   const { navigation, weather, portStatus } = context;
   const vessel = voyageData?.vessel || {};
@@ -530,19 +566,26 @@ function buildNormativeReminders(voyageData, context = {}) {
   const recalada = portStatus?.recalada?.ubicacion || null;
 
   // ── R1 — SIEMPRE: aviso por radio a la Capitanía de zarpe ──────────────────
-  // Preferir los datos ya resueltos por el backend (getCapitaniaByBahiaId).
-  // Caer a getCapitania(lat,lng) solo si el backend no pudo resolverlos.
-  const capZarpeNombre = portStatus?.zarpe?.gobernacion
-    || (zarpe ? getCapitania(zarpe.lat, zarpe.lng)?.nombre : null);
-  const capZarpeTel = portStatus?.zarpe?.telefono
-    || (zarpe ? getCapitania(zarpe.lat, zarpe.lng)?.telefono : null);
+  // El NOMBRE y su RÓTULO salen del escalón que el motor ya resolvió; rotular
+  // "Gobernación Marítima de" sobre el número de una Capitanía es el defecto que
+  // INV-10.1 existe para cerrar.
+  //
+  // EL TELÉFONO NO VA, y no es una omisión: la PRIMERA FRASE de INV-10.1 dice
+  // que el contacto se muestra "sólo en el punto de zarpe y en el de recalada,
+  // nunca dentro de un mensaje normativo". El teléfono sigue en la tarjeta de
+  // zarpe, que es donde el invariante lo pone. §10 lo dice con otras palabras:
+  // los mensajes del catálogo no llevan teléfono.
+  const contactoZarpe = portStatus?.zarpe?.contacto;
+  const capZarpeRotulo = rotularContacto(
+    contactoZarpe,
+    () => (zarpe ? getCapitania(zarpe.lat, zarpe.lng)?.nombre : null)
+  );
   reminders.push({
     id: 'r1_radio_aviso', nivel: 'obligatorio',
-    texto: capZarpeNombre
-      ? `Avisar por radio a la Gobernación Marítima de ${capZarpeNombre} al iniciar la navegación`
+    texto: capZarpeRotulo
+      ? `Avisar por radio a ${capZarpeRotulo} al iniciar la navegación`
       : 'Avisar por radio a la Capitanía más cercana al iniciar la navegación',
     canal: voyageData?.nearest_capitania?.vhf_primary ? `VHF Ch ${voyageData.nearest_capitania.vhf_primary}` : null,
-    telefono: capZarpeTel || null,
     norma: 'TM-006 Art. 3',
   });
 

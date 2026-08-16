@@ -1,6 +1,7 @@
 // src/components/verification/PortStatusBlock.jsx
 import React, { useState } from 'react';
 import { getCapitania } from '../../utils/capitanias.js';
+import { etiquetaDeNivel } from '../../hooks/useVoyageVerification.js';
 import { evaluarRestriccionAB } from '../../utils/restricciones.js';
 
 const C = {
@@ -70,12 +71,32 @@ function PuertoCard({ data, tipo, vessel }) {
   const restricciones = data?.restricciones || [];
   const tieneRestricciones = restricciones.length > 0;
 
-  // Gobernación Marítima: preferir los datos del backend (getCapitaniaByBahiaId,
-  // lookup exacto por bahia_id). Caer a getCapitania(lat,lng) solo si el backend
-  // no pudo resolver la bahía (data.gobernacion es null).
-  const capNombre = data?.gobernacion || (data?.ubicacion ? getCapitania(data.ubicacion.lat, data.ubicacion.lng)?.nombre : null);
-  const capTel    = data?.telefono    || (data?.ubicacion ? getCapitania(data.ubicacion.lat, data.ubicacion.lng)?.telefono : null);
-  const capitania = capNombre ? { nombre: capNombre, telefono: capTel } : null;
+  // CONTACTO — INV-10.1. La prelación la resuelve el motor y llega resuelta en
+  // `data.contacto`; acá NO se elige escalón, se rotula el que ya vino.
+  //   nivel 'capitania'   -> "Capitanía de Puerto de X"
+  //   nivel 'gobernacion' -> "Gobernación Marítima de X"
+  //   nivel null          -> ESCALÓN 3: el campo NO SE MUESTRA, sin texto de
+  //                          reemplazo y sin mensaje sustituto.
+  //
+  // Las DOS ausencias no son la misma. `contacto` ausente es que el backend no
+  // lo mandó —anterior a `dc7d63e`, o sin respuesta—: recién ahí se cae a
+  // getCapitania(lat,lng), que CONTRATO_MOTOR.md §5.1 declara que NO ES FUENTE y
+  // que sólo vale como fallback. Ese fallback resuelve a nivel Gobernación y por
+  // eso se rotula como Gobernación, nunca como Capitanía.
+  const contacto = data?.contacto;
+  let capitania = null;
+  if (contacto) {
+    const etiqueta = etiquetaDeNivel(contacto.nivel);
+    // `telefono_atomico` lo decide el motor con el mismo criterio versionado que
+    // usa el resto del frente de contacto. Sin ese veredicto no se arma el
+    // enlace: INV-10.1 dice que un `tel:` roto es peor que ninguno.
+    if (etiqueta && contacto.nombre) {
+      capitania = { etiqueta, nombre: contacto.nombre, telefono: contacto.telefono, atomico: contacto.telefono_atomico === true };
+    }
+  } else {
+    const fb = data?.ubicacion ? getCapitania(data.ubicacion.lat, data.ubicacion.lng) : null;
+    if (fb?.nombre) capitania = { etiqueta: etiquetaDeNivel('gobernacion'), nombre: fb.nombre, telefono: fb.telefono || null, atomico: false };
+  }
 
   return (
     <div style={{ ...styles.puertoCard, backgroundColor: cfg.bg, borderLeft: `3px solid ${cfg.color}` }}>
@@ -91,18 +112,28 @@ function PuertoCard({ data, tipo, vessel }) {
         </div>
       </div>
 
-      {/* Gobernación Marítima jurisdiccional — teléfono clickeable (tel:) para
-          llamar directo desde el celular. Va debajo del puerto y arriba del
-          estado de restricciones. */}
+      {/* Contacto de la autoridad — INV-10.1. La ETIQUETA sale del dato, no de un
+          literal del JSX: el nivel lo resolvió el motor. Teléfono clickeable
+          (tel:) SÓLO si el motor lo declaró atómico; si no, va como texto.
+          Sin nivel no hay fila: el escalón 3 se resuelve callando el campo. */}
       {capitania && (
         <div style={styles.capitaniaRow}>
-          📞 Gobernación Marítima de {capitania.nombre} —{' '}
-          <a
-            href={`tel:${capitania.telefono.replace(/\s+/g, '')}`}
-            style={styles.capitaniaTel}
-          >
-            {capitania.telefono}
-          </a>
+          📞 {capitania.etiqueta} {capitania.nombre}
+          {capitania.telefono && (
+            <>
+              {' — '}
+              {capitania.atomico ? (
+                <a
+                  href={`tel:${capitania.telefono.replace(/\s+/g, '')}`}
+                  style={styles.capitaniaTel}
+                >
+                  {capitania.telefono}
+                </a>
+              ) : (
+                <span style={styles.capitaniaTel}>{capitania.telefono}</span>
+              )}
+            </>
+          )}
         </div>
       )}
 
