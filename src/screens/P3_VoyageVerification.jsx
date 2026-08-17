@@ -1,6 +1,7 @@
 // src/pages/VoyageVerification.jsx
 import React from 'react';
-import { useVoyageVerification } from '../hooks/useVoyageVerification';
+import { useVoyageVerification, rotularContacto } from '../hooks/useVoyageVerification';
+import { getCapitania } from '../utils/capitanias';
 import PortStatusBlock from '../components/verification/PortStatusBlock';
 import TransitRestrictionsBlock from '../components/verification/TransitRestrictionsBlock';
 import DriftCatalogoBlock from '../components/verification/DriftCatalogoBlock';
@@ -234,8 +235,35 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
       {/* ── Aviso de arribada forzosa — recalada cerrada, zarpe posible ── */}
       {!rutaFallida && arribadaForzosa && (() => {
         const rec = portStatus?.recalada;
-        const nombre = rec?.capitania || rec?.gobernacion || rec?.nombre || 'destino';
-        const tel = rec?.telefono || null;
+        // EL RÓTULO SALE DEL DATO — INV-10.1. El escalón lo resolvió el motor y
+        // viaja resuelto en `contacto.nivel` (`src/services/contacto-por-escalon.js`,
+        // CONTRATO_MOTOR.md §5.1); acá NO se elige escalón, se escribe el que vino.
+        // Hasta este commit la línea de abajo afirmaba "Capitanía de Puerto de" por
+        // literal duro sobre `capitania || gobernacion`, así que rotulaba Capitanía
+        // sobre una Gobernación en 65 de las 164 entradas del mapa — el defecto que
+        // INV-10.1 existe para cerrar, con los roles invertidos respecto del que
+        // tenía la tarjeta de puerto. Medición:
+        // `tmarea-backend/_bitacoras/rotulo_p2_2026-08-16/01_medir_rotulo_p2.txt`.
+        //
+        // Se comparte `rotularContacto` con el recordatorio r1 —LA FRASE ENTERA, no
+        // sólo la etiqueta—: el defecto de fondo de este frente es que cada camino a
+        // pantalla armó su propio rótulo, y compartir la etiqueta sola deja el
+        // ensamblado libre para volver a divergir.
+        //
+        // EL TELÉFONO NO VA, y no es una omisión: la PRIMERA FRASE de INV-10.1 lo
+        // pone "sólo en el punto de zarpe y en el de recalada, nunca dentro de un
+        // mensaje normativo", y esto es un mensaje normativo. Sigue visible —con su
+        // nivel correcto y con `tel:` sólo si el motor lo declaró atómico— en la
+        // tarjeta de RECALADA de `PortStatusBlock`, dos bloques más abajo en esta
+        // misma pantalla.
+        //
+        // El fallback es la tabla de `utils/capitanias.js`, que §5.1 declara que NO
+        // ES FUENTE: sólo se consulta cuando el backend no mandó `contacto`, y
+        // resuelve a nivel Gobernación, así que se rotula como Gobernación.
+        const rotulo = rotularContacto(
+          rec?.contacto,
+          () => (rec?.ubicacion ? getCapitania(rec.ubicacion.lat, rec.ubicacion.lng)?.nombre : null)
+        );
         return (
           <div style={styles.arribadaAviso}>
             <div style={styles.arribadaIcono}>⚠️</div>
@@ -245,17 +273,16 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
                 Tu puerto de destino tiene restricciones activas. Podés zarpar, pero podrías
                 necesitar declarar un puerto alternativo o solicitar arribada forzosa.
               </div>
+              {/* ESCALÓN 3 — no hay a quién nombrar. El aviso de seguridad sale
+                  igual, pero SIN etiqueta de nivel: las dos que existen serían
+                  falsas, y callar el aviso porque no se sabe a quién llamar es peor
+                  que darlo sin nombre. Lo que el escalón 3 prohíbe sustituir es el
+                  CONTACTO, y acá no se sustituye: no se muestra ningún número. */}
               <div style={styles.arribadaCuerpo}>
-                Contactá a la{' '}
-                <strong>Capitanía de Puerto de {nombre}</strong>{' '}
-                por VHF Canal 16 antes de recalar.
-                {tel && (
-                  <>
-                    {' '}Teléfono:{' '}
-                    <a href={`tel:${tel.replace(/\s+/g, '')}`} style={styles.arribadaTel}>
-                      {tel}
-                    </a>
-                  </>
+                {rotulo ? (
+                  <>Contactá a <strong>{rotulo}</strong> por VHF Canal 16 antes de recalar.</>
+                ) : (
+                  <>Contactá a la autoridad marítima por VHF Canal 16 antes de recalar.</>
                 )}
               </div>
             </div>
@@ -547,11 +574,6 @@ const styles = {
     color: '#ddd',
     lineHeight: 1.5,
     marginBottom: 4,
-  },
-  arribadaTel: {
-    color: '#5DCAA5',
-    fontWeight: 600,
-    textDecoration: 'none',
   },
 };
 

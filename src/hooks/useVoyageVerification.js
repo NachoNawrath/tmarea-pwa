@@ -546,7 +546,7 @@ export function etiquetaDeNivel(nivel) {
 // `fallbackNombre` es la tabla de `utils/capitanias.js`, que §5.1 declara que
 // NO ES FUENTE: sólo se consulta cuando el backend no mandó `contacto`, y
 // resuelve a nivel Gobernación, así que se rotula como Gobernación.
-function rotularContacto(contacto, fallbackNombre) {
+export function rotularContacto(contacto, fallbackNombre) {
   if (contacto) {
     const etq = etiquetaDeNivel(contacto.nivel);
     return etq && contacto.nombre ? `la ${etq} ${contacto.nombre}` : null;
