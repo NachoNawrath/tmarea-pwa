@@ -144,7 +144,43 @@ export function escalarPorTransito(transitRestrictions) {
   return nivel;
 }
 
-function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions }) {
+// ─────────────────────────────────────────────────────────────────────────────
+// LA COMPUERTA DEL AVISO DE CIERRE — D-C7 · decisión del owner, 2026-08-17
+//
+// «El aviso de cierre sale si y sólo si `cierre.estado === 'cerrado'`.»
+// `aviso_modo` NO decide si el aviso sale: decide, DENTRO de ese conjunto, si
+// sale sólo el piso o el piso más el detalle. Medido sobre el sondaje versionado
+// (444 filas / 213 restricciones): 335 filas / 167 restricciones cerradas, y 46
+// restricciones con `sin_cierre_declarado` que NO reciben aviso tengan el
+// `alcance` que tengan. De esas 46, 10 emiten `aviso_modo: 'detalle'` y habrían
+// mostrado un alcance sin cierre que lo gobierne — aviso creíble y equivocado.
+// Eso es lo que D-C7 corta.
+//
+// POR QUÉ NO PASA POR `estado` (Z2, decisión del owner, 2026-08-17). El camino
+// `estado === 'rojo'` alimenta A LA VEZ este aviso y el veredicto de ZARPE, que
+// deshabilita el CTA (P3:330-341). Encenderlo acá arrastraría el bloqueo de
+// zarpe de contrabando, sin instrumento y con el sobre-alcance del filtro de
+// puerto vivo (backend `sitport-routes.js:333-338`, subcadena y no palabra).
+// El aviso no necesita `estado`: necesita `cierre`. Leyéndolo directo, este
+// Tramo mueve CERO veredictos — hoy 'ambar' da 'U' en recalada y un 'rojo' de
+// recalada también da 'U' por el tope del Art. 24: es el mismo valor.
+// El zarpe es Tramo C y NO arranca hasta que el filtro esté resuelto (D-C9).
+//
+// `cierre` ausente (backend anterior a esta salida, o error) NO es lo mismo que
+// `cierre: []` (el backend contestó y no hay cierre). Las dos dan `false`, pero
+// por caminos distintos y sin colapsarse: un array que no es array no se
+// interroga.
+export function cierresDeclarados(puerto) {
+  const cierre = puerto?.cierre;
+  if (!Array.isArray(cierre)) return [];
+  return cierre.filter((c) => c?.estado === 'cerrado');
+}
+
+export function hayCierreDeclarado(puerto) {
+  return cierresDeclarados(puerto).length > 0;
+}
+
+export function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions }) {
   const veredictoZarpe =
     portStatus?.zarpe?.estado === 'rojo' ? 'UV' :
     (portStatus?.zarpe?.estado === 'ambar' || portStatus?.zarpe?.dato_viejo) ? 'U' : 'Q';
@@ -155,12 +191,22 @@ function calcularVeredicto({ portStatus, weather, navigation, transitRestriction
     portStatus?.recalada?.estado === 'rojo' ? 'UV' :
     (portStatus?.recalada?.estado === 'ambar' || portStatus?.recalada?.dato_viejo) ? 'U' : 'Q';
 
+  // EL TOPE DEL ART. 24 SE CONSERVA INTACTO aunque hoy su rama no se alcance:
+  // `estado === 'rojo'` no sale nunca todavía (ver `mapearRespuestaPuerto`), pero
+  // el Tramo C lo enciende y el tope tiene que estar ahí cuando eso pase. Lo que
+  // se separa acá es la BANDERA: dejó de ser un efecto lateral de este tope.
   let veredictoRecalada = recaladaRaw;
-  let arribadaForzosa = false;
   if (recaladaRaw === 'UV') {
     veredictoRecalada = 'U';
-    arribadaForzosa = true;
   }
+
+  // D-C7 · la bandera sale del DATO DE CIERRE del puerto de recalada, no del
+  // veredicto. Antes se derivaba de `recaladaRaw === 'UV'`, que dependía de
+  // `estado === 'rojo'`, que dependía de `nivel === 'cierre_total'` — un valor
+  // que el backend NO produce (0 de 444 filas del sondaje lo traen) y que se
+  // decidió explícitamente no producir. Por esa cadena de tres saltos muertos el
+  // aviso de arribada forzosa NUNCA se renderizó.
+  const arribadaForzosa = hayCierreDeclarado(portStatus?.recalada);
 
   const veredictoClima =
     weather?.condicion_puerto === 'temporal' ? 'UV' :
@@ -198,6 +244,66 @@ export function escalarPorDrift(transitRestrictions, weather) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// EL PASAMANOS DE /api/sitport/restricciones
+//
+// Sale de dentro de `fetchPortStatus` para que un instrumento pueda medirlo sin
+// red y sin React: el pasamanos es donde el dato se pierde, así que tiene que
+// ser el sujeto de un control y no una parte inalcanzable de una función async.
+// La lógica no cambia: son las mismas líneas, con `ahora` inyectable para que la
+// medición sea determinística y no dependa del reloj de la corrida.
+// ─────────────────────────────────────────────────────────────────────────────
+export function mapearRespuestaPuerto(data, nombrePuerto, ahora = Date.now()) {
+  const restricciones = data?.restricciones || [];
+  const timestamp = data?.timestamp ? new Date(data.timestamp).getTime() : ahora;
+  const edadMinutos = (ahora - timestamp) / 60000;
+  const dato_viejo = edadMinutos > CONFIG.DATO_VIEJO_MIN;
+
+  let estado = 'verde';
+  if (dato_viejo) estado = 'ambar';
+  // NO SE TOCA EN ESTE TRAMO, Y NO ES UN OLVIDO. `nivel` no existe en ninguna de
+  // las 444 filas del sondaje, así que este `some` es `false` siempre y `estado`
+  // NUNCA vale 'rojo'. Reemplazarlo por el dato de cierre enciende el veredicto
+  // UV de ZARPE, que deshabilita el CTA — eso es Tramo C (Z3), y no arranca
+  // hasta que el filtro de puerto del backend esté resuelto. D-C9: el despacho
+  // ante la Autoridad Marítima es obligatorio y hay un funcionario entre la app
+  // y el zarpe, así que un aviso equivocado se corrige ahí, pero un botón
+  // apagado no lo destraba nadie. Por eso el aviso tolera el defecto de
+  // atribución del filtro y el bloqueo no.
+  if (restricciones.some((r) => r.nivel === 'cierre_total')) estado = 'rojo';
+  else if (restricciones.length > 0) estado = 'ambar';
+
+  return {
+    nombre: nombrePuerto,
+    estado,
+    restricciones,
+    timestamp: data?.timestamp || new Date().toISOString(),
+    dato_viejo,
+    edad_minutos: Math.round(edadMinutos),
+    capitania: data?.capitania || null,
+    gobernacion: data?.gobernacion || null,
+    telefono: data?.telefono || null,
+    // INV-10.1 ya resuelto por el motor (CONTRATO_MOTOR.md §5.1). Este pasamanos
+    // COPIA CAMPO POR CAMPO: un campo que no se nombre acá no llega al
+    // componente. Los tres de arriba se conservan porque P1 y P2 los leen.
+    // El consumidor distingue DOS ausencias que no son la misma: `contacto`
+    // en null es que el backend no lo mandó —anterior a dc7d63e, o error— y
+    // habilita el fallback; `contacto.nivel` en null es el ESCALÓN 3, y ahí el
+    // campo no se muestra y no se sustituye por nada.
+    contacto: data?.contacto || null,
+    // ESTADO DE CIERRE (D-C1). Array hermano de `restricciones`, alineado por
+    // `IDRestriccion`, tal como lo emite `sitport-routes.js:362`. Se pasa TAL
+    // CUAL VIENE y sin tocarle el `texto_original`: D-C4 dice que el texto de la
+    // Capitanía sale sin parafrasear, y una normalización de paso acá sería una
+    // paráfrasis silenciosa. Hasta este commit el campo no estaba nombrado, y
+    // por eso el dato llegaba al navegador y moría en esta función.
+    // `null` = el backend no lo mandó. `[]` = lo mandó y no hay nada. No se
+    // colapsan: `cierresDeclarados` sólo interroga un array de verdad.
+    cierre: data?.cierre || null,
+    error: null,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // FETCH SITPORT — con caché, timeout, retry y fallback conservador
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchPortStatus(nombrePuerto, ubicacion, signal) {
@@ -225,37 +331,7 @@ async function fetchPortStatus(nombrePuerto, ubicacion, signal) {
     return { nombre: nombrePuerto, estado: 'ambar', restricciones: [], timestamp: null, dato_viejo: true, error: error || 'Sin respuesta' };
   }
 
-  const restricciones = data?.restricciones || [];
-  const ahora = Date.now();
-  const timestamp = data?.timestamp ? new Date(data.timestamp).getTime() : ahora;
-  const edadMinutos = (ahora - timestamp) / 60000;
-  const dato_viejo = edadMinutos > CONFIG.DATO_VIEJO_MIN;
-
-  let estado = 'verde';
-  if (dato_viejo) estado = 'ambar';
-  if (restricciones.some((r) => r.nivel === 'cierre_total')) estado = 'rojo';
-  else if (restricciones.length > 0) estado = 'ambar';
-
-  const result = {
-    nombre: nombrePuerto,
-    estado,
-    restricciones,
-    timestamp: data?.timestamp || new Date().toISOString(),
-    dato_viejo,
-    edad_minutos: Math.round(edadMinutos),
-    capitania: data?.capitania || null,
-    gobernacion: data?.gobernacion || null,
-    telefono: data?.telefono || null,
-    // INV-10.1 ya resuelto por el motor (CONTRATO_MOTOR.md §5.1). Este pasamanos
-    // COPIA CAMPO POR CAMPO: un campo que no se nombre acá no llega al
-    // componente. Los tres de arriba se conservan porque P1 y P2 los leen.
-    // El consumidor distingue DOS ausencias que no son la misma: `contacto`
-    // en null es que el backend no lo mandó —anterior a dc7d63e, o error— y
-    // habilita el fallback; `contacto.nivel` en null es el ESCALÓN 3, y ahí el
-    // campo no se muestra y no se sustituye por nada.
-    contacto: data?.contacto || null,
-    error: null,
-  };
+  const result = mapearRespuestaPuerto(data, nombrePuerto);
 
   cacheSet(cacheKey, result);
   return result;
