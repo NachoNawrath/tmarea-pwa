@@ -1,6 +1,6 @@
 // src/pages/VoyageVerification.jsx
 import React from 'react';
-import { useVoyageVerification, rotularContacto } from '../hooks/useVoyageVerification';
+import { useVoyageVerification, rotularContacto, cierresDeclarados } from '../hooks/useVoyageVerification';
 import { getCapitania } from '../utils/capitanias';
 import PortStatusBlock from '../components/verification/PortStatusBlock';
 import TransitRestrictionsBlock from '../components/verification/TransitRestrictionsBlock';
@@ -165,6 +165,102 @@ const stylesRouteError = {
   },
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// EL AVISO DE CIERRE DE RECALADA — TRAMO B
+//
+// Se arma en una FUNCIÓN PURA, exportada, que no toca React: el control tiene
+// que poder medir la estructura del aviso sin montar el DOM, porque medir el
+// DOM ata el control al maquetado. El JSX de abajo es un renderizador tonto
+// sobre lo que esta función devuelve — no vuelve a decidir nada. Esa es la
+// razón de que exista: si el JSX pudiera decidir, la función mediría una cosa
+// y la pantalla mostraría otra.
+//
+// D-C7 · la compuerta ya está afuera (`arribadaForzosa`) y acá se vuelve a
+// aplicar por `cierresDeclarados`, que filtra por `estado === 'cerrado'`.
+// LA RAMA `sin_cierre_declarado` NO SE ESCRIBE, y no es un olvido: con D-C7
+// vigente es inalcanzable en este componente, y escribirla sería código muerto
+// —exactamente el defecto que ya está redactado para borrar en
+// `PortStatusBlock.jsx:42-65`—. El hecho de restricción que D-C8 nombra en su
+// segunda rama vive en el badge «Con restricciones» de ESE componente, que es
+// pieza P1 y está fuera de alcance.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Los literales, exportados para que el control los importe VERBATIM en vez de
+// transcribirlos. Una transcripción es una copia que se puede desincronizar.
+export const PISO_CIERRE = 'Puerto de recalada cerrado.';
+export const ROTULO_CITA = 'Texto de la Capitanía:';
+
+// B1 · el alcance se rotula en TERCERA PERSONA. Descartada B2 (segunda persona):
+// convierte un estado de puerto en un veredicto por nave, que es lo que
+// `cierre-derivador.js:5-12` dice que no puede hacerse.
+// El vocabulario de `alcance.tipo` es CERRADO en `cierre-derivador.js:455`
+// —'umbral' | 'total' | 'menores_sin_umbral' | 'no_legible'—, así que el
+// `default` no es un cajón de sastre: cubre `no_legible`, donde D-C3 manda no
+// agregar nada, y cualquier valor que el backend no debería poder emitir.
+export function rotularAlcance(alcance) {
+  if (!alcance) return null;
+  switch (alcance.tipo) {
+    case 'umbral':
+      return `Alcanza a las naves menores de ${alcance.umbral} ${alcance.unidad}.`;
+    case 'menores_sin_umbral':
+      return 'Alcanza a las naves menores. El texto no declara tonelaje.';
+    case 'total':
+      return 'Alcanza a todas las naves.';
+    default:
+      return null;
+  }
+}
+
+// LA HUELLA DE PANTALLA — sólo los campos que EFECTIVAMENTE se muestran.
+// SITPORT publica un cierre de bahía UNA VEZ POR INSTALACIÓN PORTUARIA: los 7
+// cierres de BAHÍA CALDERA del 2026-08-17 traen 7 `IDRestriccion` distintos y
+// UN SOLO texto. Medido sobre el sondaje versionado: de 10 respuestas con más
+// de un cierre, LAS 10 traen un único hecho distinto — cero excepciones.
+// Sin esta huella el patrón leería siete veces el mismo aviso, que entierra el
+// hecho en vez de sostenerlo.
+// NO se incluyen `NombreInstalacion` ni `FrenteAtraque`: son lo único que
+// distingue a las copias y §11 decidió que no van a pantalla. Incluirlos acá
+// las volvería "distintas" sin que se vea ninguna diferencia.
+export function huellaDePantalla(c) {
+  return JSON.stringify([
+    c?.alcance?.tipo ?? null,
+    c?.alcance?.umbral ?? null,
+    c?.alcance?.unidad ?? null,
+    c?.texto_original ?? null,
+  ]);
+}
+
+// ACUMULADOR DE SÓLO-EMPUJE, NO TERNARIO.
+// `modo === 'detalle' ? <Detalle/> : <Generico/>` hace desaparecer el piso justo
+// en los casos donde SÍ hay texto. Acá `aviso_modo` se lee en UNA posición donde
+// el piso YA fue empujado: no existe rama que pueda saltarlo. Un `else` no puede
+// aparecer sin borrar la línea del piso, que es un cambio visible en el diff;
+// invertir un ternario no lo es.
+// La ACCIÓN se empuja igual de incondicional: no puede haber un aviso que nombre
+// el cierre y no diga qué hacer.
+export function construirAvisosDeCierre(puerto) {
+  const avisos = [];
+  const vistas = new Set();
+  for (const c of cierresDeclarados(puerto)) {
+    const huella = huellaDePantalla(c);
+    if (vistas.has(huella)) continue;
+    vistas.add(huella);
+
+    const partes = [];
+    partes.push({ clase: 'piso', texto: PISO_CIERRE });                    // INCONDICIONAL
+    if (c.aviso_modo === 'detalle') {
+      partes.push({ clase: 'alcance', texto: rotularAlcance(c.alcance) });
+    }
+    // D-C4 · el texto de la Capitanía sale TAL CUAL. Cero paráfrasis, cero
+    // normalización. El rótulo es atribución, no reescritura: el patrón tiene
+    // que saber que eso lo escribió la Capitanía y no la app.
+    partes.push({ clase: 'cita', rotulo: ROTULO_CITA, texto: c.texto_original });
+    partes.push({ clase: 'accion' });                                      // INCONDICIONAL
+    avisos.push({ id: c.IDRestriccion, huella, partes });
+  }
+  return avisos;
+}
+
 // ── Componente principal ───────────────────────────────────────────────────
 export default function VoyageVerification({ voyageData, onStartVoyage, onBack }) {
   const {
@@ -232,7 +328,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
         />
       )}
 
-      {/* ── Aviso de arribada forzosa — recalada cerrada, zarpe posible ── */}
+      {/* ── Aviso de CIERRE de recalada — zarpe posible (D-C9) ── */}
       {!rutaFallida && arribadaForzosa && (() => {
         const rec = portStatus?.recalada;
         // EL RÓTULO SALE DEL DATO — INV-10.1. El escalón lo resolvió el motor y
@@ -264,30 +360,47 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
           rec?.contacto,
           () => (rec?.ubicacion ? getCapitania(rec.ubicacion.lat, rec.ubicacion.lng)?.nombre : null)
         );
-        return (
-          <div style={styles.arribadaAviso}>
+        // UN BLOQUE POR HECHO DISTINTO. El JSX no decide: recorre lo que la
+        // función pura armó y pinta cada parte por su clase. Si acá hubiera una
+        // condición, el control estaría midiendo una estructura que la pantalla
+        // no respeta.
+        return construirAvisosDeCierre(rec).map((aviso) => (
+          <div key={aviso.id} style={styles.arribadaAviso}>
             <div style={styles.arribadaIcono}>⚠️</div>
             <div>
-              <div style={styles.arribadaTitulo}>Puerto de recalada con restricciones</div>
-              <div style={styles.arribadaCuerpo}>
-                Tu puerto de destino tiene restricciones activas. Podés zarpar, pero podrías
-                necesitar declarar un puerto alternativo o solicitar arribada forzosa.
-              </div>
-              {/* ESCALÓN 3 — no hay a quién nombrar. El aviso de seguridad sale
-                  igual, pero SIN etiqueta de nivel: las dos que existen serían
-                  falsas, y callar el aviso porque no se sabe a quién llamar es peor
-                  que darlo sin nombre. Lo que el escalón 3 prohíbe sustituir es el
-                  CONTACTO, y acá no se sustituye: no se muestra ningún número. */}
-              <div style={styles.arribadaCuerpo}>
-                {rotulo ? (
-                  <>Contactá a <strong>{rotulo}</strong> por VHF Canal 16 antes de recalar.</>
-                ) : (
-                  <>Contactá a la autoridad marítima por VHF Canal 16 antes de recalar.</>
-                )}
-              </div>
+              {aviso.partes.map((parte, i) => {
+                if (parte.clase === 'piso') {
+                  return <div key={i} style={styles.arribadaTitulo}>{parte.texto}</div>;
+                }
+                if (parte.clase === 'alcance') {
+                  return <div key={i} style={styles.arribadaCuerpo}>{parte.texto}</div>;
+                }
+                if (parte.clase === 'cita') {
+                  return (
+                    <div key={i} style={styles.arribadaCuerpo}>
+                      <span style={styles.arribadaCitaRotulo}>{parte.rotulo}</span>{' '}
+                      {parte.texto}
+                    </div>
+                  );
+                }
+                // ESCALÓN 3 — no hay a quién nombrar. El aviso de seguridad sale
+                // igual, pero SIN etiqueta de nivel: las dos que existen serían
+                // falsas, y callar el aviso porque no se sabe a quién llamar es peor
+                // que darlo sin nombre. Lo que el escalón 3 prohíbe sustituir es el
+                // CONTACTO, y acá no se sustituye: no se muestra ningún número.
+                return (
+                  <div key={i} style={styles.arribadaCuerpo}>
+                    {rotulo ? (
+                      <>Contactá a <strong>{rotulo}</strong> por VHF Canal 16 antes de recalar.</>
+                    ) : (
+                      <>Contactá a la autoridad marítima por VHF Canal 16 antes de recalar.</>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-        );
+        ));
       })()}
 
       {/* ── Bloques de detalle ── */}
@@ -563,17 +676,34 @@ const styles = {
     flexShrink: 0,
     paddingTop: 1,
   },
+  // LEGIBILIDAD — VALORES PROVISORIOS, EL PASE DE MARCA LOS REEMPLAZA.
+  // No son una decisión de diseño y no eligen paleta: el manual de marca de
+  // Tmarea ya está elegido y se aplica al final, en un pase propio. Esto sólo
+  // saca al bloque de ser ilegible.
+  // Estos estilos venían escritos para tarjeta OSCURA y quedaron sobre la página
+  // crema (`styles.page`, C.crema). Medido sobre el fondo efectivo del recuadro
+  // —rgba(255,193,7,0.12) compuesto sobre #F1EFE8 = rgb(243,233,205)—:
+  //     antes  título #FFC107 = 1.35:1   ·  cuerpo #ddd = 1.12:1   (invisible)
+  //     ahora  título C.marino = 12.59:1 ·  cuerpo #333 = 10.46:1
+  // El fondo ámbar, el borde y el ícono NO se tocan: el bloque sigue leyéndose
+  // como alerta. `#333` no es un valor inventado — es el que ya usa
+  // `stylesRouteError.texto`, el otro aviso de esta misma pantalla.
   arribadaTitulo: {
     fontWeight: 700,
-    fontSize: 14,
-    color: '#FFC107',
+    fontSize: 15,
+    color: C.marino,
     marginBottom: 6,
   },
   arribadaCuerpo: {
     fontSize: 13,
-    color: '#ddd',
+    color: '#333',
     lineHeight: 1.5,
     marginBottom: 4,
+  },
+  // Atribución de la cita, no reescritura: distingue lo que escribió la
+  // Capitanía de lo que escribe la app. No agrega color nuevo.
+  arribadaCitaRotulo: {
+    fontWeight: 700,
   },
 };
 
