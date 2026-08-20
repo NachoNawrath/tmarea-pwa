@@ -50,7 +50,18 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
   const transitBloqueantes = (transitRestrictions?.restricciones_intermedias || [])
     .filter((r) => r.evaluacion?.bloquea);
   for (const r of transitBloqueantes) {
-    razones.push(`Restricción de tránsito en zona intermedia (${r.nombre_bahia})`);
+    // ESTA ES LA FRASE QUE EL PATRÓN LEE. El `motivo_principal` que manda el
+    // backend llega hasta el hook y no se renderiza en ninguna parte, así que
+    // corregir allá sin corregir acá no cambiaría la pantalla.
+    // «zona intermedia» afirmaba una POSICIÓN y era falsa en los extremos:
+    // medido el 2026-08-20, con AB 10 la pantalla llamaba «zona intermedia» a
+    // Bahía Quellón, que era el puerto de ZARPE. D4 (owner, 2026-08-20): el dato
+    // duplicado se mantiene —el trazado navega esa bahía, y bajo D5 corresponde—
+    // y se corrige la palabra. «en tu ruta» es verdadero en los tres casos.
+    // No se distingue el extremo del tramo del medio a propósito: exigiría
+    // zarpe_id/recalada_id, que hoy no viajan en el cuerpo del POST
+    // (PLAN-2::zarpe-y-recalada-entran-como-transito), y eso es comportamiento.
+    razones.push(`Restricción de tránsito en tu ruta (${r.nombre_bahia})`);
   }
 
   // Restricciones de tránsito con precaución (sin AB cargado o VARIABLE)

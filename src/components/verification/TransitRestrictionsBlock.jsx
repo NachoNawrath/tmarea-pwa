@@ -34,7 +34,15 @@ function RestriccionCard({ r }) {
   let mensajeColor, mensajeTexto;
   if (estado === 'bloquea') {
     mensajeColor = C.coral;
-    mensajeTexto = '⛔ Tu embarcación NO puede transitar';
+    // UN BARCO NAVEGA, NO TRANSITA. Decisión del owner, 2026-08-20, vista en
+    // pantalla: «transitar» es vocabulario de tránsito terrestre y suena a auto.
+    // SE CORRIGE EL VERBO, NO EL SUSTANTIVO. «tránsito» como nombre de la
+    // categoría se queda —es la palabra de la norma: D.L. 2222 Art. 32 habla de
+    // prohibir el TRÁNSITO por aguas jurisdiccionales— y por eso las tres
+    // cadenas de abajo, y el título del bloque, no se tocan.
+    // La app ya se contradecía sola: dos líneas más abajo, el motivo que emite
+    // el BRE dice «tu embarcación (AB 10) no puede navegar». Medido en pantalla.
+    mensajeTexto = '⛔ Tu embarcación NO puede navegar en esta zona';
   } else if (esInformativa) {
     mensajeColor = '#546e7a';
     mensajeTexto = '⚠ Restricción activa en zona de tránsito';
@@ -47,7 +55,10 @@ function RestriccionCard({ r }) {
   let motivoTexto = null;
   let motivoColor = '#8a6d00';
   if (esInformativa) {
-    motivoTexto = ev.motivo || 'No afecta a tu embarcación, pero se recomienda precaución al transitar.';
+    // Mismo verbo, misma decisión del owner. Este es el fallback: sólo sale
+    // cuando el BRE no manda motivo, así que en pantalla se ve poco — y por eso
+    // mismo se corrige ahora, que es cuando alguien lo está mirando.
+    motivoTexto = ev.motivo || 'No afecta a tu embarcación, pero se recomienda precaución al navegar.';
     motivoColor = '#546e7a';
   } else if (ev.motivo) {
     motivoTexto = ev.motivo;
@@ -55,7 +66,11 @@ function RestriccionCard({ r }) {
   } else if (estado === 'sin_ab') {
     motivoTexto = '⚠️ Carga tu AB en el perfil para verificar si esta restricción te aplica';
   } else if (estado === 'indeterminado') {
-    motivoTexto = '⚠️ Confirma con la Capitanía si esta restricción afecta tu tránsito';
+    // LA BORDERLINE, resuelta por el owner el 2026-08-20: «tu tránsito» lleva
+    // posesivo, y eso la pone del lado del VERBO —es lo que hace el patrón, no
+    // el nombre de la categoría—. Pasa a «tu navegación». Las otras cadenas con
+    // el sustantivo se quedan.
+    motivoTexto = '⚠️ Confirma con la Capitanía si esta restricción afecta tu navegación';
   }
 
   // Teléfono: usar datos del backend directamente
@@ -137,7 +152,31 @@ export default function TransitRestrictionsBlock({ transitRestrictions }) {
     <div style={styles.block}>
       <div style={styles.blockHeader}>
         <span style={styles.blockIcon}>⚠️</span>
-        <span style={styles.blockTitle}>Restricciones en tránsito</span>
+        {/*
+          EL RÓTULO DE LA SECCIÓN — cambiado por el owner el 2026-08-20.
+          «RESTRICCIONES EN TRÁNSITO» -> «RESTRICCIONES DURANTE LA NAVEGACIÓN».
+
+          El agente había recomendado MANTENERLO, con dos argumentos, y los dos
+          quedan escritos acá junto con su descarte porque no eran malos:
+            (a) «tránsito» es la palabra de la norma — el D.L. 2222 Art. 32, que
+                §10 del contrato cita, habla de prohibir el TRÁNSITO por aguas
+                jurisdiccionales;
+            (b) en español marítimo «tránsito de naves» significa TRÁFICO, y ése
+                es el uso correcto del sustantivo.
+          EL OWNER LOS DESCARTA, y el motivo es de producto: esto es el TÍTULO DE
+          UNA SECCIÓN DE LA APP, no una cita normativa. El patrón que lo lee no
+          está leyendo el decreto, y el rótulo tiene que decirle CUÁNDO aplican
+          estas restricciones — que es exactamente lo que las separa del bloque
+          de arriba.
+
+          Y se descartó «Restricciones de puerto durante la navegación» POR
+          PANTALLA: justo encima está «Condición de puertos», y repetir «puerto»
+          acerca dos bloques que responden preguntas distintas.
+
+          SÓLO EL RÓTULO. El nombre del componente, las claves de la API y
+          `restricciones_intermedias` NO se tocan: renombrarlos es refactor.
+        */}
+        <span style={styles.blockTitle}>Restricciones durante la navegación</span>
       </div>
 
       <p style={styles.intro}>{introTexto}</p>
