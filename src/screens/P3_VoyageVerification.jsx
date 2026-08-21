@@ -5,6 +5,7 @@ import { getCapitania } from '../utils/capitanias';
 import PortStatusBlock from '../components/verification/PortStatusBlock';
 import TransitRestrictionsBlock from '../components/verification/TransitRestrictionsBlock';
 import DriftCatalogoBlock from '../components/verification/DriftCatalogoBlock';
+import CoberturaJurisdiccionalBlock from '../components/verification/CoberturaJurisdiccionalBlock';
 import WeatherBlock from '../components/verification/WeatherBlock';
 import TideBlock from '../components/verification/TideBlock';
 import NavigationBlock from '../components/verification/NavigationBlock';
@@ -417,6 +418,11 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
             <DriftCatalogoBlock
               drifts={[transitRestrictions?.drift_catalogo, weather?.drift_catalogo]}
             />
+            {/* U2 capa B — INV-3.6. SITIO A (owner, 2026-08-21): al lado de su
+                hermano y después de él, para que nada existente se corra de
+                sitio. Es de la misma clase que A3 —un "no sabemos"— y por eso
+                comparte su regla: propio bloque, y detrás de las restricciones. */}
+            <CoberturaJurisdiccionalBlock transitRestrictions={transitRestrictions} />
             <WeatherBlock weather={weather} ruta={voyageData} />
             <TideBlock tide={tide} />
             <NavigationBlock navigation={navigation} voyageData={voyageData} />

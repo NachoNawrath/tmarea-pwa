@@ -1,6 +1,7 @@
 // src/components/verification/VoyageVerdict.jsx
 import React from 'react';
 import { LicenseAlert } from '../DeportiveAlerts.jsx';
+import { avisosDeCobertura } from '../../hooks/useVoyageVerification.js';
 
 const C = {
   marino:    '#0A2647',
@@ -99,6 +100,29 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
 
   if (portStatus?.zarpe?.dato_viejo || portStatus?.recalada?.dato_viejo) {
     razones.push('Dato SITPORT desactualizado — verificar con Capitanía');
+  }
+
+  // U2 capa B, D5 (decisión del owner, 2026-08-21). La cobertura escalaba la
+  // bandera a U y la tarjeta quedaba MUDA — firma O1 del 2026-08-20, y era la
+  // ventana que esta pieza cierra. Medido: sobre Antofagasta → Taltal `razones`
+  // salía vacío, así que el patrón leía ámbar, después dos puertos en verde, y
+  // recién después el motivo.
+  //
+  // ESTA LÍNEA NOMBRA EL HECHO Y NADA MÁS: sin cita normativa, sin teléfono y sin
+  // instrucción. Eso vive en el bloque, que es lo que S3(b) pide. Un "no sabemos"
+  // puede ser razón del veredicto sin volverse restricción, y el precedente está
+  // dos líneas más arriba: 'Dato SITPORT desactualizado'.
+  //
+  // ASIMETRÍA ACEPTADA Y DECLARADA (owner, 2026-08-21): `drift_catalogo` escala
+  // igual y NO pone línea. No se toca acá (§4.8); va como línea en la bitácora.
+  const cobertura = avisosDeCobertura(transitRestrictions);
+  if (cobertura?.estado === 'no_evaluada') {
+    razones.push('No pudimos comprobar la cobertura jurisdiccional de la ruta');
+  }
+  for (const a of cobertura?.avisos || []) {
+    razones.push(
+      `Tramo de la ruta sin límite de jurisdicción cargado${a.largo ? ` (${a.largo})` : ''}`
+    );
   }
 
   const depVeredicto = transitRestrictions?.veredicto_deportivo;

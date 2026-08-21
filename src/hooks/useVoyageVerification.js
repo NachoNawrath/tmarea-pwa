@@ -256,15 +256,78 @@ export function escalarPorDrift(transitRestrictions, weather) {
 // puede leer como "no hay nada que avisar" (INV-0.2), que es justo el falso
 // negativo silencioso que INV-3.6 persigue.
 //
-// LO QUE ESTA FUNCIÓN NO HACE, y hay que saberlo: la bandera escala y el patrón
-// NO puede leer por qué. El bloque que muestra el aviso —con su Capa 1, su Capa
-// 2 y el teléfono sacado del array `capitanias`, nunca del texto (INV-10.1)— es
-// pieza aparte y decisión de producto pendiente: dónde va en P3.
+// LO QUE ESTA FUNCIÓN NO HACE: escala la bandera y no dice por qué. El porqué lo
+// pone la capa B —`avisosDeCobertura` acá abajo y `CoberturaJurisdiccionalBlock`
+// en P3—, que entró el 2026-08-21 con el sitio y el texto firmados por el owner.
+// [CORREGIDO EL 2026-08-21] Este párrafo decía «pieza aparte y decisión de
+// producto pendiente: dónde va en P3». Lo volvió falso esta misma pieza, así que
+// traza a lo que se pidió y se corrige en el mismo acto (§4.8, §0.1).
 export function escalarPorCobertura(transitRestrictions) {
   const c = transitRestrictions?.cobertura_jurisdiccional;
   if (!c) return 'Q';
   const bandera = c.estado === 'no_evaluada' ? 'U' : c.bandera;
   return bandera === 'U' || bandera === 'UV' ? 'U' : 'Q';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LO QUE EL BLOQUE DE COBERTURA MUESTRA — U2 CAPA B, INV-3.6
+//
+// VIVE ACÁ Y NO DENTRO DEL COMPONENTE por el mismo motivo por el que
+// `mapearRespuestaPuerto` salió de dentro de `fetchPortStatus`: para que un
+// instrumento pueda medirlo sin red y sin React. La PWA no tiene runner, así que
+// el rojo de §4.6 se corre sobre esta función desde el scratchpad de sesión.
+//
+// NO COMPONE TEXTO, Y ESO ES EL DISEÑO. `capa_1` y `capa_2` llegan ya compuestas
+// del backend, que las transcribe de §10 de CONTRATO_MOTOR.md y las coteja contra
+// el contrato en cada `npm test`. Escribir texto acá le daría DOS fuentes a un
+// texto que tiene una — que es lo que `DriftCatalogoBlock` hace hoy, y no se copia.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// El largo va ENTERO y con «unos» (decisión del owner, 2026-08-21): el dato sale
+// de la discretización de la ruta, no de una medición del límite, y un decimal
+// promete una precisión que no tiene. Y no caduca: 24,6449 y 24,6646 —los dos
+// valores medidos del mismo tramo el 2026-08-21— dan los dos 25.
+export function textoDeLargo(largoKm) {
+  if (!Number.isFinite(largoKm) || largoKm <= 0) return null;
+  const km = Math.round(largoKm);
+  return km === 0 ? 'menos de 1 km' : `unos ${km} km`;
+}
+
+// EL CONTACTO SE MUESTRA CON LA MISMA CONDICIÓN CON LA QUE EL BACKEND ELIGIÓ EL
+// TEXTO, y no es una decisión de este lado: `cobertura-jurisdiccional.js` usa
+// `capitanias.length === 1` para elegir entre `capa_2_con_capitania` y
+// `capa_2_sin_capitania`. Si el bloque mostrara teléfonos cuando el texto deriva
+// al genérico, la tarjeta diría dos cosas distintas sobre a quién llamar.
+//
+// EL RÓTULO SALE DE `tipo`, nunca de un literal de acá. Es lo que hace que
+// INV-10.1 se cumpla en su propósito —no rotular como Capitanía un número que es
+// de la Gobernación— y no sólo en su letra. `etiquetaDeNivel` devuelve null en el
+// tercer escalón, y ahí el campo no se muestra ni se sustituye por nada.
+function contactoDelAviso(aviso) {
+  const cs = aviso.capitanias || [];
+  if (cs.length !== 1) return null;
+  const etiqueta = etiquetaDeNivel(cs[0].tipo);
+  if (!etiqueta || !cs[0].nombre) return null;
+  return { etiqueta, nombre: cs[0].nombre, telefono: cs[0].telefono || null };
+}
+
+export function avisosDeCobertura(transitRestrictions) {
+  const c = transitRestrictions?.cobertura_jurisdiccional;
+  if (!c) return null;
+  // Un fallo de evaluación NO se muestra como "no hay nada": es la misma regla con
+  // la que `escalarPorCobertura` lo cuenta como U (INV-0.2). Sin esta rama la
+  // bandera subiría a U sin nada debajo, que es el defecto que la capa B cierra.
+  if (c.estado === 'no_evaluada') {
+    return { estado: 'no_evaluada', motivo: c.motivo || null, avisos: [] };
+  }
+  const avisos = (c.avisos || []).map((a) => ({
+    orden: a.orden_en_ruta,
+    capa_1: a.capa_1,
+    capa_2: a.capa_2,
+    largo: textoDeLargo(a.largo_km),
+    contacto: contactoDelAviso(a),
+  }));
+  return avisos.length > 0 ? { estado: 'evaluada', motivo: null, avisos } : null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
