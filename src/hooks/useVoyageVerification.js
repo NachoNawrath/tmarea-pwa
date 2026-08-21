@@ -216,9 +216,10 @@ export function calcularVeredicto({ portStatus, weather, navigation, transitRest
 
   const veredictoTransito = escalarPorTransito(transitRestrictions) ?? 'Q';
   const veredictoDrift = escalarPorDrift(transitRestrictions, weather);
+  const veredictoCobertura = escalarPorCobertura(transitRestrictions);
 
   return {
-    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito, veredictoDrift),
+    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito, veredictoDrift, veredictoCobertura),
     arribadaForzosa,
     detalles: {
       zarpe: veredictoZarpe,
@@ -227,6 +228,7 @@ export function calcularVeredicto({ portStatus, weather, navigation, transitRest
       clima: veredictoClima,
       transito: veredictoTransito,
       drift_catalogo: veredictoDrift,
+      cobertura_jurisdiccional: veredictoCobertura,
     },
   };
 }
@@ -241,6 +243,28 @@ export function escalarPorDrift(transitRestrictions, weather) {
     .filter(Boolean)
     .map(d => (d.estado === 'no_evaluado' ? 'U' : d.bandera));
   return banderas.some(b => b === 'U' || b === 'UV') ? 'U' : 'Q';
+}
+
+// INV-3.6. La ruta cruza una jurisdicción sin límite cargado: el motor no puede
+// responder por esa zona. Escala a **U y nunca a UV** — la ausencia de dato no
+// es una prohibición, y dejarlo en Q sería afirmar una condición que el motor no
+// puede respaldar. CALCADO de `escalarPorDrift`, incluido el motivo por el que
+// el tope se vuelve a poner acá: el backend ya topa su bandera, y este segundo
+// tope existe para que no dependa de que la respuesta venga bien formada.
+//
+// `no_evaluada` cuenta como U, igual que en drift: un fallo de evaluación no se
+// puede leer como "no hay nada que avisar" (INV-0.2), que es justo el falso
+// negativo silencioso que INV-3.6 persigue.
+//
+// LO QUE ESTA FUNCIÓN NO HACE, y hay que saberlo: la bandera escala y el patrón
+// NO puede leer por qué. El bloque que muestra el aviso —con su Capa 1, su Capa
+// 2 y el teléfono sacado del array `capitanias`, nunca del texto (INV-10.1)— es
+// pieza aparte y decisión de producto pendiente: dónde va en P3.
+export function escalarPorCobertura(transitRestrictions) {
+  const c = transitRestrictions?.cobertura_jurisdiccional;
+  if (!c) return 'Q';
+  const bandera = c.estado === 'no_evaluada' ? 'U' : c.bandera;
+  return bandera === 'U' || bandera === 'UV' ? 'U' : 'Q';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -449,6 +473,13 @@ async function fetchTransitRestrictions(ruta_puntos, nave_ab, signal, { perfil_d
     // A3. Se pasa tal cual viene: el campo trae su propio `estado`, y perderlo
     // haría que un fallo de evaluación se leyera como "no hay nada que avisar".
     drift_catalogo: data.drift_catalogo || null,
+    // INV-3.6. CUARTA vez que este pasamanos deja morir un campo del backend, y
+    // la tercera que hay que venir a nombrarlo a mano: antes fueron `cierre` y
+    // `drift_catalogo`. Se pasa tal cual viene, con su `estado`, por el mismo
+    // motivo que el de arriba. Medido el 2026-08-20: el backend mandó bandera U
+    // con 1 aviso de 24,6646 km sobre Antofagasta -> Taltal y la pantalla dijo
+    // «BANDERA Q — Zarpe autorizado».
+    cobertura_jurisdiccional: data.cobertura_jurisdiccional || null,
   };
   cacheSet(cacheKey, result);
   return result;
