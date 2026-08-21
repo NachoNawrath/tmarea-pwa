@@ -391,9 +391,9 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
                 return (
                   <div key={i} style={styles.arribadaCuerpo}>
                     {rotulo ? (
-                      <>Contactá a <strong>{rotulo}</strong> por VHF Canal 16 antes de recalar.</>
+                      <>Contacte a <strong>{rotulo}</strong> por VHF Canal 16 antes de recalar.</>
                     ) : (
-                      <>Contactá a la autoridad marítima por VHF Canal 16 antes de recalar.</>
+                      <>Contacte a la autoridad marítima por VHF Canal 16 antes de recalar.</>
                     )}
                   </div>
                 );

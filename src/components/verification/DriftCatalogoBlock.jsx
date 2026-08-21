@@ -47,7 +47,7 @@ function AvisoCard({ a }) {
       </p>
       <p style={styles.cuerpo}>
         Esto <strong>no significa que exista una restricción, ni que no exista</strong>:
-        significa que el motor no puede responder por ese dato. Consultá con la
+        significa que el motor no puede responder por ese dato. Consulte con la
         Autoridad Marítima antes de zarpar, o por VHF Canal 16.
       </p>
       <p style={styles.sinCita}>
@@ -75,7 +75,7 @@ export default function DriftCatalogoBlock({ drifts = [] }) {
           <p style={styles.titulo}>No pudimos verificar si quedó algún dato sin leer</p>
           <p style={styles.cuerpo}>
             La comprobación no se pudo completar
-            {noEvaluado.motivo ? ` (${noEvaluado.motivo})` : ''}. Consultá con la
+            {noEvaluado.motivo ? ` (${noEvaluado.motivo})` : ''}. Consulte con la
             Autoridad Marítima antes de zarpar.
           </p>
           <p style={styles.sinCita}>
