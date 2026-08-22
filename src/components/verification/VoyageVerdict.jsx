@@ -1,7 +1,7 @@
 // src/components/verification/VoyageVerdict.jsx
 import React from 'react';
 import { LicenseAlert } from '../DeportiveAlerts.jsx';
-import { avisosDeCobertura } from '../../hooks/useVoyageVerification.js';
+import { avisosDeCobertura, advertenciasDeSonda } from '../../hooks/useVoyageVerification.js';
 
 const C = {
   marino:    '#0A2647',
@@ -42,7 +42,7 @@ const VEREDICTO_CONFIG = {
   },
 };
 
-export default function VoyageVerdict({ veredicto, portStatus, weather, navigation, transitRestrictions }) {
+export default function VoyageVerdict({ veredicto, portStatus, weather, navigation, transitRestrictions, ruta }) {
   const cfg = VEREDICTO_CONFIG[veredicto] || VEREDICTO_CONFIG.U;
 
   const razones = [];
@@ -123,6 +123,29 @@ export default function VoyageVerdict({ veredicto, portStatus, weather, navigati
     razones.push(
       `Tramo de la ruta sin límite de jurisdicción cargado${a.largo ? ` (${a.largo})` : ''}`
     );
+  }
+
+  // SONDA DEL DERROTERO — Paso 1 de la agenda de la marea (owner, 2026-08-21).
+  // NOMBRA EL HECHO Y NADA MÁS: sin cita, sin página y sin instrucción. Eso vive
+  // en el bloque, que en P3 va justo encima de esta tarjeta. Mismo reparto que la
+  // cobertura, y el precedente de forma está cuatro líneas arriba.
+  //
+  // SIN PERSONA, A PROPÓSITO. El texto del backend está en «usted» y estas
+  // `razones` están en «tú»; las dos quedan en la misma pantalla. Se calca la
+  // salida de la cobertura —«Tramo de la ruta sin límite de jurisdicción
+  // cargado»—, que no usa ninguna de las dos. Firma del owner: no se le agrega
+  // una instancia por una línea a la fila del tuteo
+  // (SESION-voseo-al-patron-2026-08-20::tuteo-al-patron-dentro-del-contrato-y-fuera-del-10),
+  // y alinear el registro de toda la pantalla es otra pieza.
+  //
+  // El canal sale de `a.canal`, que el backend manda como DATO. No se lo saca del
+  // texto: eso volvería a atar esta línea a la ortografía de una frase viva.
+  //
+  // [N3-b, owner 2026-08-21] Decía «Sonda documentada bajo el calado en {canal}»,
+  // que seguía en registro técnico. Repite ahora el encabezado del bloque para que
+  // el patrón conecte esta línea con la tarjeta de abajo.
+  for (const a of advertenciasDeSonda(ruta)) {
+    razones.push(`Poca agua documentada${a.canal ? ` en ${a.canal}` : ''}`);
   }
 
   const depVeredicto = transitRestrictions?.veredicto_deportivo;

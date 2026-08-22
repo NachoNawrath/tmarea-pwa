@@ -180,7 +180,17 @@ export function hayCierreDeclarado(puerto) {
   return cierresDeclarados(puerto).length > 0;
 }
 
-export function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions }) {
+// `ruta` ENTRA COMO PARÁMETRO EL 2026-08-21, y es la primera fuente nueva desde
+// la cobertura jurisdiccional. Firma del owner: la advertencia de sonda entra al
+// veredicto topada en U. Dibujarla sin escalar habría puesto «🟩 Zarpe autorizado
+// · Condiciones favorables para navegar» tres centímetros encima de «su calado
+// más margen no pasa», que es exactamente lo que S6 prohíbe — fabricar un caso
+// nuevo de S6(b) en vez de arreglar nada.
+//
+// OJO CON EL ANCLAJE DE S6(a): sigue en pie para la MAREA. `tide` no es parámetro
+// de esta función y por eso la lista de fuentes sigue incompleta; lo que ya no se
+// puede decir es que le falte la sonda.
+export function calcularVeredicto({ portStatus, weather, navigation, transitRestrictions, ruta }) {
   const veredictoZarpe =
     portStatus?.zarpe?.estado === 'rojo' ? 'UV' :
     (portStatus?.zarpe?.estado === 'ambar' || portStatus?.zarpe?.dato_viejo) ? 'U' : 'Q';
@@ -217,9 +227,10 @@ export function calcularVeredicto({ portStatus, weather, navigation, transitRest
   const veredictoTransito = escalarPorTransito(transitRestrictions) ?? 'Q';
   const veredictoDrift = escalarPorDrift(transitRestrictions, weather);
   const veredictoCobertura = escalarPorCobertura(transitRestrictions);
+  const veredictoSonda = escalarPorSonda(ruta);
 
   return {
-    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito, veredictoDrift, veredictoCobertura),
+    veredicto: maxVeredicto(veredictoZarpe, veredictoRecalada, veredictoClima, veredictoTransito, veredictoDrift, veredictoCobertura, veredictoSonda),
     arribadaForzosa,
     detalles: {
       zarpe: veredictoZarpe,
@@ -229,6 +240,7 @@ export function calcularVeredicto({ portStatus, weather, navigation, transitRest
       transito: veredictoTransito,
       drift_catalogo: veredictoDrift,
       cobertura_jurisdiccional: veredictoCobertura,
+      sonda: veredictoSonda,
     },
   };
 }
@@ -267,6 +279,45 @@ export function escalarPorCobertura(transitRestrictions) {
   if (!c) return 'Q';
   const bandera = c.estado === 'no_evaluada' ? 'U' : c.bandera;
   return bandera === 'U' || bandera === 'UV' ? 'U' : 'Q';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LA ADVERTENCIA DE SONDA DEL DERROTERO — PASO 1 DE LA AGENDA DE LA MAREA
+//
+// El backend compone el texto cuando la ruta cruza un canal donde el Derrotero
+// SHOA documenta MENOS sonda que el calado de la nave más su margen de resguardo.
+// Hasta esta pieza `advertencias` tenía CERO lectores en toda la PWA: era una
+// advertencia de seguridad física que la app calculaba y tiraba.
+//
+// SE SELECCIONA POR CLASE, NUNCA POR UNA FRASE DEL TEXTO. `advertencias` mezcla
+// cuatro clases —descargos de base, sonda, peligros de canal y un diagnóstico
+// interno del motor que nombra un algoritmo—. Filtrar por una cadena suya sería
+// una guarda anclada en la ortografía de un texto vivo: caduca EN VERDE Y EN
+// SILENCIO el día que alguien reescriba la frase (§4.9 de CLAUDE.md, y este árbol
+// ya lo pagó dos veces). La clase es un identificador; el texto puede reescribirse
+// entero sin moverla, y renombrarla pone rojo `sonda-al-patron.test.js`.
+//
+// NO COMPONE TEXTO — misma regla que `avisosDeCobertura`. La cadena llega ya
+// escrita del backend, en segunda persona, con la página del Derrotero, el margen
+// calculado y la salvedad de que la posición del dato es aproximada. Redactarla de
+// nuevo acá le daría dos fuentes a un texto que tiene una.
+// ─────────────────────────────────────────────────────────────────────────────
+export const CLASE_SONDA = 'cotejo_vertical';
+
+export function advertenciasDeSonda(ruta) {
+  if (!ruta?.ok || !Array.isArray(ruta.advertencias)) return [];
+  return ruta.advertencias.filter((a) => a && a.clase === CLASE_SONDA);
+}
+
+// Escala a **U y nunca a UV**, y el tope no se decide acá: está argumentado en la
+// cabecera de `cotejo-vertical.js` del backend, que eligió advertencia y no
+// bloqueo porque la posición del dato no está confirmada. Una fuente que declara
+// su propia posición aproximada no puede cerrar un puerto. CALCADO de
+// `escalarPorCobertura`, incluido el motivo del segundo tope.
+export const BANDERA_SONDA = 'U';
+
+export function escalarPorSonda(ruta) {
+  return advertenciasDeSonda(ruta).length > 0 ? BANDERA_SONDA : 'Q';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -585,7 +636,21 @@ async function fetchTide(lat, lng, datetimeISO, signal) {
 // Sin caché: el resultado depende de coordenadas exactas y calado; es rápido
 // cuando el snap falla (no hay A*) y la verificación debe ser fresca.
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchRuta(origen, destino, licencia, signal) {
+// EL CALADO CRUZA EL BORDE, Y SIN ÉL ESTA PANTALLA NO PUEDE PEDIR LA ADVERTENCIA
+// DE SONDA. Hasta esta pieza el body no lo llevaba, así que el backend caía a su
+// default de 1,5 m (`routes-routes.js`), que exige 2,0 m de sonda — y los tres
+// pasos que el motor sabe ubicar documentan 5, 9,5 y 11 m. Medido el 2026-08-21:
+// el cotejo vertical devolvía el array vacío para TODA ruta de P3, de toda nave,
+// siempre. Dibujar el bloque sin mandar el calado habría dejado un control en
+// verde afirmando que la advertencia llega.
+//
+// Sale de `voyageData.vessel`, que es el `vessel_profile` de P1 (campo
+// OBLIGATORIO, validado 0,1–20 m) — no se lee `localStorage` acá: el dato ya
+// viajó hasta este hook. Si falta —perfil viejo, guardado antes de que el campo
+// existiera— no se manda y el backend aplica su default, con el que el cotejo no
+// dispara. Eso NO es un camino degradado inventado acá (§4.7): es el contrato
+// que el endpoint ya tiene.
+async function fetchRuta(origen, destino, licencia, calado_m, signal) {
   if (!origen?.lat || !origen?.lng || !destino?.lat || !destino?.lng) {
     return { ok: false, error_code: 'SNAP_FAILED', error: 'Coordenadas de origen o destino no disponibles' };
   }
@@ -594,6 +659,7 @@ async function fetchRuta(origen, destino, licencia, signal) {
     lon_origen: origen.lng,
     lat_destino: destino.lat,
     lon_destino: destino.lng,
+    ...(calado_m ? { calado_m } : {}),
     licencia: licencia || 'PNM',
   };
   const { ok, data, error } = await safeFetch(
@@ -979,7 +1045,8 @@ export function useVoyageVerification(voyageData) {
           return Promise.resolve({ ok: false, error_code: 'SNAP_FAILED', error: 'Sin coordenadas de destino' });
         }
         const licencia = normalizeLicense(voyageData?.vessel?.licenseType) || 'PNM';
-        return fetchRuta(rutaOrigen, rutaDestino, licencia, signal);
+        const calado_m = parseFloat(voyageData?.vessel?.calado_m) || undefined;
+        return fetchRuta(rutaOrigen, rutaDestino, licencia, calado_m, signal);
       })();
 
       // Promise.allSettled → ningún fallo individual rompe todo el proceso
@@ -1116,6 +1183,7 @@ export function useVoyageVerification(voyageData) {
         weather: weatherData,
         navigation: navData,
         transitRestrictions,
+        ruta,
       });
 
       safeSetState(() => ({

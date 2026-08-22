@@ -6,6 +6,7 @@ import PortStatusBlock from '../components/verification/PortStatusBlock';
 import TransitRestrictionsBlock from '../components/verification/TransitRestrictionsBlock';
 import DriftCatalogoBlock from '../components/verification/DriftCatalogoBlock';
 import CoberturaJurisdiccionalBlock from '../components/verification/CoberturaJurisdiccionalBlock';
+import SondaDerroteroBlock from '../components/verification/SondaDerroteroBlock';
 import WeatherBlock from '../components/verification/WeatherBlock';
 import TideBlock from '../components/verification/TideBlock';
 import NavigationBlock from '../components/verification/NavigationBlock';
@@ -326,6 +327,7 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
           weather={weather}
           navigation={navigation}
           transitRestrictions={transitRestrictions}
+          ruta={ruta}
         />
       )}
 
@@ -425,6 +427,14 @@ export default function VoyageVerification({ voyageData, onStartVoyage, onBack }
             <CoberturaJurisdiccionalBlock transitRestrictions={transitRestrictions} />
             <WeatherBlock weather={weather} ruta={voyageData} />
             <TideBlock tide={tide} />
+            {/* Sonda del Derrotero — DEBAJO de mareas y ARRIBA de ETA (owner,
+                2026-08-21, corrigiendo su firma anterior de ponerlo arriba del
+                todo). El criterio es de decisión y no de tema: la marea define la
+                hora de zarpe, la sonda es la condición del fondo, y las dos van
+                antes del consumo. Queda pegado a mareas porque son las dos mitades
+                del agua bajo la quilla — y NO se fusiona con él: sin datum las dos
+                cifras no se pueden sumar. */}
+            <SondaDerroteroBlock ruta={ruta} />
             <NavigationBlock navigation={navigation} voyageData={voyageData} />
             <NormativeBlock reminders={normative} licenseType={vessel?.licenseType} />
           </>

@@ -434,9 +434,10 @@ const makeMarker = (lon, lat, label, bg) => {
 if (origenDestino) {
   const { latOrigen, lonOrigen, latDestino, lonDestino } = origenDestino;
 
-  // calado_m: vessel_profile de localStorage (P1.1). OJO: el campo
-  // calado_m no existe hoy en el formulario de P1 -- si falta (undefined),
-  // no se manda en el body y el backend aplica su default (1.5 m).
+  // calado_m: vessel_profile de localStorage (P1.1), campo OBLIGATORIO del
+  // formulario de P1 (validado 0,1-20 m). Si falta -- perfil viejo, guardado
+  // antes de que el campo existiera -- no se manda y el backend aplica su
+  // default de 1,5 m, con el que el cotejo vertical NO dispara nunca.
   // licencia: user_profile.licenseType normalizado a los codigos que
   // espera el backend (PDB/CDC/CDAM); las licencias comerciales y
   // cualquier valor no reconocido caen a 'PNM' (perfiles-costo.js las
